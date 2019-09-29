@@ -1,5 +1,4 @@
 # UNISim-tool
-===
 A Unified Simulation tool for the Rudjer Boskovic Institute nuclear clustering group.
 
 Contributors: Daniele Dell'Aquila
