@@ -94,25 +94,31 @@ The available physics models are:
 * SequentialDecay : used to simulate reactions with the sequential decay of one or more excited nuclei
 Additional physics models will be implemented in the near future.
 Following, a detailed explanation of each available physics model:
-* SequentialDecay : This model can simulate sequential reaction where, one or more of the products of the reaction can decay in additional decay products. One of the additional decay product can decay in other decay products and so on. The novelty of this model is that it can simulate ad arbitrary number of steps with an arbitrary number of particles and excited nuclei, each of those with an arbitrary decay pattern and an arbitrary spectroscopy.
-Usage example:
-9Li + 9Be -> 16C* + d -> 6He + 10Be + d
-We first set the particles of the primary collision: 16C* and d
+* SequentialDecay : This model can simulate sequential reaction where, one or more of the products of the reaction can decay in additional decay products. One of the additional decay product can decay in other decay products and so on. The novelty of this model is that it can simulate ad arbitrary number of steps with an arbitrary number of particles and excited nuclei, each of those with an arbitrary decay pattern and an arbitrary spectroscopy.   
+Usage example:  
+9Li + 9Be -> 16C* + d -> 6He + 10Be + d  
+We first set the particles of the primary collision: 16C* and d  
+````
 define particle 0 -Z=6 -A=16 : 16C excited defined as particle "0". This will decay according to the decay scheme below
 define particle 1 -Z=1 -A=2 : light recoil
-In this case 16C is excited. We define the spectroscopy of 16C
+````
+In this case 16C is excited. We define the spectroscopy of 16C  
+````
 set spectroscopy 0 -Ex=21 -Gamma=0.150
 set spectroscopy 0 -Ex=28 -Gamma=0.300
-In this case I have 2 excited states one at 21 MeV and one at 28 MeV with Gamma = 150 keV and 300 keV respectively.
-If the nucleus decays I need also to define a decay pattern (in this case 6He+10Be):
+````
+In this case I have 2 excited states one at 21 MeV and one at 28 MeV with Gamma = 150 keV and 300 keV respectively.  
+If the nucleus decays I need also to define a decay pattern (in this case 6He+10Be):  
+````
 set decay 0 0 -Z=2 -A=6 *** particle 0 of the decay of the fragment 0
 set decay 0 1 -Z=4 -A=10 *** particle 1 of the decay of the fragment 0
-In this way I have defined the particles 0_0 and 0_1. The exercise can continue in the same way by setting a spectroscopy to those particles and a decay pattern and so on. In a more general case one can have the following reaction:
-P=Projectile
-T=Target
-x1,x2,...,xn = light ejectiles of the primary reaction
-X* heavy residual excited that decays into Y* + y1 + ... + ym
-P+T -> X* + x1 + x2 + ... + xn -> Y* + y1 + ... +ym + x1 + ... + xn
+````
+In this way I have defined the particles 0_0 and 0_1. The exercise can continue in the same way by setting a spectroscopy to those particles and a decay pattern and so on. In a more general case one can have the following reaction:  
+P=Projectile  
+T=Target  
+x1,x2,...,xn = light ejectiles of the primary reaction  
+X* heavy residual excited that decays into Y* + y1 + ... + ym  
+P+T -> X* + x1 + x2 + ... + xn -> Y* + y1 + ... +ym + x1 + ... + xn  
 Equivalently, Y* can decay into other products and so on... For each step of the reaction, one might have even more than 1 product decaying, e.g. X1*, ..., Xl* in the first step of the reaction and a number of Yi* in the second and so on.
 ### Detectors
 
