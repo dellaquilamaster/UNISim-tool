@@ -126,7 +126,7 @@ In the framework of UNISim-tool, the user can define an arbitrary number of dete
 * LAMP_WEDGE (Lamp detector wedge) -> options: -distance (distance from the inner part of the wedge to the target) -phi_pos (azimuthal position in degrees), -tilt (with respect to the orizontal axis), -frame_distance (distance from the bottom of the frame to the beam axis), -strips (number of strips), -strip_width (width of one strip in cm), -inter_strip (width of the interstrip in cm)
 ### Output Data
 Output data is stored in a tree called as the experimental setup. The folder where the tree is stored is configured in the config file by setting OUTPUT_DIRECTORY in the configuration file (see section "Configure the Program").  
-The structure of the output tree is constituted by an individual branch containing the data stucture UNISRootEvent. This is composed by a number of sub-branches listed below:
+The structure of the output tree is constituted by an individual branch containing the data stucture UNISRootEvent. This is composed by a number of sub-branches listed below:  
 **_UNISRootEvent_**  
 |&nbsp;&nbsp;&nbsp;+ int fmulti  
 |&nbsp;&nbsp;&nbsp;+ bool fIsDetected\[fmulti\]  
