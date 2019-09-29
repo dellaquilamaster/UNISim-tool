@@ -91,10 +91,10 @@ The program includes a number of already implemented physics models. The user ca
 reactions/
 ````
 The available physics models are:
-* SequentialDecay : used to simulate reactions with the sequential decay of one or more excited nuclei
-Additional physics models will be implemented in the near future.
-Following, a detailed explanation of each available physics model:
-* SequentialDecay : This model can simulate sequential reaction where, one or more of the products of the reaction can decay in additional decay products. One of the additional decay product can decay in other decay products and so on. The novelty of this model is that it can simulate ad arbitrary number of steps with an arbitrary number of particles and excited nuclei, each of those with an arbitrary decay pattern and an arbitrary spectroscopy.   
+* SequentialDecay : used to simulate reactions with the sequential decay of one or more excited nuclei.  
+Additional physics models will be implemented in the near future.  
+Following, a detailed explanation of each available physics model:  
+* SequentialDecay : This model can simulate sequential reactions where one or more of the products of the reaction can decay in additional decay products. One of the additional decay product can decay in other decay products and so on. The novelty of this model is that it can simulate ad arbitrary number of steps with an arbitrary number of particles and excited nuclei, each of those with an arbitrary decay pattern and an arbitrary spectroscopy.   
 Usage example:  
 9Li + 9Be -> 16C* + d -> 6He + 10Be + d  
 We first set the particles of the primary collision: 16C* and d  
@@ -107,8 +107,8 @@ In this case 16C is excited. We define the spectroscopy of 16C
 set spectroscopy 0 -Ex=21 -Gamma=0.150
 set spectroscopy 0 -Ex=28 -Gamma=0.300
 ````
-In this case I have 2 excited states one at 21 MeV and one at 28 MeV with Gamma = 150 keV and 300 keV respectively.  
-If the nucleus decays I need also to define a decay pattern (in this case 6He+10Be):  
+I have 2 excited states one at 21 MeV and one at 28 MeV with Gamma = 150 keV and 300 keV respectively.  
+If the nucleus decays I need also to define a decay pattern (e.g. 6He+10Be):  
 ````
 set decay 0 0 -Z=2 -A=6 *** particle 0 of the decay of the fragment 0
 set decay 0 1 -Z=4 -A=10 *** particle 1 of the decay of the fragment 0
@@ -121,69 +121,27 @@ X* heavy residual excited that decays into Y* + y1 + ... + ym
 P+T -> X* + x1 + x2 + ... + xn -> Y* + y1 + ... +ym + x1 + ... + xn  
 Equivalently, Y* can decay into other products and so on... For each step of the reaction, one might have even more than 1 product decaying, e.g. X1*, ..., Xl* in the first step of the reaction and a number of Yi* in the second and so on.
 ### Detectors
-
+In the framework of UNISim-tool, the user can define an arbitrary number of detectors with arbitrary configurations. A list of available detectors and the corresponding options follows:  
+* STRIP (Double-Sided Silicon Strip Detector) -> options are: -distance (perpendicular distance from the target), -theta (polar angle of the center in degrees), -phi (azimuthal angle of the center in degrees), -strips (number of front or back strips), -strip_width (width of one strip in cm), -inter_strip (width of the interstrip in cm), -frame_width (width of the ceramic frame in cm), -dead_layer (size of a dead region of silicon before the frame in cm)
+* LAMP_WEDGE (Lamp detector wedge) -> options: -distance (distance from the inner part of the wedge to the target) -phi_pos (azimuthal position in degrees), -tilt (with respect to the orizontal axis), -frame_distance (distance from the bottom of the frame to the beam axis), -strips (number of strips), -strip_width (width of one strip in cm), -inter_strip (width of the interstrip in cm)
 ### Output Data
-Output data is stored in a tree called EXXXXX, where XXXXX represents the experiment name (i.e. E15190). The folder where the tree is stored is configured in the config file by setting HiRAEVTMAPPER_ROOT_FILE_PATH in the configuration file (see section "Configure the Program").
-
-The structure of the output tree is constituted by an individual branch for each detector defined in the mapping file. In the presence of an "HiRA" detector, a sub-branch will be created for each telescope. For convenience, timestamp and TDC spare channels are treated like detectors. The second can map (see the map file contained in the folder "input") individual TDC channels that are used as benchmark, containing for example experiment triggers.
-Here a summary of the data structures for each individual detector:
-
-**_HiRA_**  
-|- **fDE**  
+Output data is stored in a tree called as the experimental setup. The folder where the tree is stored is configured in the config file by setting OUTPUT_DIRECTORY in the configuration file (see section "Configure the Program").  
+The structure of the output tree is constituted by an individual branch containing the data stucture UNISRootEvent. This is composed by a number of sub-branches listed below:
+**_UNISRootEvent_**  
 |&nbsp;&nbsp;&nbsp;+ int fmulti  
-|&nbsp;&nbsp;&nbsp;+ int fnumstrip\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ UShort_t fEnergyHi\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ UShort_t fEnergyLo\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ UShort_t fTime\[fmulti\]  
-|- **fEF**  
-|&nbsp;&nbsp;&nbsp;+ int fmulti  
-|&nbsp;&nbsp;&nbsp;+ int fnumstrip\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ UShort_t fEnergyHi\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ UShort_t fEnergyLo\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ UShort_t fTime\[fmulti\]  
-|- **fEB**  
-|&nbsp;&nbsp;&nbsp;+ int fmulti  
-|&nbsp;&nbsp;&nbsp;+ int fnumstrip\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ UShort_t fEnergyHi\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ UShort_t fEnergyLo\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ UShort_t fTime\[fmulti\]  
-|- **fCsI**  
-|&nbsp;&nbsp;&nbsp;+ int fmulti  
-|&nbsp;&nbsp;&nbsp;+ int fnumcsi\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fEnergy\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Double_t fTime\[fmulti\]  
-**_NeutronWall_**  
-|&nbsp;&nbsp;&nbsp;+ int fmulti  
-|&nbsp;&nbsp;&nbsp;+ int fnumbar\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fLeft\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fRight\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fFastLeft\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fFastRight\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Double_t fTimeLeft\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Double_t fTimeRight\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Double_t fGeoMean\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Double_t fFastGeoMean\[fmulti\]  
-**_VetoWall_**  
-|&nbsp;&nbsp;&nbsp;+ int fmulti  
-|&nbsp;&nbsp;&nbsp;+ int fnumbar\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fBottom\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fTop\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Double_t fTimeBottom\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Double_t fTimeTop\[fmulti\]  
-**_ForwardArray_**  
-|&nbsp;&nbsp;&nbsp;+ int fmulti  
+|&nbsp;&nbsp;&nbsp;+ bool fIsDetected\[fmulti\]  
 |&nbsp;&nbsp;&nbsp;+ int fnumdet\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fEnergy\[fmulti\]  
-**_Microball_**  
-|&nbsp;&nbsp;&nbsp;+ int fmulti  
-|&nbsp;&nbsp;&nbsp;+ int fnumring\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ int fnumdet\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fTail\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fFast\[fmulti\]  
-|&nbsp;&nbsp;&nbsp;+ Short_t fTime\[fmulti\]  
-**_HTSisTimestampe15190_**  
-|&nbsp;&nbsp;&nbsp;+ Long64_t fTimestamp  
-|&nbsp;&nbsp;&nbsp;+ Long64_t fTimestampKoreans  
-**_HTTDCSpare_**  
-|&nbsp;&nbsp;&nbsp;+ Double_t (...)  
+|&nbsp;&nbsp;&nbsp;+ int fnumpixel\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ double fKinEnergy\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ double fXDetHit\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ double fYDetHit\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ double fZDetHit\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ double fKinEnergyAfterTarget\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ double fKinEnergyOrigin\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ double fThetaOrigin\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ double fPhiOrigin\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ double fKinEnergyOriginCms\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ double fThetaOriginCms\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ int fZ\[fmulti\]  
+|&nbsp;&nbsp;&nbsp;+ int fA\[fmulti\]  
 ## Notes for Developers
