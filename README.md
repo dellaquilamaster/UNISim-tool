@@ -21,7 +21,7 @@ Table of contents
   * [Compile the Code](#compile-the-code)
   * [Configure the Program](#configure-the-program)
   * [Limitations](#limitations)
-* [The UNISim-tool environment](#the-unisim-tool-environment)
+* [The UNISim-tool Environment](#the-unisim-tool-environment)
   * [Run the Code](#run-the-code)
   * [Physics Models](#physics-models)
   * [Detectors](#detectors)
@@ -78,11 +78,11 @@ The detection setup can be configured as follows:
 * add <detector type> <options> : see section "Detectors" for a list of available detector types and options
 ### Limitations
 
-## The HiRAEVTUnpacker Program
+## The The UNISim-tool Environment
 ### Run the code
 To run the UNISim-tool program use the following command from the main program directory:
 ````
-$ ./exec_UNISim -events <N>
+$ ./exec_UNISim.exe -events <N>
 ````
 N will be the number of required events.
 ### Physics Models
