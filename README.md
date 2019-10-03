@@ -88,7 +88,7 @@ To run the UNISim-tool program use the following command from the main program d
 ````
 $ ./exec_UNISim.exe -events <N> -o <output>
 ````
-"<N>" will be the number of required events, <output> is the output (ROOT) file name (optional). If <output> is not specified, the file name will be: "UNIS_<N>events.root".
+N will be the number of required events, output is the output (ROOT) file name (optional). If output is not specified, the file name will be: "UNIS_Nevents.root".
 ### Run the code in parallel on Malnar
 The code can be run in parallel by using the Malanar computing cluster of the RBI. When the code runs in parallel mode, the number of events to generate are divided into subgroups, and a series of individual independent processes is launched in 
 batch mode. In this case, it is important that the user sets RANDOM_SEED to 0 (see Sect "Configure the program"), in order to obtain a different sequence of random numbers for each individual process.  
@@ -105,7 +105,7 @@ To run the script use the following command:
 ````
 ./run_UNISim-tool_Malnar.sh <N>
 ````
-Where <N> will be the total number of events to process.  
+Where N will be the total number of events to process.  
 ### Physics Models
 The program includes a number of already implemented physics models. The user can add new physics models very easily. When the user adopts a physics model, he must specify a configuration file of the specific reaction process. Reaction configuration files are contained in the folder:
 ````
