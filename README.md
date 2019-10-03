@@ -25,7 +25,7 @@ Table of contents
   * [Limitations](#limitations)
 * [The UNISim-tool Environment](#the-unisim-tool-environment)
   * [Run the Code](#run-the-code)
-  * [Run the Code in parallel on Malanar](#run-the-code-in-parallel-on-malnar)  
+  * [Run the Code in parallel on Malnar](#run-the-code-in-parallel-on-malnar)  
   * [Physics Models](#physics-models)
   * [Detectors](#detectors)
   * [Output Data](#output-data)
