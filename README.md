@@ -88,7 +88,7 @@ To run the UNISim-tool program use the following command from the main program d
 ````
 $ ./exec_UNISim.exe -events <N> -o <output>
 ````
-<N> will be the number of required events, <output> is the output (ROOT) file name (optional). If <output> is not specified, the file name will be: "UNIS_<N>events.root".
+"<N>" will be the number of required events, <output> is the output (ROOT) file name (optional). If <output> is not specified, the file name will be: "UNIS_<N>events.root".
 ### Run the code in parallel on Malnar
 The code can be run in parallel by using the Malanar computing cluster of the RBI. When the code runs in parallel mode, the number of events to generate are divided into subgroups, and a series of individual independent processes is launched in 
 batch mode. In this case, it is important that the user sets RANDOM_SEED to 0 (see Sect "Configure the program"), in order to obtain a different sequence of random numbers for each individual process.  
