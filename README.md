@@ -45,8 +45,9 @@ In order to compile and run the code ROOT >=6 is required (the program has been 
 ### Compile the Code
 To compile the code and make a clean installation use the sequence of commands:
 ````
-$ make clean
+$ make distclean
 $ make -jN
+$ make install
 ````
 N will be the number of parallel compilation processes that will be launched.
 The binary file exec_UNISim-tool.exe is generated in the compilation.
@@ -82,9 +83,9 @@ The detection setup can be configured as follows:
 ### Run the code
 To run the UNISim-tool program use the following command from the main program directory:
 ````
-$ ./exec_UNISim.exe -events <N>
+$ ./exec_UNISim.exe -events <N> -o <output>
 ````
-N will be the number of required events.
+<N> will be the number of required events, <output> is the output (ROOT) file name (optional). If <output> is not specified, the file name will be: "UNIS_<N>events.root".
 ### Physics Models
 The program includes a number of already implemented physics models. The user can add new physics models very easily. When the user adopts a physics model, he must specify a configuration file of the specific reaction process. Reaction configuration files are contained in the folder:
 ````
