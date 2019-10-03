@@ -38,11 +38,11 @@ eval './exec_UNISim-tool.exe -events $EVTTOPROCESS -o ${PROC_NAME}_${TOTEVENTS}e
 
 EOF
 
-#    qsub submit.sh
-    cat submit.sh
+    qsub submit.sh
+#    cat submit.sh
     rm -f submit.sh
     
-    sleep 0.5
+    sleep 0.2
     
 EVTPROCESSED=$(( $EVTPROCESSED + $EVTTOPROCESS))
 ITERATION=$(( $ITERATION + 1))
