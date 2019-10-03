@@ -22,6 +22,11 @@ else
   EVTTOPROCESS=$(( $TOTEVENTS - $EVTPROCESSED ))
 fi
 
+if test -f "batch_output/$PROC_NAME.o"; then
+  rm -f "batch_output/$PROC_NAME.o"
+  rm -f "batch_errors/$PROC_NAME.e"
+fi
+
 cat > submit.sh << EOF
 #!/bin/bash
 #$ -q all.q
