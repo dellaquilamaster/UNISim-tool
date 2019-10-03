@@ -105,7 +105,7 @@ To run the script use the following command:
 ````
 ./run_UNISim-tool_Malnar.sh <N>
 ````
-Where N will be the total number of events to process.  
+Where N will be the total number of events to process. WARNING: Make sure the folder "batch_output" and "batch_errors" exist. 
 ### Physics Models
 The program includes a number of already implemented physics models. The user can add new physics models very easily. When the user adopts a physics model, he must specify a configuration file of the specific reaction process. Reaction configuration files are contained in the folder:
 ````
