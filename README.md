@@ -7,7 +7,7 @@ Rudjer Boskovic Institute, Zagreb, Croatia
 
 This software is a unified simulation tool for the nuclear clustering group of the Rudjer Boskovic Institute. It is able to reliably run Monte Carlo simulations involving different physics models (such as sequential decay reactions) and an arbitrary configuration of detectors (DSSSDs, Lamp Wedge detectors). This software contains a high-precision energy loss program extracted by LISE++ for the calculation of the energy loss of charged particles in the matter. Another interesting novelty of this software is the advanced graphical mode for the visualization of the reaction and the detection setup, this is based on the Event Visualization Environment of ROOT.
 
-The program supports the use in parallel mode by expliting the "Malanar" compting cluster at the RBI.
+The program supports the use in parallel mode on the "Malanar" compting cluster at the RBI.
 
 # Useful links:
   * [Rudjer Boskovic Institute](https://www.irb.hr/eng) : Rudjer Boskovic Institute official website
