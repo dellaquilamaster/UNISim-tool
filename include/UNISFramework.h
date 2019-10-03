@@ -8,6 +8,11 @@
  * 
  * 10/06/2019
  * v1.0.beta
+ * 03/10/2019
+ * v1.1
+ * new features:
+ *  - energy loss in the target
+ *  - possibility to specify output file name
  * 
  * 
  */

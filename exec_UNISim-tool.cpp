@@ -10,9 +10,15 @@
 #include <stdlib.h>
 
 #include <UNISFramework.h>
+#include <UNISLogo.h>
 
 int main (int argc, char ** argv)
-{  
+{ 
+  //
+  //Printing logo
+  PrintLogo();
+  //
+  
   //
   //Creation of the framework
   UNISFramework TheFramework;

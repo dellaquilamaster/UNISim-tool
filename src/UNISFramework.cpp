@@ -11,7 +11,7 @@ fBeamCenter(0,0,0),
 fBeamAngularSpread(0),
 fBeamPositionSpread(0),
 fOutputFolder("./output/"),
-fOutputFileName("output.root"),
+fOutputFileName(),
 fTheTree(0),
 fTheFile(0),
 fUMAToMeV(931.4936148),
@@ -317,7 +317,7 @@ void UNISFramework::InitTree()
 {
   //
   //Creating output file
-  fOutputFileName.assign(Form("UNIS_%devents.root",fNumEvents));
+  if(fOutputFileName.empty()) fOutputFileName.assign(Form("UNIS_%devents.root",fNumEvents));
   fTheFile = new TFile(Form("%s%s",fOutputFolder.c_str(),fOutputFileName.c_str()),"RECREATE");
   //
   
@@ -367,6 +367,10 @@ int UNISFramework::ReadInput(int argc, char ** argv)
   for(int i=1; i<argc; i++) {
     if(strcmp(argv[i],"-events")==0) {
       SetIterations(atoi(argv[++i]));
+      read++;
+    }
+    if(strcmp(argv[i],"-o")==0) {
+      fOutputFileName.assign(argv[++i]);
       read++;
     }
   }
