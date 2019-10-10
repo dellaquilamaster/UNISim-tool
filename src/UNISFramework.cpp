@@ -356,7 +356,7 @@ void UNISFramework::EndProcess()
   //
   
   //
-  printf("Successfully closed file %s\n", Form("%s%s",fOutputFolder.c_str(),fOutputFileName.c_str()));
+  printf("\n\nSuccessfully closed file %s\n\n", Form("%s%s",fOutputFolder.c_str(),fOutputFileName.c_str()));
   //
 }
 

@@ -25,7 +25,7 @@ define particle 1 -Z=1 -A=2 *** light recoil
 *
 * including some excited state of the particle 0
 *
-set spectroscopy 0 -Ex=20 -Gamma=0.001
+set spectroscopy 0 -Ex=20 -Gamma=0.
 *
 * defining the decay mode of the particle 0
 *
