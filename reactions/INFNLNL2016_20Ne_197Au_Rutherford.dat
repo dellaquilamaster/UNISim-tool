@@ -1,0 +1,21 @@
+*
+* Configuration file of the Rutherford Scattering physics model
+* This model can simulate the elastic scattering with an angular distribution that follows the 
+* pure Rutherford cross section.
+* Beam and Target are usually defined in the main Unified-Simulation-tool configuration file
+* Here we define exclusively the exit channel
+*
+* Usage example:
+* P=Projectile
+* T=Target
+* P+T->P+T
+*
+
+*
+* 20Ne + 197Au -> 20Ne + 197Au at INFN-LNL (2016)
+*
+
+define particle 0 -Z=10 -A=20 *** elastically scattered 20Ne
+define particle 1 -Z=79 -A=197 *** recoiling target
+
+set min_angle 5 *** minimum scattering angle in degrees

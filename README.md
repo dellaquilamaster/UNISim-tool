@@ -113,6 +113,7 @@ reactions/
 ````
 The available physics models are:
 * SequentialDecay : used to simulate reactions with the sequential decay of one or more excited nuclei.  
+* RutherfordScattering : used to simulate elastic scattering processes according to the Rutherford cross-section.  
 Additional physics models will be implemented in the near future.  
 Following, a detailed explanation of each available physics model:  
 * SequentialDecay : This model can simulate sequential reactions where one or more of the products of the reaction can decay in additional decay products. One of the additional decay product can decay in other decay products and so on. The novelty of this model is that it can simulate ad arbitrary number of steps with an arbitrary number of particles and excited nuclei, each of those with an arbitrary decay pattern and an arbitrary spectroscopy.   
@@ -140,10 +141,24 @@ T=Target
 x1,x2,...,xn = light ejectiles of the primary reaction  
 X* heavy residual excited that decays into Y* + y1 + ... + ym  
 P+T -> X* + x1 + x2 + ... + xn -> Y* + y1 + ... +ym + x1 + ... + xn  
-Equivalently, Y* can decay into other products and so on... For each step of the reaction, one might have even more than 1 product decaying, e.g. X1*, ..., Xl* in the first step of the reaction and a number of Yi* in the second and so on.
+Equivalently, Y* can decay into other products and so on... For each step of the reaction, one might have even more than 1 product decaying, e.g. X1*, ..., Xl* in the first step of the reaction and a number of Yi* in the second and so on.  
+* RutherfordScattering : This model can simulate elastic scattering events according to a pure Rutherford cross-section.
+Usage example:  
+20Ne + 197Au -> 20Ne + 197Au  
+We set exclusively the particle of the primary collision: 20Ne and 197Au  
+````
+define particle 0 -Z=10 -A=20 : scatteted beam (ejectile)
+define particle 1 -Z=79 -A=197 : recoiling target (recoil)
+````  
+Additionally, one can set the minimum polar angle for the random generator in degrees:  
+````
+set min_angle X
+````  
+The latter is important since the Rutherford cross section diverges at theta=0.  
 ### Detectors
 In the framework of UNISim-tool, the user can define an arbitrary number of detectors with arbitrary configurations. A list of available detectors and the corresponding options follows:  
-* STRIP (Double-Sided Silicon Strip Detector) -> options are: -distance (perpendicular distance from the target), -theta (polar angle of the center in degrees), -phi (azimuthal angle of the center in degrees), -strips (number of front or back strips), -strip_width (width of one strip in cm), -inter_strip (width of the interstrip in cm), -frame_width (width of the ceramic frame in cm), -dead_layer (size of a dead region of silicon before the frame in cm)
+* DSSSD (Double-Sided Silicon Strip Detector facing the target perpendicularly) -> options are: -distance (perpendicular distance from the target), -theta (polar angle of the center in degrees), -phi (azimuthal angle of the center in degrees), -strips (number of front or back strips), -strip_width (width of one strip in cm), -inter_strip (width of the interstrip in cm), -frame_width (width of the ceramic frame in cm), -dead_layer (size of a dead region of silicon before the frame in cm)
+* DSSSD_ROT (Double-Sided Silicon Strip Detector with a customized position and rotation) -> options are: -X0 (X-position of the center), -Y0 (Y-position of the center), -Z0 (Z-position of the center), -tilt_X (tilt angle with respect to the X-axis in degrees), -strips (number of front or back strips), -strip_width (width of one strip in cm), -inter_strip (width of the interstrip in cm), -frame_width (width of the ceramic frame in cm), -dead_layer (size of a dead region of silicon before the frame in cm)
 * LAMP_WEDGE (Lamp detector wedge) -> options: -distance (distance from the inner part of the wedge to the target) -phi_pos (azimuthal position in degrees), -tilt (with respect to the orizontal axis), -frame_distance (distance from the bottom of the frame to the beam axis), -strips (number of strips), -strip_width (width of one strip in cm), -inter_strip (width of the interstrip in cm)
 ### Output Data
 Output data is stored in a tree called as the experimental setup. The folder where the tree is stored is configured in the config file by setting OUTPUT_DIRECTORY in the configuration file (see section "Configure the Program").  

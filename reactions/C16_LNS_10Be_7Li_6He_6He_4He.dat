@@ -17,20 +17,21 @@
 *
 
 *
-* 9Li + 9Be -> 16C* + d -> d + 6He + 10Be at TRIUMF
+* 10Be + 7Li -> 16C* + p -> p + 4He + 6He + 6He at LNS
 *
 
 define particle 0 -Z=6 -A=16 *** 16Be excited defined as particle "0". This will decay according to the decay scheme below
-define particle 1 -Z=1 -A=2 *** light recoil
+define particle 1 -Z=1 -A=1 *** light recoil
 *
 * including some excited state of the particle 0
 *
-set spectroscopy 0 -Ex=18 -Gamma=0.
+set spectroscopy 0 -Ex=30 -Gamma=0.
 *
 * defining the decay mode of the particle 0
 *
-set decay 0 0 -Z=2 -A=6 *** particle 0 of the decay of the fragment 0
-set decay 0 1 -Z=4 -A=10 *** particle 1 of the decay of the fragment 0
+set decay 0 0 -Z=2 -A=4 *** particle 0 of the decay of the fragment 0
+set decay 0 1 -Z=2 -A=6 *** particle 1 of the decay of the fragment 0
+set decay 0 2 -Z=2 -A=6 *** particle 2 of the decay of the fragment 0
 *
 
 * One can also set the spectroscopy and decay mode of one of the secondary particles of the decay by using e.g. set spectroscopy 0_0 or 0_1 or set decay 0_0 or 0_1 and so on

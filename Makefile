@@ -21,7 +21,7 @@ UNISROOTEVENT_DICTO := UNISRootEventDict.$(ObjSuf)
 UNISROOTEVENT_PCM   := UNISRootEventDict$(PcmSuf)
 UNISROOTEVENT_HDRS  := UNISRootEventLinkDef.$(DepSuf)
 
-OBJS      := $(ObjDir)TDetectionSetup.$(ObjSuf) $(ObjDir)TDetectionUnit.$(ObjSuf) $(ObjDir)TStripDetector.$(ObjSuf) $(ObjDir)TLampWedgeDetector.$(ObjSuf) $(ObjDir)EnergyLossModule.$(ObjSuf) $(ObjDir)nuclear_masses.$(ObjSuf) $(ObjDir)RelativisticKinematics.$(ObjSuf) $(ObjDir)UNISRootEvent.$(ObjSuf) $(ObjDir)UNISEventGenerator.$(ObjSuf) $(ObjDir)UNISSequentialDecay.$(ObjSuf) $(ObjDir)UNISFramework.$(ObjSuf) $(ObjDir)$(UNISROOTEVENT_DICTO) $(ObjDir)UNISLogo.$(ObjSuf) $(ObjDir)shared.$(ObjSuf)
+OBJS      := $(ObjDir)TDetectionSetup.$(ObjSuf) $(ObjDir)TDetectionUnit.$(ObjSuf) $(ObjDir)TStripDetector.$(ObjSuf) $(ObjDir)TLampWedgeDetector.$(ObjSuf) $(ObjDir)EnergyLossModule.$(ObjSuf) $(ObjDir)nuclear_masses.$(ObjSuf) $(ObjDir)RelativisticKinematics.$(ObjSuf) $(ObjDir)UNISRootEvent.$(ObjSuf) $(ObjDir)UNISEventGenerator.$(ObjSuf) $(ObjDir)UNISSequentialDecay.$(ObjSuf) $(ObjDir)UNISRutherfordScattering.$(ObjSuf) $(ObjDir)UNISFramework.$(ObjSuf) $(ObjDir)$(UNISROOTEVENT_DICTO) $(ObjDir)UNISLogo.$(ObjSuf) $(ObjDir)shared.$(ObjSuf)
 
 UNIS_LIB  := libUNISim.$(DllSuf)
 
@@ -84,6 +84,9 @@ $(ObjDir)UNISEventGenerator.$(ObjSuf):  ./generator/UNISEventGenerator.cpp  ./ge
 	
 $(ObjDir)UNISSequentialDecay.$(ObjSuf):  ./generator/UNISSequentialDecay.cpp  ./generator/UNISSequentialDecay.h
 	$(CXX) $(CXXFLAGS) -c ./generator/UNISSequentialDecay.cpp -o $(ObjDir)UNISSequentialDecay.$(ObjSuf) $(SYSLIB) $(CFLAGS) 
+	
+$(ObjDir)UNISRutherfordScattering.$(ObjSuf):  ./generator/UNISRutherfordScattering.cpp  ./generator/UNISRutherfordScattering.h
+	$(CXX) $(CXXFLAGS) -c ./generator/UNISRutherfordScattering.cpp -o $(ObjDir)UNISRutherfordScattering.$(ObjSuf) $(SYSLIB) $(CFLAGS) 
 
 $(ObjDir)UNISRootEvent.$(ObjSuf):  ./$(SrcDir)UNISRootEvent.cpp  ./$(DepDir)UNISRootEvent.h ./$(ObjDir)$(UNISROOTEVENT_DICTO)
 	$(CXX) $(CXXFLAGS) -c ./$(SrcDir)UNISRootEvent.cpp -o $(ObjDir)UNISRootEvent.$(ObjSuf) $(SYSLIB) $(CFLAGS) 

@@ -150,6 +150,15 @@ int UNISFramework::ProcessSetCommand(const char * line)
           printf("Error: error while building SequentialDecay event generator from file %s\nAborting!", fPhysicsConfigFileName.c_str());
           exit(1);
         }
+      } if(ValueToSet.compare("RutherfordScattering")==0) {
+        fPhysicsModelName.assign("RutherfordScattering");
+        fTheEventGenerator = new UNISRutherfordScattering();
+        LineStream>>ValueToSet;
+        fPhysicsConfigFileName.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
+        if(fTheEventGenerator->LoadConfiguration(fPhysicsConfigFileName.c_str())<=0) {
+          printf("Error: error while building RutherfordScattering event generator from file %s\nAborting!", fPhysicsConfigFileName.c_str());
+          exit(1);
+        }
       } else return 0;
   } else {
     return 0; 
@@ -202,13 +211,15 @@ int UNISFramework::ProcessAddCommand(const char * line)
     LineStream>>DetectorType;
     std::string ValueToSet;
         
-    if(DetectorType.compare("STRIP")==0) {
+    if(DetectorType.compare("DSSSD")==0) {
       double distance;
       double theta_pos;
       double phi_pos;
       int strip_number;
       double strip_width;
       double strip_inter;
+      double frame_width=0;
+      double dead_layer=0;
       
       while (LineStream>>ValueToSet) {
         if(ValueToSet.find("-distance")!=std::string::npos) {
@@ -229,10 +240,61 @@ int UNISFramework::ProcessAddCommand(const char * line)
         } else if(ValueToSet.find("-inter_strip")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-inter_strip=")+13)); 
           strip_inter=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-frame_width")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-frame_width=")+13)); 
+          frame_width=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-dead_layer")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-dead_layer=")+12)); 
+          dead_layer=std::stof(ValueToSet); 
         }
       }
       
-      TStripDetector * NewDetector = new TStripDetector(distance,theta_pos,phi_pos,strip_number,strip_width,strip_inter);
+      TStripDetector * NewDetector = new TStripDetector(distance,theta_pos,phi_pos,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
+      fExpSetup->RegisterUnit(NewDetector);
+      
+    } else if(DetectorType.compare("DSSSD_ROT")==0) {
+      double X0;
+      double Y0;
+      double Z0;
+      double tilt_X;
+      int strip_number;
+      double strip_width;
+      double strip_inter;
+      double frame_width=0;
+      double dead_layer=0;
+      
+      while (LineStream>>ValueToSet) {
+        if(ValueToSet.find("-X0")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-X0=")+4)); 
+          X0=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-Y0")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-Y0=")+4)); 
+          Y0=std::stof(ValueToSet);
+        } else if(ValueToSet.find("-Z0")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-Z0=")+4)); 
+          Z0=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-tilt_X")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-tilt_X=")+8)); 
+          tilt_X=std::stof(ValueToSet)*TMath::DegToRad();
+        } else if(ValueToSet.find("-strips")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strips=")+8)); 
+          strip_number=std::stoi(ValueToSet); 
+        } else if(ValueToSet.find("-strip_width")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strip_width=")+13)); 
+          strip_width=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-inter_strip")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-inter_strip=")+13)); 
+          strip_inter=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-frame_width")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-frame_width=")+13)); 
+          frame_width=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-dead_layer")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-dead_layer=")+12)); 
+          dead_layer=std::stof(ValueToSet); 
+        }
+      }
+      
+      TStripDetector * NewDetector = new TStripDetector(X0,Y0,Z0,tilt_X,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
       fExpSetup->RegisterUnit(NewDetector);
       
     } else if(DetectorType.compare("LAMP_WEDGE")==0) {
@@ -530,6 +592,7 @@ void UNISFramework::RegisterEvent(std::vector<UNISIon> & AnEvent)
 {
   fevt->fmulti=0;
   fevt->fmulti_detected=0;
+  
   //
   //Loop on the event
   for(int i=0; i<AnEvent.size(); i++) {       
@@ -576,13 +639,13 @@ void UNISFramework::DisplayTracks()
   //
   //Looping on event multiplicity to draw tracks
   for(int i=0; i<fevt->fmulti; i++) {
-    TEveStraightLineSet * ParticleTrack = new TEveStraightLineSet(Form("ParticleTrack_%d",i));
+    TEveStraightLineSet * ParticleTrack = new TEveStraightLineSet(Form("ParticleTrack_%d_Z%02d_A%02d",i,fevt->fZ[i],fevt->fA[i]));
     if(fevt->fXDetHit[i]!=-9999 && fevt->fYDetHit[i]!=-9999 && fevt->fZDetHit[i]!=-9999) { //The particle is detected
       ParticleTrack->AddLine(-fBeamCenter.Y(),fBeamCenter.X(),fBeamCenter.Z(),-fevt->fYDetHit[i],fevt->fXDetHit[i],fevt->fZDetHit[i]);
     } else { //The particle escaped from the region
       ParticleTrack->AddLine(-fBeamCenter.Y(),fBeamCenter.X(),fBeamCenter.Z(),-20*sin(fevt->fThetaOrigin[i])*sin(fevt->fPhiOrigin[i]),20*sin(fevt->fThetaOrigin[i])*cos(fevt->fPhiOrigin[i]),20*cos(fevt->fThetaOrigin[i]));
     }
-    ParticleTrack->SetMainColor(fevt->fZ[i]+fevt->fA[i]);
+    fevt->fZ[i]<=10 ? ParticleTrack->SetMainColor(fevt->fZ[i]+fevt->fA[i]) : ParticleTrack->SetMainColor(kRed);
     gEve->AddElement(ParticleTrack);
   }
   //

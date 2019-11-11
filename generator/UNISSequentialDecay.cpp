@@ -10,7 +10,10 @@ fBreitWignerDistribution(new TF1("BreitWignerDistribution", "1/((x-[0])^2+([1]^2
 
 //____________________________________________________
 UNISSequentialDecay::~UNISSequentialDecay()
-{}
+{
+  delete fRootGenerator;
+  delete fBreitWignerDistribution;
+}
 
 
 //____________________________________________________

@@ -10,33 +10,33 @@
 * -------------------------------------
 set VERBOSE_MODE false
 set GRAPHICAL_MODE false
-set OUTPUT_DIRECTORY "/run/media/daniele/WD_IRB/simulations/201911_INFNLNL_20Ne_4He/"
+set OUTPUT_DIRECTORY "/run/media/daniele/WD_IRB/simulations/201910_TRIUMF_9Li_15C_16C/"
 set RANDOM_SEED 0 ***** use 0 to obtain a unique sequence each time
 * -------------------------------------
 
 *
 * reaction information
 * -------------------------------------
-set BEAM -Z=10 -A=20
-set BEAM_ENERGY 69 ***** MeV
+set BEAM -Z=3 -A=9
+set BEAM_ENERGY 70 ***** MeV
 set BEAM_POSITION -X=0. -Y=0. -X=0. ***** beam position on the target in cm (with respect to the target center)
 set BEAM_ANGULAR_SPREAD 0. ***** FWHM of the beam angular spread in deg
 set BEAM_POSITION_SPREAD 0. ***** FWHM of the beam position spread in cm
-set TARGET -Z=79 -A=197
+set TARGET -Z=5 -A=11
 *
 * Definition of the physics model used for the calculation
 * List of available physics models:
 *  - SequentialDecay: P+T->X1*+X2*+...+Xm*+y1+y2+...+yn -> (X1_1* + X1_2* + ... + x1_2 + ... + x1_l) + ... + (Xn_1* + Xn_2* + ... +xn_2+...+xn_j) + y1 + y2 + ... yn -> ...
-*  - RutherfordScattering: P+T->P+T (with Rutherford cross section)
 *
-set PHYSICS_MODEL RutherfordScattering "./reactions/INFNLNL2016_20Ne_197Au_Rutherford.dat"
+set PHYSICS_MODEL SequentialDecay "./reactions/C16_TRIUMF_9Li_11B_12Be_4He.dat"
 * -------------------------------------
 
 *
 * target information
 * -------------------------------------
-set TARGET_MATERIAL Au
-* Au 150 ug/cm2
+set TARGET_MATERIAL B
+* 9Be target (1mg/cm2 = 5.4054054 um)
+* 11B target (1mg/cm2 = 4.254957 um)
 set TARGET_THICKNESS 0 ***** um
 * -------------------------------------
 
@@ -53,12 +53,16 @@ define SETUP "cluster" ***** Definition of the detection setup
 *  - DSSSD_ROT (Double-Sided Silicon Strip Detector with a customized position and rotation) -> options: -X0, -Y0, -Z0, -tilt_X, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer           
 *  - LAMP_WEDGE (Lamp detector wedge) -> options: -distance -phi_pos, -tilt, -frame_distance, -strips, -strip_width, -inter_strip
 *
-add DETECTOR DSSSD_ROT -X0=0. -Y0=6.75 -Z0=6.53  -tilt_X=-89.2 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
-add DETECTOR DSSSD_ROT -X0=0. -Y0=5.95 -Z0=15.19 -tilt_X=-88.5 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
-add DETECTOR DSSSD_ROT -X0=0. -Y0=5.98 -Z0=23.76 -tilt_X=-88.7 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
-add DETECTOR DSSSD_ROT -X0=0. -Y0=4.29 -Z0=31.39 -tilt_X=-29.9 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
-add DETECTOR DSSSD_ROT -X0=0. -Y0=-5.81 -Z0=33.74 -tilt_X=9.8 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
-add DETECTOR DSSSD_ROT -X0=0. -Y0=-7.63 -Z0=23.9  -tilt_X=90.0 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
-add DETECTOR DSSSD_ROT -X0=0. -Y0=-7.49 -Z0=15.51 -tilt_X=87.0 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
-add DETECTOR DSSSD_ROT -X0=0. -Y0=-7.55 -Z0=6.41  -tilt_X=93.1 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
+add DETECTOR DSSSD_ROT -X0=5.   -Y0=1.5. -Z0=12. tilt_X=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
+add DETECTOR DSSSD_ROT -X0=-1.5 -Y0=5.   -Z0=12. tilt_X=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
+add DETECTOR DSSSD_ROT -X0=-5.  -Y0=-1.5 -Z0=12. tilt_X=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
+add DETECTOR DSSSD_ROT -X0=1.5. -Y0=-5.  -Z0=12. tilt_X=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
+
+add DETECTOR DSSSD -distance=10. -theta=53. -phi=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
+add DETECTOR DSSSD -distance=10. -theta=53. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
+
+*add DETECTOR LAMP_WEDGE -distance=-9. -phi_pos=-120. -tilt=-45. -frame_distance=3. -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=-9. -phi_pos=-40. -tilt=-45. -frame_distance=3. -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=-9. -phi_pos=60. -tilt=-45. -frame_distance=3. -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=-9. -phi_pos=150. -tilt=-45. -frame_distance=3. -strips=16 -strip_width=0.5 -inter_strip=0.01
 * -------------------------------------

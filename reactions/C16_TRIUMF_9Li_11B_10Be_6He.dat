@@ -17,15 +17,15 @@
 *
 
 *
-* 9Li + 9Be -> 16C* + d -> d + 6He + 10Be at TRIUMF
+* 9Li + 11B -> 16C* + a -> a + 6He + 10Be at TRIUMF
 *
 
 define particle 0 -Z=6 -A=16 *** 16Be excited defined as particle "0". This will decay according to the decay scheme below
-define particle 1 -Z=1 -A=2 *** light recoil
+define particle 1 -Z=2 -A=4 *** light recoil
 *
 * including some excited state of the particle 0
 *
-set spectroscopy 0 -Ex=18 -Gamma=0.
+set spectroscopy 0 -Ex=30 -Gamma=0.
 *
 * defining the decay mode of the particle 0
 *

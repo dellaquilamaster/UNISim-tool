@@ -46,6 +46,7 @@
 
 #include <UNISEventGenerator.h>
 #include <UNISSequentialDecay.h>
+#include <UNISRutherfordScattering.h>
 #include <UNISRootEvent.h>
 #include <nuclear_masses.h>
 #include <EnergyLossModule.h>
