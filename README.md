@@ -141,7 +141,7 @@ T=Target
 x1,x2,...,xn = light ejectiles of the primary reaction  
 X* heavy residual excited that decays into Y* + y1 + ... + ym  
 P+T -> X* + x1 + x2 + ... + xn -> Y* + y1 + ... +ym + x1 + ... + xn  
-Equivalently, Y* can decay into other products and so on... For each step of the reaction, one might have even more than 1 product decaying, e.g. X1*, ..., Xl* in the first step of the reaction and a number of Yi* in the second and so on.  
+Equivalently, Y* can decay into other products and so on... For each step of the reaction, one might have even more than 1 product decaying, e.g. X1*, ..., Xl* in the first step of the reaction and a number of Yi* in the second and so on.
 * RutherfordScattering : This model can simulate elastic scattering events according to a pure Rutherford cross-section.
 Usage example:  
 20Ne + 197Au -> 20Ne + 197Au  
@@ -149,7 +149,7 @@ We set exclusively the particle of the primary collision: 20Ne and 197Au
 ````
 define particle 0 -Z=10 -A=20 : scatteted beam (ejectile)
 define particle 1 -Z=79 -A=197 : recoiling target (recoil)
-````  
+````
 Additionally, one can set the minimum polar angle for the random generator in degrees:  
 ````
 set min_angle X
