@@ -12,7 +12,7 @@
 #include <TRandom3.h>
 
 #include <nuclear_masses.h>
-#include <shared.h>
+#include <UNISShared.h>
 #include <UNISIon.h>
 
 class UNISEventGenerator

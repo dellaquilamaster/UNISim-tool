@@ -15,7 +15,7 @@
 #include <UNISEventGenerator.h>
 #include <UNISIon.h>
 #include <RelativisticKinematics.h>
-#include <shared.h>
+#include <UNISShared.h>
 
 class UNISRutherfordScattering : public UNISEventGenerator
 {

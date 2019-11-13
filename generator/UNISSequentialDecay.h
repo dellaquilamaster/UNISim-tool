@@ -14,7 +14,7 @@
 #include <TLorentzVector.h>
 #include <UNISEventGenerator.h>
 #include <UNISIon.h>
-#include <shared.h>
+#include <UNISShared.h>
 
 class UNISSequentialDecay : public UNISEventGenerator
 {
