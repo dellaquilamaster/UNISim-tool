@@ -20,6 +20,7 @@ Table of contents
   * [Downloading from Git Hub](#downloading-from-git-hub)
 * [Setup and Configuration](#setup-and-configuration)
   * [Requirements](#requirements)
+  * [Environment Variables](#environment-variables)    
   * [Compile the Code](#compile-the-code)
   * [Configure the Program](#configure-the-program)
   * [Limitations](#limitations)
@@ -54,6 +55,12 @@ $ make install
 ````
 N will be the number of parallel compilation processes that will be launched.
 The binary file exec_UNISim-tool.exe is generated in the compilation.
+### Environment Variables
+Before compiling or running the code, it is required to export the needed environment variables and aliases. This can be done by launching, from the main folder of UNISim-tool, the command:
+````
+$ source UNISim-tool.sh
+````
+This can usually be done automatically in the bashrc file.
 ### Configure the program
 The program allows to perform simulations using different physics models and any arbitrary configuration of detectors. To configure the program modify the following file:
 ````
