@@ -3,16 +3,18 @@
 //____________________________________________________
 UNISRutherfordScattering::UNISRutherfordScattering() :
 fTheTwoBodyKinematicsModule(new RelativisticKinematics()),
-fMinAngle(0)
+fMinAngle(0),
+fMaxAngle(TMath::Pi()),
+fAngularDistribution(0),
+fIsDistributionUniform(false)
 {}
 
 //____________________________________________________
 UNISRutherfordScattering::~UNISRutherfordScattering()
 {
   delete fTheTwoBodyKinematicsModule;
-  delete fRutherfordDistribution;
+  if(fAngularDistribution) delete fAngularDistribution;
 }
-
 
 //____________________________________________________
 int UNISRutherfordScattering::LoadConfiguration(const char * file_name)
@@ -49,10 +51,14 @@ int UNISRutherfordScattering::LoadConfiguration(const char * file_name)
   
   //
   //Configuring the angular distribution
-  fRutherfordDistribution = new TF1("RutherfordDistribution", "(([0]*[1]*(1./137)*197)/(4*[2]*(sin(x/2.))^2))^2", fMinAngle, TMath::Pi());
-  fRutherfordDistribution->SetParameter(0, fTheReactionProducts[0]->fZ); //Charge of the projectile (ejectile)
-  fRutherfordDistribution->SetParameter(1, fTheReactionProducts[1]->fZ); //Charge of the target (recoil)
-  fRutherfordDistribution->SetNpx(500);
+  if(!fIsDistributionUniform) {
+    fAngularDistribution = new TF1("RutherfordDistribution", "(([0]*[1]*(1./137)*197)/(4*[2]*(sin(x/2.))^2))^2", fMinAngle, fMaxAngle);
+    fAngularDistribution->SetParameter(0, fTheReactionProducts[0]->fZ); //Charge of the projectile (ejectile)
+    fAngularDistribution->SetParameter(1, fTheReactionProducts[1]->fZ); //Charge of the target (recoil)
+    fAngularDistribution->SetNpx(500);
+  } else {
+    fAngularDistribution = new TF1("UniformDistribution", "sin(x)", fMinAngle, fMaxAngle);
+  }
   //
   
   return NRead;
@@ -73,7 +79,7 @@ std::vector<UNISIon> UNISRutherfordScattering::GetEvent()
   //Calculating the total momentum available in the reaction
   TLorentzVector TotalMomentum = fTheBeam.fMomentum+fTheTarget.fMomentum;
   //Setting the energy to the Rutherford Distribution
-  fRutherfordDistribution->SetParameter(2, BeamEnergy); //kinetic energy of the beam
+  if(!fIsDistributionUniform) fAngularDistribution->SetParameter(2, BeamEnergy); //kinetic energy of the beam
   //
   const int NumParticles = fTheReactionProducts.size(); //number of particles in the primary reaction
   double Masses[NumParticles]; //Masses of each fragment in the exit channel
@@ -84,14 +90,17 @@ std::vector<UNISIon> UNISRutherfordScattering::GetEvent()
   }
   //    
   //
-  //Simulation of the primary reaction (elastic scattering according to the Rutherford Distribution)
-  double ThetaRutherford = fRutherfordDistribution->GetRandom();
+  //Simulation of the primary reaction (elastic scattering according to the Rutherford Distribution)  
+  double ThetaRandomCm = fAngularDistribution->GetRandom();
   double PhiEjectile = fRandomGen->Uniform(0,2*TMath::Pi());
-  double EjectileEnergy = fTheTwoBodyKinematicsModule->GetEnergyTwoBodyEjectile(ThetaRutherford, BeamEnergy/gNucData->get_mass_Z_A_uma(fTheBeam.fZ,fTheBeam.fA), gNucData->get_mass_Z_A_uma(fTheBeam.fZ,fTheBeam.fA), gNucData->get_mass_Z_A_uma(fTheTarget.fZ,fTheTarget.fA));
-  double EjectileTotalEnergy = EjectileEnergy+fTheBeam.fMass;
-  double EjectileMomentumModule = sqrt(pow(EjectileTotalEnergy,2)-pow(fTheBeam.fMass,2));
-  TLorentzVector TheEjectile (EjectileMomentumModule*sin(ThetaRutherford)*cos(PhiEjectile),EjectileMomentumModule*sin(ThetaRutherford)*sin(PhiEjectile),EjectileMomentumModule*cos(ThetaRutherford),EjectileTotalEnergy);
+  double EAvailCm = sqrt(pow(fTheBeam.fMass,2)+pow(fTheTarget.fMass,2)+2*fTheBeam.fMomentum.E()*fTheTarget.fMass)-(fTheBeam.fMass+fTheTarget.fMass);
+  double MomentumModuleCm = sqrt( (pow(EAvailCm+fTheBeam.fMass+fTheTarget.fMass,4)-2*pow(EAvailCm+fTheBeam.fMass+fTheTarget.fMass,2)*(pow(fTheBeam.fMass,2)+pow(fTheTarget.fMass,2))+pow(pow(fTheBeam.fMass,2)+
+                                   pow(fTheTarget.fMass,2),2)-4*pow(fTheBeam.fMass*fTheTarget.fMass,2))/(4*pow(EAvailCm+fTheBeam.fMass+fTheTarget.fMass,2)) );  
+  double EjectileTotalEnergyCm = sqrt(pow(MomentumModuleCm,2)+pow(fTheBeam.fMass,2));
+  TLorentzVector TheEjectile (MomentumModuleCm*sin(ThetaRandomCm)*cos(PhiEjectile),MomentumModuleCm*sin(ThetaRandomCm)*sin(PhiEjectile),MomentumModuleCm*cos(ThetaRandomCm),EjectileTotalEnergyCm);
+  TheEjectile.Boost(TotalMomentum.BoostVector());
   TLorentzVector TheRecoil = TotalMomentum - TheEjectile;
+  //
   
   //
   //Setting momenta of each particle
@@ -163,6 +172,14 @@ int UNISRutherfordScattering::ProcessSetCommand(const char * line)
     double TheAngle;
     LineStream>>TheAngle;
     fMinAngle=TheAngle*TMath::DegToRad();
+  } else if(WhatToSet.compare("max_angle")==0) {
+    double TheAngle;
+    LineStream>>TheAngle;
+    fMaxAngle=TheAngle*TMath::DegToRad();
+  } else if(WhatToSet.compare("uniform_ang_distr")==0) {
+    std::string TheValue;
+    LineStream>>TheValue;
+    if(TheValue.compare("true")==0) fIsDistributionUniform=true;
   } else {
     return 0; 
   }

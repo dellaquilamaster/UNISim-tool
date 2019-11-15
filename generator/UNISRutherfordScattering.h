@@ -35,8 +35,10 @@ private :
   
   //
   // Distribution function used to generate the scattering angle
-  double fMinAngle; //minimum scattering angle used to generate Rutherford scattering data
-  TF1 * fRutherfordDistribution;
+  double fMinAngle; //minimum scattering angle used to generate elastic scattering data
+  double fMaxAngle; //maximum scattering angle used to generate elastic scattering data
+  TF1 * fAngularDistribution;
+  bool fIsDistributionUniform; //true if the user chooses an uniform distribution instead of a rutherford-like
   //
 };
 

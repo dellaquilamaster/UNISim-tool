@@ -12,10 +12,17 @@
 *
 
 *
-* 20Ne + 197Au -> 20Ne + 197Au at INFN-LNL (2016)
+* 20Ne + 1H -> 20Ne + 1H at INFN-LNL (2016)
 *
 
 define particle 0 -Z=10 -A=20 *** elastically scattered 20Ne
-define particle 1 -Z=79 -A=197 *** recoiling target
+define particle 1 -Z=1 -A=1 *** recoiling target
 
-set min_angle 2 *** minimum scattering angle in degrees
+*
+set min_angle 2. *** minimum scattering angle in degrees
+*
+
+*
+* one can optionally set a Uniform angular distribution instead of a Rutherford-like one
+set uniform_ang_distr true *** true for uniform angular distribution
+*
