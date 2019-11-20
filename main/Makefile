@@ -1,4 +1,4 @@
-CFLAGS    :=`root-config --cflags --libs`
+CFLAGS    :=`root-config --cflags --libs` -lGeom -lEve -lGed -lRGL -lEG -lTreePlayer -lMathMore
 
 PROG      :=exec_UNISim-tool.exe
 
@@ -36,7 +36,7 @@ all : build
 build : $(PROG)
 
 $(PROG) : $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $(CFLAGS) $(RLIBS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $(RLIBS) $(CFLAGS)
 
 install:
 	@cp $(PROG) $(UNISimSrc)/$(PROG)
