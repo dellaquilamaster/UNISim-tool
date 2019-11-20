@@ -10,6 +10,8 @@ fConfigurationFile(file_config),
 fBeamCenter(0,0,0),
 fBeamAngularSpread(0),
 fBeamPositionSpread(0),
+fPhysicsModelName(""),
+fPhysicsConfigFileName(""),
 fOutputFolder("./output/"),
 fOutputFileName(),
 fTheTree(0),
@@ -141,20 +143,20 @@ int UNISFramework::ProcessSetCommand(const char * line)
   } else if(WhatToSet.compare("TARGET_THICKNESS")==0) {
     fTargetThickness=std::stof(ValueToSet);
   } else if(WhatToSet.compare("PHYSICS_MODEL")==0) {
-      if(ValueToSet.compare("SequentialDecay")==0) {
+      if( (fPhysicsModelName.empty() && ValueToSet.compare("SequentialDecay")==0) || fPhysicsModelName.compare("SequentialDecay")==0) {
         fPhysicsModelName.assign("SequentialDecay");
         fTheEventGenerator = new UNISSequentialDecay();
         LineStream>>ValueToSet;
-        fPhysicsConfigFileName.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
+        if(fPhysicsConfigFileName.empty()) fPhysicsConfigFileName.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
         if(fTheEventGenerator->LoadConfiguration(fPhysicsConfigFileName.c_str())<=0) {
           printf("Error: error while building SequentialDecay event generator from file %s\nAborting!", fPhysicsConfigFileName.c_str());
           exit(1);
         }
-      } if(ValueToSet.compare("RutherfordScattering")==0) {
+      } if( (fPhysicsModelName.empty() && ValueToSet.compare("RutherfordScattering")==0) || fPhysicsModelName.compare("RutherfordScattering")==0) {
         fPhysicsModelName.assign("RutherfordScattering");
         fTheEventGenerator = new UNISRutherfordScattering();
         LineStream>>ValueToSet;
-        fPhysicsConfigFileName.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
+        if(fPhysicsConfigFileName.empty()) fPhysicsConfigFileName.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
         if(fTheEventGenerator->LoadConfiguration(fPhysicsConfigFileName.c_str())<=0) {
           printf("Error: error while building RutherfordScattering event generator from file %s\nAborting!", fPhysicsConfigFileName.c_str());
           exit(1);
@@ -433,6 +435,14 @@ int UNISFramework::ReadInput(int argc, char ** argv)
     }
     if(strcmp(argv[i],"-o")==0) {
       fOutputFileName.assign(argv[++i]);
+      read++;
+    }
+    if(strcmp(argv[i],"-physics")==0) {
+      fPhysicsModelName.assign(argv[++i]);
+      read++;
+    }
+    if(strcmp(argv[i],"-reaction")==0) {
+      fPhysicsConfigFileName.assign(argv[++i]);
       read++;
     }
   }

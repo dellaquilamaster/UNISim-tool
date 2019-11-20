@@ -25,6 +25,14 @@ int main (int argc, char ** argv)
   //
   
   //
+  //Reading input
+  if(TheFramework.ReadInput(argc,argv)<1) {
+    printf("Error: invalid input!\nPlease specify number of events.\nAborting.\n\n");
+    exit(2);
+  }
+  //
+  
+  //
   //Configuring the framework
   if(TheFramework.ConfigureFramework()<=0) {
     printf("Error: failed to configure the framework. Check configuration file. Aborting\n\n");
@@ -35,14 +43,6 @@ int main (int argc, char ** argv)
   //
   //Printing configuration
   TheFramework.PrintConfiguration();
-  //
-  
-  //
-  //Reading input
-  if(TheFramework.ReadInput(argc,argv)<1) {
-    printf("Error: invalid input!\nPlease specify number of events.\nAborting.\n\n");
-    exit(2);
-  }
   //
 
   //

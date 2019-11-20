@@ -46,6 +46,13 @@ clicking on the "Clone or Download" button on the right side of the page and the
 ### Requirements
 The code is compiled using the g++ compiler.
 In order to compile and run the code ROOT >=6 is required (the program has been tested with version 6.16.00). It is not recommended to compile the code with an installation of ROOT <=5.
+### Environment Variables
+As the first step, the user must change the content of the "UNISimSrc" variable contained in the UNISim-tool.sh file to the current path-to-framework (including the final "/").
+Before compiling or running the code, it is required to export the needed environment variables and aliases. This can be done by launching the command:
+````
+$ source path-to-framework/UNISim-tool.sh
+````
+This can usually be done automatically by adding the previous line to the bashrc file.
 ### Compile the Code
 To compile the code and make a clean installation use the sequence of commands:
 ````
@@ -55,12 +62,6 @@ $ make install
 ````
 N will be the number of parallel compilation processes that will be launched.
 The binary file exec_UNISim-tool.exe is generated in the compilation.
-### Environment Variables
-Before compiling or running the code, it is required to export the needed environment variables and aliases. This can be done by launching, from the main folder of UNISim-tool, the command:
-````
-$ source UNISim-tool.sh
-````
-This can usually be done automatically in the bashrc file.
 ### Configure the program
 The program allows to perform simulations using different physics models and any arbitrary configuration of detectors. To configure the program modify the following file:
 ````
@@ -93,9 +94,13 @@ The detection setup can be configured as follows:
 ### Run the code
 To run the UNISim-tool program use the following command from the main program directory:
 ````
-$ ./exec_UNISim.exe -events <N> -o <output>
+$ ./exec_UNISim.exe [OPTIONS]
 ````
-N will be the number of required events, output is the output (ROOT) file name (optional). If output is not specified, the file name will be: "UNIS_Nevents.root".
+[OPTIONS]  
+* -events: this can specify the number of events. This option is mandatory;  
+* -o: this can specify the name of the output file;  
+* -physics: specify the physics model;  
+* -reaction: specify the pathname to the reaction file.  
 ### Run the code in parallel on Malnar
 The code can be run in parallel by using the Malanar computing cluster of the RBI. When the code runs in parallel mode, the number of events to generate are divided into subgroups, and a series of individual independent processes is launched in 
 batch mode. In this case, it is important that the user sets RANDOM_SEED to 0 (see Sect "Configure the program"), in order to obtain a different sequence of random numbers for each individual process.  
