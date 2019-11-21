@@ -38,7 +38,10 @@ private :
   double fMinAngle; //minimum scattering angle used to generate elastic scattering data
   double fMaxAngle; //maximum scattering angle used to generate elastic scattering data
   TF1 * fAngularDistribution;
-  bool fIsDistributionUniform; //true if the user chooses an uniform distribution instead of a rutherford-like
+  bool fIsUserDefinedDistribution; //true if the user chooses a customized angular distribution instead of a rutherford-like
+  std::string fUserDefinedDistrubutionFormula; //the formula for the user-defined angular distribution
+  int fUserDefinedDistributionNumParameters; //number of parameters of the user-defined angular distribution
+  double * fUserDefinedDistributionParameters; //the parameters of the user-defined angular distribution
   //
 };
 

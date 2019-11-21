@@ -162,11 +162,16 @@ We set exclusively the particle of the primary collision: 20Ne and 197Au
 define particle 0 -Z=10 -A=20 : scatteted beam (ejectile)
 define particle 1 -Z=79 -A=197 : recoiling target (recoil)
 ````
-Additionally, one can set the minimum polar angle for the random generator in degrees:  
+Additionally, one can set the minimum and/or maximum polar angles for the random generator in degrees:  
 ````
 set min_angle X
+set max_angle X
 ````  
-The latter is important since the Rutherford cross section diverges at theta=0.  
+By default, data will be simulated by using the standard Rutherford cross-section. However, the user can also define a "user-defined" angular distribution by using the command:
+````
+set user_defined_distribution formula_with_._instead_of_* num_parameters par0 par1 ...
+````  
+In the formula, each parameter is indicated with the sintax [N] (where N is a number from N to NumParameters-1 and all the "*" are replaced by ".".  
 ### Detectors
 In the framework of UNISim-tool, the user can define an arbitrary number of detectors with arbitrary configurations. A list of available detectors and the corresponding options follows:  
 * DSSSD (Double-Sided Silicon Strip Detector facing the target perpendicularly) -> options are: -distance (perpendicular distance from the target), -theta (polar angle of the center in degrees), -phi (azimuthal angle of the center in degrees), -strips (number of front or back strips), -strip_width (width of one strip in cm), -inter_strip (width of the interstrip in cm), -frame_width (width of the ceramic frame in cm), -dead_layer (size of a dead region of silicon before the frame in cm)

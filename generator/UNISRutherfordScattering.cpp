@@ -6,7 +6,10 @@ fTheTwoBodyKinematicsModule(new RelativisticKinematics()),
 fMinAngle(0),
 fMaxAngle(TMath::Pi()),
 fAngularDistribution(0),
-fIsDistributionUniform(false)
+fIsUserDefinedDistribution(false),
+fUserDefinedDistrubutionFormula(""),
+fUserDefinedDistributionNumParameters(0),
+fUserDefinedDistributionParameters(0)
 {}
 
 //____________________________________________________
@@ -51,13 +54,16 @@ int UNISRutherfordScattering::LoadConfiguration(const char * file_name)
   
   //
   //Configuring the angular distribution
-  if(!fIsDistributionUniform) {
+  if(!fIsUserDefinedDistribution) {
     fAngularDistribution = new TF1("RutherfordDistribution", "(([0]*[1]*(1./137)*197)/(4*[2]*(sin(x/2.))^2))^2", fMinAngle, fMaxAngle);
     fAngularDistribution->SetParameter(0, fTheReactionProducts[0]->fZ); //Charge of the projectile (ejectile)
     fAngularDistribution->SetParameter(1, fTheReactionProducts[1]->fZ); //Charge of the target (recoil)
     fAngularDistribution->SetNpx(500);
   } else {
-    fAngularDistribution = new TF1("UniformDistribution", "sin(x)", fMinAngle, fMaxAngle);
+    fAngularDistribution = new TF1("UserDefinedDistribution", fUserDefinedDistrubutionFormula.c_str(), fMinAngle, fMaxAngle);
+    for (int par=0; par<fUserDefinedDistributionNumParameters; par++) {
+      fAngularDistribution->SetParameter(par, fUserDefinedDistributionParameters[par]); 
+    }
   }
   //
   
@@ -79,7 +85,7 @@ std::vector<UNISIon> UNISRutherfordScattering::GetEvent()
   //Calculating the total momentum available in the reaction
   TLorentzVector TotalMomentum = fTheBeam.fMomentum+fTheTarget.fMomentum;
   //Setting the energy to the Rutherford Distribution
-  if(!fIsDistributionUniform) fAngularDistribution->SetParameter(2, BeamEnergy); //kinetic energy of the beam
+  if(!fIsUserDefinedDistribution) fAngularDistribution->SetParameter(2, BeamEnergy); //kinetic energy of the beam
   //
   const int NumParticles = fTheReactionProducts.size(); //number of particles in the primary reaction
   double Masses[NumParticles]; //Masses of each fragment in the exit channel
@@ -176,10 +182,14 @@ int UNISRutherfordScattering::ProcessSetCommand(const char * line)
     double TheAngle;
     LineStream>>TheAngle;
     fMaxAngle=TheAngle*TMath::DegToRad();
-  } else if(WhatToSet.compare("uniform_ang_distr")==0) {
-    std::string TheValue;
-    LineStream>>TheValue;
-    if(TheValue.compare("true")==0) fIsDistributionUniform=true;
+  } else if(WhatToSet.compare("user_defined_distribution")==0) {
+    LineStream >> fUserDefinedDistrubutionFormula >> fUserDefinedDistributionNumParameters;
+    std::replace (fUserDefinedDistrubutionFormula.begin(), fUserDefinedDistrubutionFormula.end(), '.', '*');
+    fUserDefinedDistributionParameters = new double[fUserDefinedDistributionNumParameters];
+    for(int i=0; i<fUserDefinedDistributionNumParameters; i++) {
+      LineStream>>fUserDefinedDistributionParameters[i];
+    }
+    fIsUserDefinedDistribution=true;
   } else {
     return 0; 
   }

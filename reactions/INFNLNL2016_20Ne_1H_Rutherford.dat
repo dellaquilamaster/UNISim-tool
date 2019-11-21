@@ -19,10 +19,12 @@ define particle 0 -Z=10 -A=20 *** elastically scattered 20Ne
 define particle 1 -Z=1 -A=1 *** recoiling target
 
 *
-set min_angle 2. *** minimum scattering angle in degrees
+* optionally: min_angle and max_angle
+set min_angle 2 *** minimum scattering angle in degrees
 *
 
 *
-* one can optionally set a Uniform angular distribution instead of a Rutherford-like one
-set uniform_ang_distr true *** true for uniform angular distribution
+* one can optionally set a user-defined angular distribution instead of a Rutherford-like one
+* Sintax: set user_defined_distribution formula_with_._instead_of_* num_parameters par0 par1 ...
+set user_defined_distribution sin(x) 0 *** user-defined angular distribution
 *
