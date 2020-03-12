@@ -47,7 +47,6 @@ clicking on the "Clone or Download" button on the right side of the page and the
 The code is compiled using the g++ compiler.
 In order to compile and run the code ROOT >=6 is required (the program has been tested with version 6.16.00). It is not recommended to compile the code with an installation of ROOT <=5.
 ### Environment Variables
-As the first step, the user must change the content of the "UNISimSrc" variable contained in the UNISim-tool.sh file to the current path-to-framework (including the final "/").
 Before compiling or running the code, it is required to export the needed environment variables and aliases. This can be done by launching the command:
 ````
 $ source path-to-framework/UNISim-tool.sh
