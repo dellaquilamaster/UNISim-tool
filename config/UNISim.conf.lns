@@ -9,7 +9,7 @@
 * framework information
 * -------------------------------------
 set VERBOSE_MODE false
-set GRAPHICAL_MODE false
+set GRAPHICAL_MODE true
 set OUTPUT_DIRECTORY "/run/media/daniele/WD_IRB/simulations/201910_LNS_10Be_16C/"
 set RANDOM_SEED 0 ***** use 0 to obtain a unique sequence each time
 * -------------------------------------
@@ -57,12 +57,23 @@ define SETUP "cluster" ***** Definition of the detection setup
 *add DETECTOR DSSSD -distance=15 -theta=42. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
 *add DETECTOR DSSSD -distance=12 -theta=68. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
 
-add DETECTOR DSSSD -distance=11.8 -theta=32. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration (left)
-add DETECTOR DSSSD -distance=8.7 -theta=64. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration (left)
-add DETECTOR DSSSD -distance=11.8 -theta=32. -phi=0 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration
-add DETECTOR DSSSD -distance=8.7 -theta=64. -phi=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration
-add DETECTOR DSSSD -distance=11.8 -theta=32. -phi=270 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *off-plane double-configuration
-add DETECTOR DSSSD -distance=8.7 -theta=64. -phi=270 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *off-plane double-configuration
+*** Setup5
+*add DETECTOR DSSSD -distance=11.8 -theta=32. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration (left)
+*add DETECTOR DSSSD -distance=8.7 -theta=64. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration (left)
+*add DETECTOR DSSSD -distance=11.8 -theta=32. -phi=0 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration
+*add DETECTOR DSSSD -distance=8.7 -theta=64. -phi=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration
+*add DETECTOR DSSSD -distance=11.8 -theta=32. -phi=270 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *off-plane double-configuration
+*add DETECTOR DSSSD -distance=8.7 -theta=64. -phi=270 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *off-plane double-configuration
+***
+
+*** Setup6
+add DETECTOR DSSSD -distance=18 -theta=20. -phi=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
+add DETECTOR DSSSD -distance=18 -theta=20. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0.
+add DETECTOR DSSSD -distance=11.8 -theta=32. -phi=90. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration (left)
+add DETECTOR DSSSD -distance=11.8 -theta=32. -phi=270. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration (left)
+add DETECTOR DSSSD -distance=10 -theta=46. -phi=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration (left)
+add DETECTOR DSSSD -distance=10 -theta=46. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *non-symmetric double-configuration (left)
+***
 
 *add DETECTOR DSSSD -distance=11.8 -theta=32. -phi=270 -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. *off-plane single-configuration
 

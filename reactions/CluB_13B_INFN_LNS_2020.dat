@@ -17,26 +17,21 @@
 *
 
 *
-* 10Be + 7Li -> 16C* + p -> p + 4He + 12Be at LNS
+* 13B + 1H -> 13B* + 1H at INFN-LNS 
 *
 
-define particle 0 -Z=6 -A=16 *** 16C excited defined as particle "0". This will decay according to the decay scheme below
-define particle 1 -Z=1 -A=1 *** light recoil
+define particle 0 -Z=1 -A=1 *** 
+define particle 1 -Z=5 -A=13 *** 
 *
 * including some excited state of the particle 0
 *
-set spectroscopy 0 -Ex=26 -Gamma=0.
+set spectroscopy 1 -Ex=24 -Gamma=0.
 *
 * defining the decay mode of the particle 0
 *
-set decay 0 0 -Z=2 -A=4 *** particle 0 of the decay of the fragment 0
-set decay 0 1 -Z=4 -A=12 *** particle 1 of the decay of the fragment 0
+set decay 1 0 -Z=3 -A=9 *** particle 0 of the decay of the fragment 0
+set decay 1 1 -Z=2 -A=4*** particle 1 of the decay of the fragment 0
 *
-
-set spectroscopy 0_1 -Ex=11 -Gamma=0.
-
-set decay 0_1 0 -Z=2 -A=6
-set decay 0_1 1 -Z=2 -A=6
 
 * One can also set the spectroscopy and decay mode of one of the secondary particles of the decay by using e.g. set spectroscopy 0_0 or 0_1 or set decay 0_0 or 0_1 and so on
 * Particle numbers have always to start with 0. So one might set for instance the decay of the particle 0_1 in the particles 0, 1, 2 and 3.
