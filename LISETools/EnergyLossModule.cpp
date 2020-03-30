@@ -3,7 +3,8 @@
 
 //______________________________________________
 EnergyLossModule::EnergyLossModule(const char * program_path) :
-fProgramPath(program_path)
+fProgramPath(program_path),
+fEnergyLossPrecision(0.001)
 {
   if(fProgramPath.empty()) {
     fProgramPath.assign(".");
@@ -142,10 +143,15 @@ int EnergyLossModule::LoadRangeFile(const char * file_name)
 }
 
 //______________________________________________
+void EnergyLossModule::SetEnergyLossPrecision(double new_precision)
+{
+  fEnergyLossPrecision=new_precision;
+} 
+
+//______________________________________________
 double EnergyLossModule::GetEnergyLoss(int Z, int A, double Einc, const char * material, double thickness_um, int model)
 {
-  double Precision=0.00001; //Lower is this number higher is the precision (slower calculation)
-  double dThicknessMax=thickness_um*1E-3; //This is the maximum thickness used as the integration step
+  double dThicknessMax=thickness_um; //This is the maximum thickness used as the integration step
   double IntegrateThickness=0;
   double dThickness=dThicknessMax;
   double Eresidual=Einc;
@@ -175,7 +181,7 @@ double EnergyLossModule::GetEnergyLoss(int Z, int A, double Einc, const char * m
     }
 
     if(TheSplineInterpolator->Deriv(Eresidual/mass_uma)!=0) {
-      dThickness=fmin(dThicknessMax,std::abs(Precision/(TheSplineInterpolator->Eval(Eresidual/mass_uma)*TheSplineInterpolator->Deriv(Eresidual/mass_uma)))); //variable integration step with fixed precision
+      dThickness=fmin(dThicknessMax,std::fabs(fEnergyLossPrecision/TheSplineInterpolator->Deriv(Eresidual/mass_uma))); //variable integration step with fixed precision
     }
 
     double ELossStep=dThickness*TheSplineInterpolator->Eval(Eresidual/mass_uma);
@@ -191,7 +197,7 @@ double EnergyLossModule::GetEnergyLoss(int Z, int A, double Einc, const char * m
 double EnergyLossModule::GetResidualEnergy(int Z, int A, double Eloss, const char * material, double thickness_um, int model)
 {
   double Einc=GetIncidentEnergy(Z,A,Eloss,material,thickness_um, model);
-  if(Einc<0) return -1; //the particle cannot lose this energy (energy greater than punch through energy)
+  if(Einc<0) return -1; //the particle cannot deposit this energy (energy greater than punch through energy)
   return Einc-Eloss;
 }
 
@@ -204,22 +210,89 @@ double EnergyLossModule::GetIncidentEnergy(int Z, int A, double Eloss, const cha
 
   ElossStep=GetEnergyLoss(Z,A,EincStep,material,thickness_um, model);
 
-  if(ElossStep<Eloss) return -1; //the particle cannot lose this energy (energy greater than punch through energy)
+  if(ElossStep<Eloss) return -1; //the particle cannot deposit this energy (energy greater than punch through energy)
 
   for(;;EincStep+=dE)
   {
     ElossStep=GetEnergyLoss(Z,A,EincStep,material,thickness_um, model);
 
     if(ElossStep<Eloss) {
-      dE=-std::abs(dE)/2;
+      dE=-std::fabs(dE)/2;
     }
     if(ElossStep>Eloss && dE<0) {
-      dE=std::abs(dE);
+      dE=std::fabs(dE);
     }
-    if(std::abs(dE)<0.00001) break;
+    if(std::fabs(dE)<fEnergyLossPrecision) break;
   }
 
   return EincStep;
+}
+
+//______________________________________________
+double EnergyLossModule::GetIncidentEnergyFromResidual(int Z, int A, double Eres, const char * material, double thickness_um, int model)
+{
+  double EincStep=Eres;
+  double E_residual_step;
+  double dE=30.;
+
+  while(1)
+  {
+    double EincTest = EincStep+dE;
+    E_residual_step=EincTest-GetEnergyLoss(Z,A,EincTest,material,thickness_um, model);
+    
+    if(E_residual_step<Eres) {
+      EincStep=EincTest;
+      dE=1.1*dE;
+    } else {
+      dE=0.1*dE; 
+    }
+    if(dE<fEnergyLossPrecision) break;
+  }
+
+  return EincStep;
+}
+
+//______________________________________________
+double EnergyLossModule::GetThicknessFromEnergyLoss(int Z, int A, double Einc, double Eloss, const char * material, int model)
+{
+  //
+  if(Einc<Eloss) return -1; //The particle does not have sufficient energy to loose Eloss
+  //
+  double Range=GetRangeFromEnergy(Z,A,Einc,material,model);
+  if(Range<0) return -100;
+  //
+  double thickness_precision_target = 0.01;
+  double MinThickness=0.;
+  double MaxThickness=Range;
+  double TestThickness=(MinThickness+MaxThickness)/2.;
+  double ElossStep=Einc;
+  //
+  
+  while(1)
+  {
+    //
+    if(ElossStep<Eloss) {
+      //Test thickness is smaller than the target value
+      MinThickness=TestThickness;
+    } else {
+      //Test thickness is greater than the target value
+      MaxThickness=TestThickness;
+    }
+    //
+    
+    //
+    TestThickness=(MinThickness+MaxThickness)/2.;
+    //
+    
+    //
+    if(std::fabs(MaxThickness-MinThickness)<thickness_precision_target) break;
+    //
+    
+    ElossStep=GetEnergyLoss(Z,A,Einc,material,TestThickness, model);
+
+  }
+
+  return TestThickness;
 }
 
 //______________________________________________
@@ -229,9 +302,9 @@ double EnergyLossModule::GetRangeFromEnergy(int Z, int A, double Einc, const cha
   std::string TheCombination (Form("LISE_Range_Z%02d_A%02d_%s",Z, A, material));
 
   //Check if information is present
-  if(SplineInterpolator[model].find(TheCombination)==SplineInterpolator[model].end()) {
+  if(RangeSplineInterpolator[model].find(TheCombination)==RangeSplineInterpolator[model].end()) {
     if(LoadRangeFile(Form("%s/input/LISE_Range_Z%02d_A%02d_%s.dat", fProgramPath.c_str(), Z, A, material))<=0) {
-      printf("Error: information not present for Z=%d A=%d material=%s\n", Z, A, material);
+      printf("Error: range information not present for Z=%d A=%d material=%s\n", Z, A, material);
       return -100;
     }
   }
@@ -253,9 +326,9 @@ double EnergyLossModule::GetEnergyFromRange(int Z, int A, double range, const ch
   std::string TheCombination (Form("LISE_Range_Z%02d_A%02d_%s",Z, A, material));
 
   //Check if information is present
-  if(SplineInterpolator[model].find(TheCombination)==SplineInterpolator[model].end()) {
+  if(RangeSplineInterpolator[model].find(TheCombination)==RangeSplineInterpolator[model].end()) {
     if(LoadRangeFile(Form("%s/input/LISE_Range_Z%02d_A%02d_%s.dat", fProgramPath.c_str(), Z, A, material))<=0) {
-      printf("Error: information not present for Z=%d A=%d material=%s\n", Z, A, material);
+      printf("Error: range information not present for Z=%d A=%d material=%s\n", Z, A, material);
       return -100;
     }
   }

@@ -23,16 +23,16 @@ SRCS = $(wildcard *.$(SrcSuf))
 OBJS = $(patsubst %.$(SrcSuf), %.$(ObjSuf), $(SRCS))
 
 .$(SrcSuf).$(ObjSuf):
-	@$(CXX) $(CXXFLAGS) -c $< $(SYSLIB) $(CFLAGS)
 	@echo "$(CXX) $(CXXFLAGS) -c $< $(SYSLIB) $(CFLAGS)"
+	@$(CXX) $(CXXFLAGS) -c $< $(SYSLIB) $(CFLAGS)
 
 all: $(UNISFRAMEWORK_LIB)
 
 .SUFFIXES: .$(SrcSuf) .$(ObjSuf) .$(DllSuf)
 
 $(UNISFRAMEWORK_LIB): $(OBJS)
-	@$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(CFLAGS) $(RLIBS)
 	@echo "$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(CFLAGS) $(RLIBS)"
+	@$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(CFLAGS) $(RLIBS)
 
 install:
 	@echo "cp $(UNISFRAMEWORK_LIB) $(UNISimSrc)lib/."

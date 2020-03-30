@@ -40,14 +40,18 @@ public:
 
   int LoadEnergyLossFile(const char *);
   int LoadRangeFile(const char *);
+  void SetEnergyLossPrecision(double precision=0.001); //Set the precision for energy loss calculation
   void Clear();
 
   double GetEnergyLoss(int Z, int A, double Einc, const char * material, double thickness_um, int model=1);      //Calculates the energy loss in a given material
   double GetResidualEnergy(int Z, int A, double Eloss, const char * material, double thickness_um, int model=1); //Calculates the residual energy starting from the Eloss in a given material
   double GetIncidentEnergy(int Z, int A, double Eloss, const char * material, double thickness_um, int model=1); //Calculates the incident energy starting from the Eloss in a given material
+  double GetIncidentEnergyFromResidual(int Z, int A, double Eres, const char * material, double thickness_um, int model=1); //Calculates the incident energy starting from the Eres after a given material
 
   double GetRangeFromEnergy(int Z, int A, double Einc, const char * material, int model=1);  //Calculates the particle range at a given energy in a given material
   double GetEnergyFromRange(int Z, int A, double range, const char * material, int model=1); //Calculates the particle energy to penetrate a given range into a given material
+  
+  double GetThicknessFromEnergyLoss(int Z, int A, double Einc, double Eloss, const char * material, int model=1); //Calculates the thickness of a given material from the energy loss of a particle of given energy
 
   void DrawdEdx(int Z, int A, const char * material, int model=1);
 
@@ -71,6 +75,8 @@ private:
   nuclear_masses *NucData;
 
   std::string fProgramPath;
+
+  double fEnergyLossPrecision; //Precision in MeV for energy loss calculation. Lower is this number higher is the precision (slower calculation)
 };
 
 #endif
