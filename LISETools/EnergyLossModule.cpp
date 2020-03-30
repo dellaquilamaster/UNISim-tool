@@ -265,11 +265,15 @@ double EnergyLossModule::GetThicknessFromEnergyLoss(int Z, int A, double Einc, d
   double MinThickness=0.;
   double MaxThickness=Range;
   double TestThickness=(MinThickness+MaxThickness)/2.;
-  double ElossStep=Einc;
+  double ElossStep;
   //
-  
+    
   while(1)
   {
+    //
+    ElossStep=GetEnergyLoss(Z,A,Einc,material,TestThickness, model);
+    //
+    
     //
     if(ElossStep<Eloss) {
       //Test thickness is smaller than the target value
@@ -283,13 +287,10 @@ double EnergyLossModule::GetThicknessFromEnergyLoss(int Z, int A, double Einc, d
     //
     TestThickness=(MinThickness+MaxThickness)/2.;
     //
-    
+        
     //
     if(std::fabs(MaxThickness-MinThickness)<thickness_precision_target) break;
     //
-    
-    ElossStep=GetEnergyLoss(Z,A,Einc,material,TestThickness, model);
-
   }
 
   return TestThickness;
