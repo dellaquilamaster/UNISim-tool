@@ -454,12 +454,12 @@ void UNISFaziaQuartet::Draw3D(Option_t * draw_opt) const
     for(Int_t j=0; j<TRowColumn; j++)
     {      
       CsICrystal[i][j]  = new TEveGeoShape(Form("Pad_%02d_%02d",i,j));
-      CsICrystal[i][j]->SetShape(new TGeoPara(TPadEffective_semi, TPadEffective_semi, CsICrystalLength, 0, 0, 0));
+      CsICrystal[i][j]->SetShape(new TGeoPara(TPadEffective_semi, TPadEffective_semi, CsICrystalLength/2., 0, 0, 0));
       CsICrystal[i][j]->SetMainColor(kBlue-4);
       CsICrystal[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
       //
       //Rotation (translation) to the final position
-      CsICrystal[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance+CsICrystalLength+0.1);
+      CsICrystal[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance+CsICrystalLength/2.+0.1);
       CsICrystal[i][j]->RefMainTrans().RotatePF(1, 2, -TNominalPhi-180*TMath::DegToRad());
       CsICrystal[i][j]->RefMainTrans().RotatePF(3, 1, TNominalTheta);
       CsICrystal[i][j]->RefMainTrans().RotatePF(1, 2, TNominalPhi+180*TMath::DegToRad());
