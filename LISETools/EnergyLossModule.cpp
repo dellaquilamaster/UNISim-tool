@@ -205,24 +205,23 @@ double EnergyLossModule::GetResidualEnergy(int Z, int A, double Eloss, const cha
 double EnergyLossModule::GetIncidentEnergy(int Z, int A, double Eloss, const char * material, double thickness_um, int model)
 {
   double EincStep=Eloss;
-  double ElossStep;
+  double E_loss_step;
   double dE=30.;
+  
+  if(GetEnergyLoss(Z,A,Eloss,material,thickness_um, model)<Eloss) return -1; //Eloss is greater than the punch-through energy. The particle cannot deposit such energy in this material.
 
-  ElossStep=GetEnergyLoss(Z,A,EincStep,material,thickness_um, model);
-
-  if(ElossStep<Eloss) return -1; //the particle cannot deposit this energy (energy greater than punch through energy)
-
-  for(;;EincStep+=dE)
+  while(1)
   {
-    ElossStep=GetEnergyLoss(Z,A,EincStep,material,thickness_um, model);
-
-    if(ElossStep<Eloss) {
-      dE=-std::fabs(dE)/2;
+    double EincTest = EincStep+dE;
+    E_loss_step=GetEnergyLoss(Z,A,EincTest,material,thickness_um, model);
+    
+    if(E_loss_step>Eloss) {
+      EincStep=EincTest;
+      dE=1.1*dE;
+    } else {
+      dE=0.1*dE; 
     }
-    if(ElossStep>Eloss && dE<0) {
-      dE=std::fabs(dE);
-    }
-    if(std::fabs(dE)<fEnergyLossPrecision) break;
+    if(dE<fEnergyLossPrecision) break;
   }
 
   return EincStep;

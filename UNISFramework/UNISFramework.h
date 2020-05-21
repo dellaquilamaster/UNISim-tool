@@ -57,6 +57,7 @@
 #include <TDetectionUnit.h>
 #include <TStripCluster.h>
 #include <TStripDetector.h>
+#include <UNISFaziaQuartet.h>
 #include <TLampWedgeDetector.h>
 #include <UNISIon.h>
 #include <UNISShared.h>

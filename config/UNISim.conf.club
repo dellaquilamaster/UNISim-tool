@@ -1,0 +1,70 @@
+**************************************************************************
+* UNISim.conf
+* This file contains the configuration of the framework UNISim
+* Modify this file to change any relevant configuration of the framework
+* For information please contact Daniele Dell'Aquila (daniele.dellaquila@irb.hr)
+**************************************************************************
+
+*
+* framework information
+* -------------------------------------
+set VERBOSE_MODE false
+set GRAPHICAL_MODE true
+set OUTPUT_DIRECTORY "/run/media/daniele/WD_IRB/simulations/201910_TRIUMF_9Li_15C_16C/"
+set RANDOM_SEED 0 ***** use 0 to obtain a unique sequence each time
+* -------------------------------------
+
+*
+* reaction information
+* -------------------------------------
+set BEAM -Z=5 -A=13
+set BEAM_ENERGY 650 ***** MeV
+set BEAM_POSITION -X=0. -Y=0. -X=0. ***** beam position on the target in cm (with respect to the target center)
+set BEAM_ANGULAR_SPREAD 0. ***** FWHM of the beam angular spread in deg
+set BEAM_POSITION_SPREAD 0. ***** FWHM of the beam position spread in cm
+set TARGET -Z=1 -A=1
+*
+* Definition of the physics model used for the calculation
+* List of available physics models:
+*  - SequentialDecay: P+T->X1*+X2*+...+Xm*+y1+y2+...+yn -> (X1_1* + X1_2* + ... + x1_2 + ... + x1_l) + ... + (Xn_1* + Xn_2* + ... +xn_2+...+xn_j) + y1 + y2 + ... yn -> ...
+*
+set PHYSICS_MODEL SequentialDecay "./reactions/CluB_13B_INFN_LNS_2020.dat"
+* -------------------------------------
+
+*
+* target information
+* -------------------------------------
+set TARGET_MATERIAL B
+* 9Be target (1mg/cm2 = 5.4054054 um)
+* 11B target (1mg/cm2 = 4.254957 um)
+set TARGET_THICKNESS 0 ***** um
+* -------------------------------------
+
+*
+* detector configuration
+* -------------------------------------
+define SETUP "cluster" ***** Definition of the detection setup
+*
+* use "add" to add a detector to the setup, you need to specify the setup
+* Positions are given in cm, while angles are given in deg.
+* Possible detector types:
+*  - DSSSD (Double-Sided Silicon Strip Detector facing the target perpendicularly) -> options: -distance, -theta, -phi, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer
+*  - DSSSD_ROT (Double-Sided Silicon Strip Detector with a customized position and rotation) -> options: -X0, -Y0, -Z0, -tilt_X, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer           
+*  - LAMP_WEDGE (Lamp detector wedge) -> options: -distance -phi_pos, -tilt, -frame_distance, -strips, -strip_width, -inter_strip
+*
+*** FARCOS CluB
+add DETECTOR DSSSD -distance=80. -theta=9.98	  -phi=-111.11  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=10.92  -phi=-78.61  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=9.97	  -phi=-164.25  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=4.48	  -phi=-143.02  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=4.65	  -phi=-62.54  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=9.14	  -phi=-26.95  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=9.14	  -phi=-206.95  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=4.65	  -phi=-242.54  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=4.48	  -phi=36.98  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=9.97	  -phi=15.75  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=10.92  -phi=-258.61  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR DSSSD -distance=80. -theta=9.98	  -phi=68.90  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+***                                     
+*                                       
+* ------------------------------------- 

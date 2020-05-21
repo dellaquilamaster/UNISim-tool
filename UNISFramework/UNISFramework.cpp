@@ -214,12 +214,12 @@ int UNISFramework::ProcessAddCommand(const char * line)
     std::string ValueToSet;
         
     if(DetectorType.compare("DSSSD")==0) {
-      double distance;
-      double theta_pos;
-      double phi_pos;
-      int strip_number;
-      double strip_width;
-      double strip_inter;
+      double distance=0;
+      double theta_pos=0;
+      double phi_pos=0;
+      int strip_number=0;
+      double strip_width=0;
+      double strip_inter=0;
       double frame_width=0;
       double dead_layer=0;
       
@@ -255,13 +255,13 @@ int UNISFramework::ProcessAddCommand(const char * line)
       fExpSetup->RegisterUnit(NewDetector);
       
     } else if(DetectorType.compare("DSSSD_ROT")==0) {
-      double X0;
-      double Y0;
-      double Z0;
-      double tilt_X;
-      int strip_number;
-      double strip_width;
-      double strip_inter;
+      double X0=0;
+      double Y0=0;
+      double Z0=0;
+      double tilt_X=0;
+      int strip_number=0;
+      double strip_width=0;
+      double strip_inter=0;
       double frame_width=0;
       double dead_layer=0;
       
@@ -300,13 +300,13 @@ int UNISFramework::ProcessAddCommand(const char * line)
       fExpSetup->RegisterUnit(NewDetector);
       
     } else if(DetectorType.compare("LAMP_WEDGE")==0) {
-      double distance;
-      double phi_pos;
-      double tilt;
-      double bottom_frame_distance;
-      int strip_number;
-      double strip_width;
-      double strip_inter;
+      double distance=0;
+      double phi_pos=0;
+      double tilt=0;
+      double bottom_frame_distance=0;
+      int strip_number=0;
+      double strip_width=0;
+      double strip_inter=0;
       while (LineStream>>ValueToSet) {
         if(ValueToSet.find("-distance")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-distance=")+10)); 
@@ -333,6 +333,32 @@ int UNISFramework::ProcessAddCommand(const char * line)
       }
       
       TLampWedgeDetector * NewDetector = new TLampWedgeDetector(distance,phi_pos,tilt,bottom_frame_distance,strip_number,strip_width,strip_inter);
+      fExpSetup->RegisterUnit(NewDetector);
+    } else if(DetectorType.compare("FAZIA_QUARTET")==0) {
+      double displacement=0;
+      double theta_pos=0;
+      double phi_pos=0;
+      double pad_width=0;
+      double frame_width=0;
+      while (LineStream>>ValueToSet) {
+        if(ValueToSet.find("-displacement")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-displacement=")+14));
+          displacement=std::stoi(ValueToSet); 
+        } else if(ValueToSet.find("-phi_pos")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-phi_pos=")+9)); 
+          phi_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
+        } else if(ValueToSet.find("-theta_pos")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-theta_pos=")+11)); 
+          theta_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
+        } else if(ValueToSet.find("-pad_width")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-pad_width=")+11)); 
+          pad_width=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-frame_width")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-frame_width=")+13)); 
+          frame_width=std::stof(ValueToSet); 
+        }
+      }
+      UNISFaziaQuartet * NewDetector = new UNISFaziaQuartet(displacement,theta_pos,phi_pos,pad_width,frame_width);
       fExpSetup->RegisterUnit(NewDetector);
     }
     

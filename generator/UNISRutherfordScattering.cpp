@@ -58,7 +58,7 @@ int UNISRutherfordScattering::LoadConfiguration(const char * file_name)
     fAngularDistribution = new TF1("RutherfordDistribution", "(([0]*[1]*(1./137)*197)/(4*[2]*(sin(x/2.))^2))^2", fMinAngle, fMaxAngle);
     fAngularDistribution->SetParameter(0, fTheReactionProducts[0]->fZ); //Charge of the projectile (ejectile)
     fAngularDistribution->SetParameter(1, fTheReactionProducts[1]->fZ); //Charge of the target (recoil)
-    fAngularDistribution->SetNpx(500);
+    fAngularDistribution->SetNpx(200);
   } else {
     fAngularDistribution = new TF1("UserDefinedDistribution", fUserDefinedDistrubutionFormula.c_str(), fMinAngle, fMaxAngle);
     for (int par=0; par<fUserDefinedDistributionNumParameters; par++) {

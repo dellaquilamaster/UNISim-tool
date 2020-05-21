@@ -1,4 +1,4 @@
-CFLAGS    :=`root-config --cflags --libs` -lGeom -lEve -lGed -lRGL -lEG -lTreePlayer -lMathMore
+CFLAGS    :=`root-config --cflags --libs`
 
 DllSuf    := so
 SrcSuf    := cpp
@@ -8,45 +8,43 @@ INCLUDES  := -I$(UNISimSrc)
 INCLUDES  += -I$(UNISimSrc)UNISFramework
 INCLUDES  += -I$(UNISimSrc)detectors/DetectionSetup
 INCLUDES  += -I$(UNISimSrc)detectors/Strip
-INCLUDES  += -I$(UNISimSrc)detectors/Fazia
 INCLUDES  += -I$(UNISimSrc)detectors/Lamp
-INCLUDES  += -I$(UNISimSrc)generator
+INCLUDES  += -I$(UNISimSrc)detectors/Fazia
 INCLUDES  += -I$(UNISimSrc)UNISRootEvent
 INCLUDES  += -I$(UNISimSrc)UNISShared
-INCLUDES  += -I$(UNISimSrc)LISETools
 
 RLIBS     := -L$(UNISimSrc)lib
 
 CXXFLAGS  += $(INCLUDES) -std=c++11 -fPIC -O3 -Wall -Wpedantic
 
-UNISFRAMEWORK_LIB := libUNISFramework.$(DllSuf)
+UNIMFAZIAQUARTET_LIB := libUNISFaziaQuartet.$(DllSuf)
 SRCS = $(wildcard *.$(SrcSuf))
 OBJS = $(patsubst %.$(SrcSuf), %.$(ObjSuf), $(SRCS))
 
 .$(SrcSuf).$(ObjSuf):
-	@echo "$(CXX) $(CXXFLAGS) -c $< $(SYSLIB) $(CFLAGS)"
 	@$(CXX) $(CXXFLAGS) -c $< $(SYSLIB) $(CFLAGS)
+	@echo "$(CXX) $(CXXFLAGS) -c $< $(SYSLIB) $(CFLAGS)"
 
-all: $(UNISFRAMEWORK_LIB)
+all: $(UNIMFAZIAQUARTET_LIB)
 
 .SUFFIXES: .$(SrcSuf) .$(ObjSuf) .$(DllSuf)
 
-$(UNISFRAMEWORK_LIB): $(OBJS)
-	@echo "$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(CFLAGS) $(RLIBS)"
+$(UNIMFAZIAQUARTET_LIB): $(OBJS)
 	@$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(CFLAGS) $(RLIBS)
+	@echo "$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(CFLAGS) $(RLIBS)"
 
 install:
-	@echo "cp $(UNISFRAMEWORK_LIB) $(UNISimSrc)lib/."
-	@cp $(UNISFRAMEWORK_LIB) $(UNISimSrc)lib/.
+	@echo "cp $(UNIMFAZIAQUARTET_LIB) $(UNISimSrc)lib/."
+	@cp $(UNIMFAZIAQUARTET_LIB) $(UNISimSrc)lib/.
 
 .PHONY: distclean
 distclean:
-	@rm -f $(UNISFRAMEWORK_LIB) $(OBJS)
-	@rm -f $(UNISimSrc)lib/$(UNISFRAMEWORK_LIB)
+	@rm -f $(UNIMFAZIAQUARTET_LIB) $(OBJS)
+	@rm -f $(UNISimSrc)lib/$(UNIMFAZIAQUARTET_LIB)
 
 .PHONY: clean
 clean:
-	@$(RM) -f $(UNISFRAMEWORK_LIB) $(OBJS)
+	@$(RM) -f $(UNIMFAZIAQUARTET_LIB) $(OBJS)
 	@$(RM) -f *.expand
 
 .PHONY: lint
