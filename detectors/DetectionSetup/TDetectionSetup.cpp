@@ -48,6 +48,13 @@ void TDetectionSetup::Draw3D (Option_t * opt) const
     i==0 ? fTheDetectors[i]->Draw3D(opt) : fTheDetectors[i]->Draw3D(Form("%s SAME",opt));
   }
   
+  //
+  TGLViewer *v = gEve->GetDefaultGLViewer();
+  v->ColorSet().Background().SetColor(kWhite);
+  v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
+  v->RefreshPadEditor(v);
+  //
+  
   return; 
 }
 

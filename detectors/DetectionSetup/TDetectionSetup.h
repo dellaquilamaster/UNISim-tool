@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <vector>
 #include <TROOT.h>
+#include <TEveManager.h>
+#include <TGLViewer.h>
+#include <TGFrame.h>
 
 #include "TDetectionUnit.h"
 

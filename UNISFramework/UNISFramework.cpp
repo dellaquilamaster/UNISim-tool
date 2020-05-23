@@ -334,6 +334,33 @@ int UNISFramework::ProcessAddCommand(const char * line)
       
       TLampWedgeDetector * NewDetector = new TLampWedgeDetector(distance,phi_pos,tilt,bottom_frame_distance,strip_number,strip_width,strip_inter);
       fExpSetup->RegisterUnit(NewDetector);
+    } else if(DetectorType.compare("LAMP_WEDGE_MMM")==0) {
+      double distance=0;
+      double phi_pos=0;
+      double tilt=0;
+      double bottom_frame_distance=0;
+      double strip_inter=0;
+      while (LineStream>>ValueToSet) {
+        if(ValueToSet.find("-distance")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-distance=")+10)); 
+          distance=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-phi_pos")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-phi_pos=")+9)); 
+          phi_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
+        } else if(ValueToSet.find("-tilt")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-tilt=")+6)); 
+          tilt=std::stof(ValueToSet)*TMath::DegToRad(); 
+        } else if(ValueToSet.find("-frame_distance")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-frame_distance=")+16)); 
+          bottom_frame_distance=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-inter_strip")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-inter_strip=")+13)); 
+          strip_inter=std::stof(ValueToSet); 
+        }
+      }
+      
+      UNISLampWedgeMMMDetector * NewDetector = new UNISLampWedgeMMMDetector(distance,phi_pos,tilt,bottom_frame_distance,strip_inter);
+      fExpSetup->RegisterUnit(NewDetector);
     } else if(DetectorType.compare("FAZIA_QUARTET")==0) {
       double displacement=0;
       double theta_pos=0;
@@ -668,7 +695,7 @@ void UNISFramework::DisplayTracks()
   //Display the beam track
   TEveStraightLineSet * BeamTrack = new TEveStraightLineSet(Form("BeamTrack"));
   BeamTrack->AddLine(-fBeamCenter.Y(),fBeamCenter.X(),-20,-fBeamCenter.Y(),fBeamCenter.X(),fBeamCenter.Z());
-  BeamTrack->SetMainColor(kWhite);
+  BeamTrack->SetMainColor(kBlack);
   gEve->AddElement(BeamTrack);
   //
   
