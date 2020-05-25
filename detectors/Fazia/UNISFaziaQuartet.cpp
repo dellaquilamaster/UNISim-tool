@@ -1,16 +1,16 @@
 #include "UNISFaziaQuartet.h"
 
 // standard constructor
-UNISFaziaQuartet::UNISFaziaQuartet(Double_t displacement, Double_t theta_pos, Double_t phi_pos, Double_t pad_width, Double_t frame_width) :
+UNISFaziaQuartet::UNISFaziaQuartet(Double_t theta_pos, Double_t phi_pos, Double_t displacement, Double_t pad_width, Double_t frame_width) :
 TXlabversor(1,0,0),
 TYlabversor(0,1,0),
 TZlabversor(0,0,1),
 TPads_number(4),
 TRowColumn(2),
 TNominalDistance(100),
+TDisplacement(displacement),
 TNominalTheta(theta_pos),
 TNominalPhi(phi_pos),
-TDisplacement(displacement),
 TPadEffective_width(pad_width),
 TPadEffective_semi(0.5*TPadEffective_width),
 TFrame_width(frame_width),
@@ -20,7 +20,10 @@ TTelescopeTrue_semi(TPadTrue_semi*TRowColumn),
 TTrueImpactPoint(0.,0.,0.),
 TTelescopeImpactPoint(0.,0.,0.)
 {
-  /*Telescope's corners*/
+  //
+  //Placing the detector at 0 degrees and distance equale to the nominal one (100 cm)
+  //
+  //Telescope corners
   TTopLeftCorner.SetXYZ(TTelescopeTrue_semi,-TTelescopeTrue_semi,TNominalDistance);
   TTopRightCorner.SetXYZ(TTelescopeTrue_semi,TTelescopeTrue_semi,TNominalDistance);
   TBottomLeftCorner.SetXYZ(-TTelescopeTrue_semi,-TTelescopeTrue_semi,TNominalDistance);
@@ -37,40 +40,16 @@ TTelescopeImpactPoint(0.,0.,0.)
     TCentersYprime[i] = new Double_t[TRowColumn]; 
   }
   //
-  /*Setting the position of the telescope center*/
+  //Telescope center
   TTelescopeCenter.SetXYZ(0.,0.,TNominalDistance);
-  /*Rotation of the telescope center to the input position*/
-  TTelescopeCenter.RotateX(theta_pos);
-  TTelescopeCenter.RotateZ(phi_pos+180*TMath::DegToRad());
-  //Moving the center to the displaced position
-  TTelescopeCenter+=TVector3(0,0,TDisplacement);
   //
-  Ta=TTelescopeCenter.X()/TTelescopeCenter.Mag();
-  Tb=TTelescopeCenter.Y()/TTelescopeCenter.Mag();
-  Tc=TTelescopeCenter.Z()/TTelescopeCenter.Mag();
-  Td=-TNominalDistance;
-  /*rotation of the corners to the input position*/
-  TTopLeftCorner   .RotateZ(-phi_pos-180*TMath::DegToRad()); 
-  TTopRightCorner  .RotateZ(-phi_pos-180*TMath::DegToRad()); 
-  TBottomLeftCorner.RotateZ(-phi_pos-180*TMath::DegToRad());
-  TTopLeftCorner   .RotateX(theta_pos);
-  TTopRightCorner  .RotateX(theta_pos);
-  TBottomLeftCorner.RotateX(theta_pos);
-  TTopLeftCorner   .RotateZ(phi_pos+180*TMath::DegToRad());
-  TTopRightCorner  .RotateZ(phi_pos+180*TMath::DegToRad());
-  TBottomLeftCorner.RotateZ(phi_pos+180*TMath::DegToRad());
-  //Translation to the corners to the displaced position
-  TTopLeftCorner   +=TVector3(0,0,TDisplacement);
-  TTopRightCorner  +=TVector3(0,0,TDisplacement);
-  TBottomLeftCorner+=TVector3(0,0,TDisplacement);
-  /*calculation of the X Y versors*/
+  //Telescope reference frame versors
   TXversor=(TTopLeftCorner-TBottomLeftCorner);
   TXversor*=(1./TXversor.Mag());
   TYversor=(TTopRightCorner-TTopLeftCorner);
   TYversor*=(1./TYversor.Mag());    
-  /*************************************************************************************/
   // placement of the entire cluster of pixels on a plane orthogonal to z-axis at the input TNominalDistance
-  // here i represents the pad front and j represents the pad back
+  // here i represents the pad row and j represents the pad column
   for(Int_t i=0; i<TRowColumn; i++)
   {
     for(Int_t j=0; j<TRowColumn; j++)
@@ -78,32 +57,63 @@ TTelescopeImpactPoint(0.,0.,0.)
       TCenters[i][j].SetXYZ((TRowColumn-(2*j+1))*TPadTrue_semi,-(TRowColumn-(2*i+1))*TPadTrue_semi,TNominalDistance);
     }
   }
-  // first rotation around the z axis
+  //
+    
+  //
+  Generate3D(0., 0.);
+  //
+    
+  //
+  //We operate now a series of rotations to reach the final position
+  //First: Rotation about the Z-axis of a quantity (-phi)
+  RotateZ(-phi_pos-180*TMath::DegToRad()); 
+  //Second: Rotation about the X-axis of a quantity (theta)
+  RotateX(theta_pos);
+  //Third: Rotation about the Z-axis of a quantity (phi)
+  RotateZ(phi_pos+180*TMath::DegToRad());
+  //
+  
+  //
+  //Displacement of the cluster
+  Translate(0,0,TDisplacement);
+  //
+}
+
+void UNISFaziaQuartet::RotateZ(Double_t z_angle)
+{
+  //Rotation of the telescope center
+  TTelescopeCenter.RotateZ(z_angle);
+  
+  //Rotation of the corners
+  TTopLeftCorner   .RotateZ(z_angle); 
+  TTopRightCorner  .RotateZ(z_angle); 
+  TBottomLeftCorner.RotateZ(z_angle);
+  
+  //Rotation of pixels
   for(Int_t i=0; i<TRowColumn; i++)
   {
     for(Int_t j=0; j<TRowColumn; j++)
     {
-      TCenters[i][j].RotateZ(-phi_pos-180*TMath::DegToRad());
+      TCenters[i][j].RotateZ(z_angle);
     }
   }
-  // rotation of the entire custer of pixels to the inpunt (theta,phi) position
-  for(Int_t i=0; i<TRowColumn; i++)
-  {
-    for(Int_t j=0; j<TRowColumn; j++)
-    {
-      TCenters[i][j].RotateX(theta_pos);
-      TCenters[i][j].RotateZ(phi_pos+180*TMath::DegToRad());
-    }
-  }
-  // Translation of the entire cluster of pads to the displaced position
-  for(Int_t i=0; i<TRowColumn; i++)
-  {
-    for(Int_t j=0; j<TRowColumn; j++)
-    {
-      TCenters[i][j]+=TVector3(0,0,TDisplacement);
-    }
-  }
-  //  
+  
+  //Calculation of detector reference frame vectors
+  TXversor=(TTopLeftCorner-TBottomLeftCorner);
+  TXversor*=(1./TXversor.Mag());
+  TYversor=(TTopRightCorner-TTopLeftCorner);
+  TYversor*=(1./TYversor.Mag()); 
+  
+  //
+  //Calculation of the detector plane equation
+  TVector3 OriginalDirection(Ta,Tb,Tc);
+  OriginalDirection.RotateZ(z_angle);
+  Ta=OriginalDirection.X()/OriginalDirection.Mag();
+  Tb=OriginalDirection.Y()/OriginalDirection.Mag();
+  Tc=OriginalDirection.Z()/OriginalDirection.Mag();
+  Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
+  //
+  
   // determination of the pixel center coordinates respect to the top right corner of the telescope
   // Here the axes are oriented towards the inner side of the pad, such as that all the coordinates are positive within the detector
   for(Int_t i=0; i<TRowColumn; i++)
@@ -114,16 +124,82 @@ TTelescopeImpactPoint(0.,0.,0.)
       TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
     }
   }
-  /**************************************************************************************/
+  //
+  
+  //
+  Rotate3DZ(z_angle);
+  //
+  
+  return;
+}
+
+void UNISFaziaQuartet::Translate(Double_t x, Double_t y, Double_t z)
+{
+  //
+  TVector3 TranslationVector (y, x, z);
+  
+  //Translation of the telescope center
+  TTelescopeCenter+=TranslationVector;
+  
+  //Translation of the corners
+  TTopLeftCorner+=TranslationVector;
+  TTopRightCorner+=TranslationVector;
+  TBottomLeftCorner+=TranslationVector;
+  
+  //Translation of pixels
+  for(Int_t i=0; i<TRowColumn; i++)
+  {
+    for(Int_t j=0; j<TRowColumn; j++)
+    {
+      TCenters[i][j]+=TranslationVector;
+    }
+  }
+  
+  //Calculation of detector reference frame vectors
+  TXversor=(TTopLeftCorner-TBottomLeftCorner);
+  TXversor*=(1./TXversor.Mag());
+  TYversor=(TTopRightCorner-TTopLeftCorner);
+  TYversor*=(1./TYversor.Mag()); 
+  
+  //
+  //Calculation of the detector plane equation
+  TVector3 OriginalDirection(Ta,Tb,Tc);
+  Ta=OriginalDirection.X()/OriginalDirection.Mag();
+  Tb=OriginalDirection.Y()/OriginalDirection.Mag();
+  Tc=OriginalDirection.Z()/OriginalDirection.Mag();
+  Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
+  //
+  
+  // determination of the pixel center coordinates respect to the top right corner of the telescope
+  // Here the axes are oriented towards the inner side of the pad, such as that all the coordinates are positive within the detector
+  for(Int_t i=0; i<TRowColumn; i++)
+  {
+    for(Int_t j=0; j<TRowColumn; j++)
+    {
+      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
+      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
+    }
+  }
+  //
+  
+  //
+  Translate3D(x,y,z);
+  //
+  
+  return;
 }
 
 void UNISFaziaQuartet::RotateX(Double_t x_angle)
 {
-  /*Rotation of the telescope center to the input position*/
+ //Rotation of the telescope center
   TTelescopeCenter.RotateX(x_angle);
-  //
   
-  /*Rotation of the pad's centers*/
+  //Rotation of the corners
+  TTopLeftCorner   .RotateX(x_angle); 
+  TTopRightCorner  .RotateX(x_angle); 
+  TBottomLeftCorner.RotateX(x_angle);
+  
+  //Rotation of pixels
   for(Int_t i=0; i<TRowColumn; i++)
   {
     for(Int_t j=0; j<TRowColumn; j++)
@@ -131,26 +207,12 @@ void UNISFaziaQuartet::RotateX(Double_t x_angle)
       TCenters[i][j].RotateX(x_angle);
     }
   }
-  /*rotation of the corners to the input position*/
-  TTopLeftCorner   .RotateX(x_angle); 
-  TTopRightCorner  .RotateX(x_angle); 
-  TBottomLeftCorner.RotateX(x_angle);
-  /*calculation of the X Y versors*/
+  
+  //Calculation of detector reference frame vectors
   TXversor=(TTopLeftCorner-TBottomLeftCorner);
   TXversor*=(1./TXversor.Mag());
   TYversor=(TTopRightCorner-TTopLeftCorner);
-  TYversor*=(1./TYversor.Mag());    
-  // determination of the pixel center coordinates respect to the top right corner of the telescope
-  // Here the axes are oriented towards the inner side of the pad, such as that all the coordinates are positive within the detector
-  for(Int_t i=0; i<TRowColumn; i++)
-  {
-    for(Int_t j=0; j<TRowColumn; j++)
-    {
-      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
-      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
-    }
-  }
-  //
+  TYversor*=(1./TYversor.Mag()); 
   
   //
   //Calculation of the detector plane equation
@@ -162,31 +224,6 @@ void UNISFaziaQuartet::RotateX(Double_t x_angle)
   Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
   //
   
-  return;
-}
-
-void UNISFaziaQuartet::RotateY(Double_t y_angle)
-{
-  /*Rotation of the telescope center to the input position*/
-  TTelescopeCenter.RotateY(y_angle);
-  //
-  /*Rotation of the pad's centers*/
-  for(Int_t i=0; i<TRowColumn; i++)
-  {
-    for(Int_t j=0; j<TRowColumn; j++)
-    {
-      TCenters[i][j].RotateY(y_angle);
-    }
-  }
-  /*rotation of the corners to the input position*/
-  TTopLeftCorner   .RotateY(y_angle); 
-  TTopRightCorner  .RotateY(y_angle); 
-  TBottomLeftCorner.RotateY(y_angle);
-  /*calculation of the X Y versors*/
-  TXversor=(TTopLeftCorner-TBottomLeftCorner);
-  TXversor*=(1./TXversor.Mag());
-  TYversor=(TTopRightCorner-TTopLeftCorner);
-  TYversor*=(1./TYversor.Mag());    
   // determination of the pixel center coordinates respect to the top right corner of the telescope
   // Here the axes are oriented towards the inner side of the pad, such as that all the coordinates are positive within the detector
   for(Int_t i=0; i<TRowColumn; i++)
@@ -200,6 +237,38 @@ void UNISFaziaQuartet::RotateY(Double_t y_angle)
   //
   
   //
+  Rotate3DX(x_angle);
+  //
+  
+  return;
+}
+
+void UNISFaziaQuartet::RotateY(Double_t y_angle)
+{
+  //Rotation of the telescope center
+  TTelescopeCenter.RotateY(y_angle);
+  
+  //Rotation of the corners
+  TTopLeftCorner   .RotateY(y_angle); 
+  TTopRightCorner  .RotateY(y_angle); 
+  TBottomLeftCorner.RotateY(y_angle);
+  
+  //Rotation of pixels
+  for(Int_t i=0; i<TRowColumn; i++)
+  {
+    for(Int_t j=0; j<TRowColumn; j++)
+    {
+      TCenters[i][j].RotateY(y_angle);
+    }
+  }
+  
+  //Calculation of detector reference frame vectors
+  TXversor=(TTopLeftCorner-TBottomLeftCorner);
+  TXversor*=(1./TXversor.Mag());
+  TYversor=(TTopRightCorner-TTopLeftCorner);
+  TYversor*=(1./TYversor.Mag()); 
+  
+  //
   //Calculation of the detector plane equation
   TVector3 OriginalDirection(Ta,Tb,Tc);
   OriginalDirection.RotateY(y_angle);
@@ -209,7 +278,200 @@ void UNISFaziaQuartet::RotateY(Double_t y_angle)
   Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
   //
   
+  // determination of the pixel center coordinates respect to the top right corner of the telescope
+  // Here the axes are oriented towards the inner side of the pad, such as that all the coordinates are positive within the detector
+  for(Int_t i=0; i<TRowColumn; i++)
+  {
+    for(Int_t j=0; j<TRowColumn; j++)
+    {
+      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
+      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
+    }
+  }
+  //
+  
+  //
+  Rotate3DY(y_angle);
+  //
+  
   return;
+}
+
+void UNISFaziaQuartet::Generate3D(Double_t theta_pos, Double_t phi_pos)
+{
+  //Creating the Graphics Manager
+  TEveManager::Create();
+  //
+  
+  //
+  DetectorQuartet = new TEveGeoShape("DetectorQuartet");
+  //
+  
+  //
+  fPad = new TEveGeoShape **[TRowColumn];
+  fTopFrame = new TEveGeoShape **[TRowColumn];
+  fBottomFrame = new TEveGeoShape **[TRowColumn];
+  fLeftFrame = new TEveGeoShape **[TRowColumn];
+  fRightFrame = new TEveGeoShape **[TRowColumn];
+  //
+  
+  //
+  for(Int_t i=0; i<TRowColumn; i++)
+  {
+    fPad[i] = new TEveGeoShape *[TRowColumn];
+    fTopFrame[i] = new TEveGeoShape *[TRowColumn];
+    fBottomFrame[i] = new TEveGeoShape *[TRowColumn];
+    fLeftFrame[i] = new TEveGeoShape *[TRowColumn];
+    fRightFrame[i] = new TEveGeoShape *[TRowColumn];
+    for(Int_t j=0; j<TRowColumn; j++)
+    {      
+      fPad[i][j]  = new TEveGeoShape(Form("fPad_%02d_%02d",i,j));
+      fPad[i][j]->SetShape(new TGeoPara(TPadEffective_semi, TPadEffective_semi, 0.1, 0, 0, 0));
+      fPad[i][j]->SetMainColor(kGray);
+      fPad[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
+      fTopFrame[i][j]  = new TEveGeoShape(Form("fTopFrame_%02d_%02d",i,j));
+      fTopFrame[i][j]->SetShape(new TGeoPara(TPadTrue_semi,TFrame_width/2., 0.2, 0, 0, 0));
+      fTopFrame[i][j]->SetMainColor(kYellow+2);
+      fTopFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi+TPadEffective_semi+TFrame_width/2.,0);
+      fBottomFrame[i][j]  = new TEveGeoShape(Form("fBottomFrame_%02d_%02d",i,j));
+      fBottomFrame[i][j]->SetShape(new TGeoPara(TPadTrue_semi,TFrame_width/2., 0.2, 0, 0, 0));
+      fBottomFrame[i][j]->SetMainColor(kYellow+2);
+      fBottomFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi-TPadEffective_semi-TFrame_width/2.,0);
+      fLeftFrame[i][j]  = new TEveGeoShape(Form("fLeftFrame_%02d_%02d",i,j));
+      fLeftFrame[i][j]->SetShape(new TGeoPara(TFrame_width/2.,TPadTrue_semi, 0.2, 0, 0, 0));
+      fLeftFrame[i][j]->SetMainColor(kYellow+2);
+      fLeftFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi-TPadEffective_semi-TFrame_width/2.,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
+      fRightFrame[i][j]  = new TEveGeoShape(Form("fRightFrame_%02d_%02d",i,j));
+      fRightFrame[i][j]->SetShape(new TGeoPara(TFrame_width/2.,TPadTrue_semi, 0.2, 0, 0, 0));
+      fRightFrame[i][j]->SetMainColor(kYellow+2);
+      fRightFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi+TPadEffective_semi+TFrame_width/2.,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
+      //
+      //Placing at 0 degrees
+      fPad[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
+      fTopFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
+      fBottomFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
+      fLeftFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
+      fRightFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
+      //
+    }
+  }
+  //Drawing decoratively a block of CsIs
+  fCsICrystal = new TEveGeoShape **[TRowColumn];
+  const double fCsICrystalLength=10.; // cm
+  for(Int_t i=0; i<TRowColumn; i++)
+  {
+    fCsICrystal[i] = new TEveGeoShape *[TRowColumn];
+    for(Int_t j=0; j<TRowColumn; j++)
+    {      
+      fCsICrystal[i][j]  = new TEveGeoShape(Form("fPad_%02d_%02d",i,j));
+      fCsICrystal[i][j]->SetShape(new TGeoPara(TPadEffective_semi, TPadEffective_semi, fCsICrystalLength/2., 0, 0, 0));
+      fCsICrystal[i][j]->SetMainColor(kBlue-4);
+      fCsICrystal[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
+      //
+      //Placing at 0 degrees
+      fCsICrystal[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance+fCsICrystalLength/2.+0.1);
+      //
+    }
+  }
+  //
+  
+  //
+  //We operate now a series of rotations to reach the final position
+  //First: Rotation about the Z-axis of a quantity (-phi)
+  Rotate3DZ(-phi_pos-180*TMath::DegToRad()); 
+  //Second: Rotation about the X-axis of a quantity (theta)
+  Rotate3DX(theta_pos);
+  //Third: Rotation about the Z-axis of a quantity (phi)
+  Rotate3DZ(phi_pos+180*TMath::DegToRad());
+  //
+  
+}
+
+void UNISFaziaQuartet::Rotate3DX(Double_t x_angle)
+{
+  //
+  for(Int_t i=0; i<TRowColumn; i++)
+  {
+    for(Int_t j=0; j<TRowColumn; j++)
+    {      
+      //
+      //Rotation about X axis
+      fPad[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
+      fTopFrame[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
+      fBottomFrame[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
+      fLeftFrame[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
+      fRightFrame[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
+      //
+      fCsICrystal[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
+      //
+    }
+  }
+  //
+}
+
+void UNISFaziaQuartet::Rotate3DY(Double_t y_angle)
+{
+  //
+  for(Int_t i=0; i<TRowColumn; i++)
+  {
+    for(Int_t j=0; j<TRowColumn; j++)
+    {      
+      //
+      //Rotation about X axis
+      fPad[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
+      fTopFrame[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
+      fBottomFrame[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
+      fLeftFrame[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
+      fRightFrame[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
+      //
+      fCsICrystal[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
+      //
+    }
+  }
+  //
+}
+
+void UNISFaziaQuartet::Rotate3DZ(Double_t z_angle)
+{
+  //
+  for(Int_t i=0; i<TRowColumn; i++)
+  {
+    for(Int_t j=0; j<TRowColumn; j++)
+    {      
+      //
+      //Rotation about X axis
+      fPad[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
+      fTopFrame[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
+      fBottomFrame[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
+      fLeftFrame[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
+      fRightFrame[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
+      //
+      fCsICrystal[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
+      //
+    }
+  }
+  //
+}
+
+void UNISFaziaQuartet::Translate3D(Double_t x, Double_t y, Double_t z)
+{  
+  for(Int_t i=0; i<TRowColumn; i++)
+  {
+    for(Int_t j=0; j<TRowColumn; j++)
+    {      
+      //
+      //Rotation about X axis
+      fPad[i][j]->RefMainTrans().Move3PF(-y, x, z);
+      fTopFrame[i][j]->RefMainTrans().Move3PF(-y, x, z);
+      fBottomFrame[i][j]->RefMainTrans().Move3PF(-y, x, z);
+      fLeftFrame[i][j]->RefMainTrans().Move3PF(-y, x, z);
+      fRightFrame[i][j]->RefMainTrans().Move3PF(-y, x, z);
+      //
+      fCsICrystal[i][j]->RefMainTrans().Move3PF(-y, x, z);
+      //
+    }
+  }
+  //
 }
 
 // destructor
@@ -376,96 +638,19 @@ void UNISFaziaQuartet::Draw3D(Option_t * draw_opt) const
   //
   
   //
-  TEveGeoShape * DetectorQuartet = new TEveGeoShape("DetectorQuartet");
   gEve->AddElement(DetectorQuartet);
-  //
-  
-  //
-  //Generating pads
-  TEveGeoShape * Pad[TRowColumn][TRowColumn];
-  TEveGeoShape * TopFrame[TRowColumn][TRowColumn];
-  TEveGeoShape * BottomFrame[TRowColumn][TRowColumn];
-  TEveGeoShape * LeftFrame[TRowColumn][TRowColumn];
-  TEveGeoShape * RightFrame[TRowColumn][TRowColumn];
   for(Int_t i=0; i<TRowColumn; i++)
   {
     for(Int_t j=0; j<TRowColumn; j++)
     {      
-      Pad[i][j]  = new TEveGeoShape(Form("Pad_%02d_%02d",i,j));
-      Pad[i][j]->SetShape(new TGeoPara(TPadEffective_semi, TPadEffective_semi, 0.1, 0, 0, 0));
-      Pad[i][j]->SetMainColor(kGray);
-      Pad[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
-      TopFrame[i][j]  = new TEveGeoShape(Form("TopFrame_%02d_%02d",i,j));
-      TopFrame[i][j]->SetShape(new TGeoPara(TPadTrue_semi,TFrame_width/2., 0.2, 0, 0, 0));
-      TopFrame[i][j]->SetMainColor(kYellow+2);
-      TopFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi+TPadEffective_semi+TFrame_width/2.,0);
-      BottomFrame[i][j]  = new TEveGeoShape(Form("BottomFrame_%02d_%02d",i,j));
-      BottomFrame[i][j]->SetShape(new TGeoPara(TPadTrue_semi,TFrame_width/2., 0.2, 0, 0, 0));
-      BottomFrame[i][j]->SetMainColor(kYellow+2);
-      BottomFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi-TPadEffective_semi-TFrame_width/2.,0);
-      LeftFrame[i][j]  = new TEveGeoShape(Form("LeftFrame_%02d_%02d",i,j));
-      LeftFrame[i][j]->SetShape(new TGeoPara(TFrame_width/2.,TPadTrue_semi, 0.2, 0, 0, 0));
-      LeftFrame[i][j]->SetMainColor(kYellow+2);
-      LeftFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi-TPadEffective_semi-TFrame_width/2.,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
-      RightFrame[i][j]  = new TEveGeoShape(Form("RightFrame_%02d_%02d",i,j));
-      RightFrame[i][j]->SetShape(new TGeoPara(TFrame_width/2.,TPadTrue_semi, 0.2, 0, 0, 0));
-      RightFrame[i][j]->SetMainColor(kYellow+2);
-      RightFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi+TPadEffective_semi+TFrame_width/2.,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
       //
-      //Rotation (translation) to the final position
-      Pad[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
-      Pad[i][j]->RefMainTrans().RotatePF(1, 2, -TNominalPhi-180*TMath::DegToRad());
-      Pad[i][j]->RefMainTrans().RotatePF(3, 1, TNominalTheta);
-      Pad[i][j]->RefMainTrans().RotatePF(1, 2, TNominalPhi+180*TMath::DegToRad());
-      Pad[i][j]->RefMainTrans().Move3PF(0., 0., TDisplacement);
-      TopFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
-      TopFrame[i][j]->RefMainTrans().RotatePF(1, 2, -TNominalPhi-180*TMath::DegToRad());
-      TopFrame[i][j]->RefMainTrans().RotatePF(3, 1, TNominalTheta);
-      TopFrame[i][j]->RefMainTrans().RotatePF(1, 2, TNominalPhi+180*TMath::DegToRad());
-      TopFrame[i][j]->RefMainTrans().Move3PF(0., 0., TDisplacement);
-      BottomFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
-      BottomFrame[i][j]->RefMainTrans().RotatePF(1, 2, -TNominalPhi-180*TMath::DegToRad());
-      BottomFrame[i][j]->RefMainTrans().RotatePF(3, 1, TNominalTheta);
-      BottomFrame[i][j]->RefMainTrans().RotatePF(1, 2, TNominalPhi+180*TMath::DegToRad());
-      BottomFrame[i][j]->RefMainTrans().Move3PF(0., 0., TDisplacement);
-      LeftFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
-      LeftFrame[i][j]->RefMainTrans().RotatePF(1, 2, -TNominalPhi-180*TMath::DegToRad());
-      LeftFrame[i][j]->RefMainTrans().RotatePF(3, 1, TNominalTheta);
-      LeftFrame[i][j]->RefMainTrans().RotatePF(1, 2, TNominalPhi+180*TMath::DegToRad());
-      LeftFrame[i][j]->RefMainTrans().Move3PF(0., 0., TDisplacement);
-      RightFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
-      RightFrame[i][j]->RefMainTrans().RotatePF(1, 2, -TNominalPhi-180*TMath::DegToRad());
-      RightFrame[i][j]->RefMainTrans().RotatePF(3, 1, TNominalTheta);
-      RightFrame[i][j]->RefMainTrans().RotatePF(1, 2, TNominalPhi+180*TMath::DegToRad());
-      RightFrame[i][j]->RefMainTrans().Move3PF(0., 0., TDisplacement);
+      DetectorQuartet->AddElement(fPad[i][j]);
+      DetectorQuartet->AddElement(fTopFrame[i][j]);
+      DetectorQuartet->AddElement(fBottomFrame[i][j]);
+      DetectorQuartet->AddElement(fLeftFrame[i][j]);
+      DetectorQuartet->AddElement(fRightFrame[i][j]);
+      DetectorQuartet->AddElement(fCsICrystal[i][j]);
       //
-      DetectorQuartet->AddElement(Pad[i][j]);
-      DetectorQuartet->AddElement(TopFrame[i][j]);
-      DetectorQuartet->AddElement(BottomFrame[i][j]);
-      DetectorQuartet->AddElement(LeftFrame[i][j]);
-      DetectorQuartet->AddElement(RightFrame[i][j]);
-    }
-  }
-  //Drawing decoratively a block of CsIs
-  TEveGeoShape * CsICrystal[TRowColumn][TRowColumn];
-  const double CsICrystalLength=10.; // cm
-  for(Int_t i=0; i<TRowColumn; i++)
-  {
-    for(Int_t j=0; j<TRowColumn; j++)
-    {      
-      CsICrystal[i][j]  = new TEveGeoShape(Form("Pad_%02d_%02d",i,j));
-      CsICrystal[i][j]->SetShape(new TGeoPara(TPadEffective_semi, TPadEffective_semi, CsICrystalLength/2., 0, 0, 0));
-      CsICrystal[i][j]->SetMainColor(kBlue-4);
-      CsICrystal[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
-      //
-      //Rotation (translation) to the final position
-      CsICrystal[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance+CsICrystalLength/2.+0.1);
-      CsICrystal[i][j]->RefMainTrans().RotatePF(1, 2, -TNominalPhi-180*TMath::DegToRad());
-      CsICrystal[i][j]->RefMainTrans().RotatePF(3, 1, TNominalTheta);
-      CsICrystal[i][j]->RefMainTrans().RotatePF(1, 2, TNominalPhi+180*TMath::DegToRad());
-      CsICrystal[i][j]->RefMainTrans().Move3PF(0., 0., TDisplacement);
-      //
-      DetectorQuartet->AddElement(CsICrystal[i][j]);
     }
   }
   //
@@ -501,9 +686,11 @@ TVector3 UNISFaziaQuartet::GetDetectorCenter()
 }
 
 // returns the TVector3 of the pixel center identified by a given pad front and back in the lab reference frame
-TVector3 UNISFaziaQuartet::GetPadCenter(int padf, int padb)
+TVector3 UNISFaziaQuartet::GetPadCenter(int pad)
 {
-  return TCenters[padf][padb]; 
+  const int row=pad/TRowColumn;
+  const int column=pad%TRowColumn;
+  return TCenters[row][column]; 
 }
 
 TVector3 UNISFaziaQuartet::GetImpactPointLab(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)

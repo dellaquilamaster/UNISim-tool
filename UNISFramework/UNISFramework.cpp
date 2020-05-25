@@ -91,6 +91,11 @@ int UNISFramework::ProcessSetCommand(const char * line)
     fVerbose=ValueToSet.compare("true")==0 ? true : false;
   } else if(WhatToSet.compare("GRAPHICAL_MODE")==0) {
     fGraphics=ValueToSet.compare("true")==0 ? true : false;
+    if(fGraphics) {
+      int argc=0;
+      char ** argv;
+      fApp = new TRint("The Unified-Simulation-tool", &argc, argv);
+    }
   } else if(WhatToSet.compare("OUTPUT_DIRECTORY")==0) {
     fOutputFolder.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
     if(fOutputFolder.find_last_of('/')!=fOutputFolder.length()-1) {
@@ -152,13 +157,22 @@ int UNISFramework::ProcessSetCommand(const char * line)
           printf("Error: error while building SequentialDecay event generator from file %s\nAborting!", fPhysicsConfigFileName.c_str());
           exit(1);
         }
-      } if( (fPhysicsModelName.empty() && ValueToSet.compare("RutherfordScattering")==0) || fPhysicsModelName.compare("RutherfordScattering")==0) {
+      } else if( (fPhysicsModelName.empty() && ValueToSet.compare("RutherfordScattering")==0) || fPhysicsModelName.compare("RutherfordScattering")==0) {
         fPhysicsModelName.assign("RutherfordScattering");
         fTheEventGenerator = new UNISRutherfordScattering();
         LineStream>>ValueToSet;
         if(fPhysicsConfigFileName.empty()) fPhysicsConfigFileName.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
         if(fTheEventGenerator->LoadConfiguration(fPhysicsConfigFileName.c_str())<=0) {
           printf("Error: error while building RutherfordScattering event generator from file %s\nAborting!", fPhysicsConfigFileName.c_str());
+          exit(1);
+        }
+      } else if( (fPhysicsModelName.empty() && ValueToSet.compare("SequentialDecayTwoBody")==0) || fPhysicsModelName.compare("SequentialDecayTwoBody")==0) {
+        fPhysicsModelName.assign("SequentialDecayTwoBody");
+        fTheEventGenerator = new UNISSequentialDecayTwoBody();
+        LineStream>>ValueToSet;
+        if(fPhysicsConfigFileName.empty()) fPhysicsConfigFileName.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
+        if(fTheEventGenerator->LoadConfiguration(fPhysicsConfigFileName.c_str())<=0) {
+          printf("Error: error while building SequentialDecayTwoBody event generator from file %s\nAborting!", fPhysicsConfigFileName.c_str());
           exit(1);
         }
       } else return 0;
@@ -361,7 +375,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
       
       UNISLampWedgeMMMDetector * NewDetector = new UNISLampWedgeMMMDetector(distance,phi_pos,tilt,bottom_frame_distance,strip_inter);
       fExpSetup->RegisterUnit(NewDetector);
-    } else if(DetectorType.compare("FAZIA_QUARTET")==0) {
+    } else if(DetectorType.compare("FAZIA_BLOCK")==0) {
       double displacement=0;
       double theta_pos=0;
       double phi_pos=0;
@@ -385,7 +399,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
           frame_width=std::stof(ValueToSet); 
         }
       }
-      UNISFaziaQuartet * NewDetector = new UNISFaziaQuartet(displacement,theta_pos,phi_pos,pad_width,frame_width);
+      UNISFaziaBlock * NewDetector = new UNISFaziaBlock(theta_pos,phi_pos,displacement,pad_width,frame_width);
       fExpSetup->RegisterUnit(NewDetector);
     }
     
@@ -516,9 +530,6 @@ void UNISFramework::ProcessIterations()
   //
   
   if(fGraphics) {
-    int argc=0;
-    char ** argv;
-    fApp = new TRint("The Unified-Simulation-tool", &argc, argv);
     fExpSetup->Draw3D();
   }
   
@@ -571,7 +582,7 @@ void UNISFramework::ProcessIterations()
     
     //
     //Display Tracks if needed
-    if(fGraphics) {  
+    if(fGraphics && gEve) {  
       DisplayTracks(); 
     }
     //
@@ -672,8 +683,8 @@ void UNISFramework::RegisterEvent(std::vector<UNISIon> & AnEvent)
     fevt->fZ[i]=AnEvent[i].fZ;
     fevt->fA[i]=AnEvent[i].fA;
     fevt->fKinEnergyAfterTarget[i]=(fTargetThickness>0 ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),fTargetThickness/2./cos(fevt->fThetaOrigin[i])) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]);
-//     fevt->fKinEnergyOriginCms[i]=;
-//     fevt->fThetaOriginCms[i]=;
+    fevt->fKinEnergyOriginCms[i]=-9999;
+    fevt->fThetaOriginCms[i]=-9999;
     fevt->fmulti++;
   }
   //

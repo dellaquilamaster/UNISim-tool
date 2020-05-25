@@ -1,4 +1,4 @@
-CFLAGS    :=`root-config --cflags --libs`
+CFLAGS    :=`root-config --cflags --libs` -lEve
 
 DllSuf    := so
 SrcSuf    := cpp

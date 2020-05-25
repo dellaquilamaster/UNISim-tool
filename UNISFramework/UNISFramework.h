@@ -48,6 +48,7 @@
 
 #include <UNISEventGenerator.h>
 #include <UNISSequentialDecay.h>
+#include <UNISSequentialDecayTwoBody.h>
 #include <UNISRutherfordScattering.h>
 #include <UNISRootEvent.h>
 #include <nuclear_masses.h>
@@ -58,6 +59,7 @@
 #include <TStripCluster.h>
 #include <TStripDetector.h>
 #include <UNISFaziaQuartet.h>
+#include <UNISFaziaBlock.h>
 #include <TLampWedgeDetector.h>
 #include <UNISLampWedgeMMMDetector.h>
 #include <UNISIon.h>

@@ -124,6 +124,7 @@ reactions/
 ````
 The available physics models are:
 * SequentialDecay : used to simulate reactions with the sequential decay of one or more excited nuclei.  
+* SequentialDecayTwoBody : used to simulate reactions with the sequential decay of one or more excited nuclei in two-body decay channels (with customized angular distribution) 
 * RutherfordScattering : used to simulate elastic scattering processes according to the Rutherford cross-section.  
 Additional physics models will be implemented in the near future.  
 Following, a detailed explanation of each available physics model:  
@@ -153,6 +154,11 @@ x1,x2,...,xn = light ejectiles of the primary reaction
 X* heavy residual excited that decays into Y* + y1 + ... + ym  
 P+T -> X* + x1 + x2 + ... + xn -> Y* + y1 + ... +ym + x1 + ... + xn  
 Equivalently, Y* can decay into other products and so on... For each step of the reaction, one might have even more than 1 product decaying, e.g. X1*, ..., Xl* in the first step of the reaction and a number of Yi* in the second and so on.
+* SequentialDecayTwoBody : This model is analogous to SequentialDecay but with exclusively 2-body decay channels. An arbitray angular distribution can be specified with the following command (WARNING: angular distribution is always specified for the first particle of the decay): 
+````
+set ang_distr 0 "file_name.dat"
+````
+where 0 is the particle to which setting the angular distribution and file_name.dat is the name of an ASCII file containing theta center of mass and cross section pairs defining the angular distribution.
 * RutherfordScattering : This model can simulate elastic scattering events according to a pure Rutherford cross-section.
 Usage example:  
 20Ne + 197Au -> 20Ne + 197Au  
@@ -177,7 +183,7 @@ In the framework of UNISim-tool, the user can define an arbitrary number of dete
 * DSSSD_ROT (Double-Sided Silicon Strip Detector with a customized position and rotation) -> options are: -X0 (X-position of the center), -Y0 (Y-position of the center), -Z0 (Z-position of the center), -tilt_X (tilt angle with respect to the X-axis in degrees), -strips (number of front or back strips), -strip_width (width of one strip in cm), -inter_strip (width of the interstrip in cm), -frame_width (width of the ceramic frame in cm), -dead_layer (size of a dead region of silicon before the frame in cm)
 * LAMP_WEDGE (Lamp detector wedge) -> options: -distance (distance from the inner part of the wedge to the target) -phi_pos (azimuthal position in degrees), -tilt (with respect to the orizontal axis), -frame_distance (distance from the bottom of the frame to the beam axis), -strips (number of strips), -strip_width (width of one strip in cm), -inter_strip (width of the interstrip in cm)
 * LAMP_WEDGE_MMM (Lamp detector wedge type-MMM) -> options: -distance (distance from the inner part of the wedge to the target) -phi_pos (azimuthal position in degrees), -tilt (with respect to the orizontal axis), -frame_distance (distance from the bottom of the frame to the beam axis), -inter_strip (width of the interstrip in cm)
-* FAZIA_QUARTET (A Fazia quartet) -> options: -displacement (Z-displacement from the nominal 100 cm position) -theta_pos (theta of the quartet center when placed at the nominal 100 cm position), -phi_pos (phi of the quartet center when placed at the nominal 100 cm position), -pad_width (width of each pad in the quartet), -frame_width (width of pad frame)
+* FAZIA_BLOCK (A Fazia block) -> options: -displacement (Z-displacement from the nominal 100 cm position) -theta_pos (theta of the block center when placed at the nominal 100 cm position), -phi_pos (phi of the block center when placed at the nominal 100 cm position), -pad_width (width of each pad in the quartets), -frame_width (width of pad frame)
 ### Output Data
 Output data is stored in a tree called as the experimental setup. The folder where the tree is stored is configured in the config file by setting OUTPUT_DIRECTORY in the configuration file (see section "Configure the Program").  
 The structure of the output tree is constituted by an individual branch containing the data stucture UNISRootEvent. This is composed by a number of sub-branches listed below:  

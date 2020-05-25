@@ -17,11 +17,17 @@
 *
 
 *
-* 17Ne + 12C -> 16F + 13N -> p + 15O + 13N
+* 17Ne + 12C -> 16F + 13N -> (p + 15O) + 13N
 *
 
 define particle 0 -Z=9 -A=16 *** 16F
 define particle 1 -Z=7 -A=13 *** light recoil
+
+*
+* setting the angular distribution for particle 0 (the angular distribution is always set for the first particle of the decay)
+*
+set ang_distr 0 "./reactions/GANIL_17Ne_12C_16F_13N_angular_distribution_DWBA.dat"
+
 *
 * including some excited state of the particle 0
 *

@@ -70,9 +70,9 @@ private:
   const Int_t TPads_number; /*Total number of pads*/
   const Int_t TRowColumn; /*total number of pads row or column*/
   Double_t    TNominalDistance; //distance between the center of the quartet and the target (each quartet is facing perpendicularly the target when placed at this nominal distance) - 100 cm
+  Double_t    TDisplacement; //displacement from the nominal 100cm distance
   Double_t    TNominalTheta; //Theta angle identifying the center of the quartet when the array is placed at 100 cm from the target
   Double_t    TNominalPhi; //Phi angle identifying the center of the quartet when the array is placed at 100 cm from the target
-  Double_t    TDisplacement; //different of Z position compared to the nominal one (center of the quartet at 100 cm from the target)
   Double_t    TPadEffective_width; /*effective width of each pad in mm*/ 
   Double_t    TPadEffective_semi; /*half-width of the effective area of each pad in mm*/ 
   Double_t    TFrame_width; /*Width of the frame of the telescope*/
@@ -93,23 +93,40 @@ private:
   Double_t    Td;
   
 public:
-  UNISFaziaQuartet(Double_t displacement=0., Double_t theta_pos=0, Double_t phi_pos=0, Double_t pad_width=2., Double_t frame_width=0.1);
+  UNISFaziaQuartet(Double_t theta_pos=0, Double_t phi_pos=0, Double_t displacement=0., Double_t pad_width=2., Double_t frame_width=0.1);
   ~UNISFaziaQuartet();
 
   Int_t     IsInside(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; //returns 1 if the particle is inside the detector
   Int_t     GetPixel(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; //returns an absolute number identifying the number of pad fired, -1 if not inside the active area
   void      RotateX(Double_t);
   void      RotateY(Double_t);
+  void      RotateZ(Double_t);
+  void      Translate(Double_t, Double_t, Double_t);
   void      Draw(Option_t * opt="", double Xmin=0, double Xmax=0, double Ymin=0, double Ymax=0) const override;
   void      Draw3D(Option_t * opt="") const override;
   TGraph*   GetGraphObject();
   TVector3  GetDetectorCenter(); // returns a TVector3 representing the center of the detector in the lab reference frame
-  TVector3  GetPadCenter(int stripf, int stripb); // returns a TVector3 representing the center of the pad identified by a given strip front and a strip back in the lab reference frame
+  TVector3  GetPadCenter(int pad); // returns a TVector3 representing the center of the pad, identified by a given index, in the lab reference frame
   TVector3  GetImpactPointLab(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; // Get the impact point in the lab reference frame
   
 #ifdef GRAPHICAL_DEBUG
   void      ShowImpactPoint(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.);
 #endif
+  
+private :
+  TEveGeoShape * DetectorQuartet;
+  TEveGeoShape *** fPad;
+  TEveGeoShape *** fTopFrame;
+  TEveGeoShape *** fBottomFrame;
+  TEveGeoShape *** fLeftFrame;
+  TEveGeoShape *** fRightFrame;
+  TEveGeoShape *** fCsICrystal;
+  //
+  void Generate3D(Double_t theta, Double_t phi);
+  void Rotate3DX(Double_t);
+  void Rotate3DY(Double_t);
+  void Rotate3DZ(Double_t);
+  void Translate3D(Double_t, Double_t, Double_t);
 } ;
 
 #endif

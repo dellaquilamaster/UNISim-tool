@@ -42,17 +42,19 @@ void TDetectionSetup::Draw (Option_t * opt, double Xmin, double Xmax, double Ymi
 
 //____________________________________________________
 void TDetectionSetup::Draw3D (Option_t * opt) const
-{
+{  
   for(Int_t i=0; i<fNumDetectors; i++)
   {
     i==0 ? fTheDetectors[i]->Draw3D(opt) : fTheDetectors[i]->Draw3D(Form("%s SAME",opt));
   }
   
   //
-  TGLViewer *v = gEve->GetDefaultGLViewer();
-  v->ColorSet().Background().SetColor(kWhite);
-  v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
-  v->RefreshPadEditor(v);
+  if(gEve) {
+    TGLViewer *v = gEve->GetDefaultGLViewer();
+    v->ColorSet().Background().SetColor(kWhite);
+    v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
+    v->RefreshPadEditor(v);
+  }
   //
   
   return; 
