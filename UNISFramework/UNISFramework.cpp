@@ -18,7 +18,8 @@ fTheTree(0),
 fTheFile(0),
 fUMAToMeV(931.4936148),
 fcmToum(10000),
-fTheEventGenerator(0)
+fTheEventGenerator(0),
+fApp(new TRint("The Unified-Simulation-tool", new int(), 0, 0, 0, kTRUE))
 {
   gNucData = new nuclear_masses("./LISETools/input/masses.conf");
   gLISEELossModule = new EnergyLossModule("./LISETools/");
@@ -91,11 +92,6 @@ int UNISFramework::ProcessSetCommand(const char * line)
     fVerbose=ValueToSet.compare("true")==0 ? true : false;
   } else if(WhatToSet.compare("GRAPHICAL_MODE")==0) {
     fGraphics=ValueToSet.compare("true")==0 ? true : false;
-    if(fGraphics) {
-      int argc=0;
-      char ** argv;
-      fApp = new TRint("The Unified-Simulation-tool", &argc, argv);
-    }
   } else if(WhatToSet.compare("OUTPUT_DIRECTORY")==0) {
     fOutputFolder.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
     if(fOutputFolder.find_last_of('/')!=fOutputFolder.length()-1) {

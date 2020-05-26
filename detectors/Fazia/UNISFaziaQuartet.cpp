@@ -14,7 +14,7 @@ TNominalPhi(phi_pos),
 TPadEffective_width(pad_width),
 TPadEffective_semi(0.5*TPadEffective_width),
 TFrame_width(frame_width),
-TPadTrue_width(TPadEffective_width+TFrame_width),
+TPadTrue_width(TPadEffective_width+2*TFrame_width),
 TPadTrue_semi(0.5*TPadTrue_width),
 TTelescopeTrue_semi(TPadTrue_semi*TRowColumn),
 TTrueImpactPoint(0.,0.,0.),
@@ -58,9 +58,17 @@ TTelescopeImpactPoint(0.,0.,0.)
     }
   }
   //
-    
   //
-  Generate3D(0., 0.);
+  //Calculation of the detector plane equation
+  TVector3 OriginalDirection(0,0,1);
+  Ta=OriginalDirection.X()/OriginalDirection.Mag();
+  Tb=OriginalDirection.Y()/OriginalDirection.Mag();
+  Tc=OriginalDirection.Z()/OriginalDirection.Mag();
+  Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
+  //
+  
+  //
+  Generate3D(0.,0.);
   //
     
   //
@@ -136,7 +144,7 @@ void UNISFaziaQuartet::RotateZ(Double_t z_angle)
 void UNISFaziaQuartet::Translate(Double_t x, Double_t y, Double_t z)
 {
   //
-  TVector3 TranslationVector (y, x, z);
+  TVector3 TranslationVector (x, y, z);
   
   //Translation of the telescope center
   TTelescopeCenter+=TranslationVector;
@@ -297,7 +305,7 @@ void UNISFaziaQuartet::RotateY(Double_t y_angle)
   return;
 }
 
-void UNISFaziaQuartet::Generate3D(Double_t theta_pos, Double_t phi_pos)
+void UNISFaziaQuartet::Generate3D(double theta_pos, double phi_pos)
 {
   //Creating the Graphics Manager
   TEveManager::Create();
@@ -384,7 +392,6 @@ void UNISFaziaQuartet::Generate3D(Double_t theta_pos, Double_t phi_pos)
   //Third: Rotation about the Z-axis of a quantity (phi)
   Rotate3DZ(phi_pos+180*TMath::DegToRad());
   //
-  
 }
 
 void UNISFaziaQuartet::Rotate3DX(Double_t x_angle)
@@ -522,7 +529,7 @@ Int_t UNISFaziaQuartet::IsInside(Double_t theta_inc, Double_t phi_inc, Double_t 
 // back*num_pads + front
 // If the particle is not inside the active area -> return value = -1
 Int_t UNISFaziaQuartet::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
-{  
+{
   Int_t i,j;
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  /*If not the particle is inside the telescope*/
 
@@ -553,7 +560,7 @@ void UNISFaziaQuartet::Draw(Option_t * draw_opt, double Xmin, double Xmax, doubl
 
 //3D drawing function
 void UNISFaziaQuartet::Draw3D(Option_t * draw_opt) const
-{
+{  
   //
   if(strstr(draw_opt,"SAME")==0 && strstr(draw_opt,"same")==0) {
     //

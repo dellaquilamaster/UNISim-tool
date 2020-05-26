@@ -69,7 +69,7 @@ Int_t UNISFaziaBlock::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0
       //
       const int row = pixel/fNumQuartetRowColumn+(i/fNumQuartetRowColumn)*fNumQuartetRowColumn;
       const int column = pixel%fNumQuartetRowColumn+(i%fNumQuartetRowColumn)*fNumQuartetRowColumn;
-      return row*fNumQuartetRowColumn+column;
+      return row*fNumQuartetRowColumn*2+column;
       //
     } 
   }

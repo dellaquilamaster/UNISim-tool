@@ -77,7 +77,7 @@ public :
   void      Draw3D(Option_t * opt="") const override;
   
   TVector3  GetImpactPointLab(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; // Get the impact point in the lab reference frame
-  
+    
 private :
   const int fNumQuartets;
   const int fNumQuartetRowColumn;
