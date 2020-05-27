@@ -78,17 +78,46 @@ bool TDetectionSetup::IsInside(double theta, double phi, double x0, double y0, d
 //____________________________________________________
 TDetectionUnit * TDetectionSetup::GetDetector(double theta, double phi, double x0, double y0, double z0)
 {
+  //
+  //WARNING: more than 1 detector might see a particle
+  //To describe shadowing in a correct way, if more than 1 detectors
+  //detect the same particle, the one closer to the beam-line is considered
+  std::map<double, int> HitPositionDistance;
+  //
   for(int i=0; i<fNumDetectors; i++) {
-    if(fTheDetectors[i]->IsInside(theta, phi, x0, y0, z0)) return fTheDetectors[i];   
+    if(fTheDetectors[i]->IsInside(theta, phi, x0, y0, z0)) {
+      HitPositionDistance[(fTheDetectors[i]->GetImpactPointLab(theta, phi, x0, y0, z0)-TVector3(x0,y0,z0)).Mag()]=i;   
+    }
   }
-  return 0;
+  //
+  if(HitPositionDistance.empty()) return 0;
+  //
+  auto min_distance_hit = std::min_element(HitPositionDistance.begin(), HitPositionDistance.end());
+  //
+  
+  return fTheDetectors[min_distance_hit->second];
 }
 
 //____________________________________________________
 int TDetectionSetup::GetDetectorIndex(double theta, double phi, double x0, double y0, double z0) const
 {
+  //
+  //WARNING: more than 1 detector might see a particle
+  //To describe shadowing in a correct way, if more than 1 detectors
+  //detect the same particle, the one closer to the beam-line is considered
+  std::map<double, int> HitPositionDistance;
+  //
   for(int i=0; i<fNumDetectors; i++) {
-    if(fTheDetectors[i]->IsInside(theta, phi, x0, y0, z0)) return i;   
+    if(fTheDetectors[i]->IsInside(theta, phi, x0, y0, z0)) {
+      HitPositionDistance[(fTheDetectors[i]->GetImpactPointLab(theta, phi, x0, y0, z0)-TVector3(x0,y0,z0)).Mag()]=i;   
+    }
   }
-  return -1;
+  //
+  if(HitPositionDistance.empty()) return -1;
+  //
+  auto min_distance_hit = std::min_element(HitPositionDistance.begin(), HitPositionDistance.end());
+  //
+  
+  return min_distance_hit->second;
 }
+

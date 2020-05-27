@@ -214,11 +214,14 @@ Int_t UNISLampWedgeMMMDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, D
 {  
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  //Return -1 -> particle is not inside the detector
   
-  double angle = TDetectorImpactPoint.Angle(TXversor);
+  double angle = TDetectorImpactPoint.Angle(TXversor)*TDetectorImpactPoint.Dot(TYversor)/std::fabs(TDetectorImpactPoint.Dot(TYversor));
   double distance = TDetectorImpactPoint.Mag();
   
   int annular_strip=-1;
   int radial_strip=-1;
+  
+  printf("%f %f %f\n", TDetectorImpactPoint.X(), TDetectorImpactPoint.Y(), TDetectorImpactPoint.Z());
+  printf("angle=%f distance=%f\n", angle*TMath::RadToDeg(),distance);
   
   //
   for(int i=0; i<TAnnularStrips_number; i++) {
@@ -228,6 +231,8 @@ Int_t UNISLampWedgeMMMDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, D
     if(angle>=TRadialStripMinimumEffectiveAngle[i] && angle<=TRadialStripMaximumEffectiveAngle[i]) radial_strip=i;
   }
   //
+  
+  printf("%d %d -> pixel=%d\n", annular_strip, radial_strip, annular_strip*TRadialStrips_number+radial_strip);
   
   //
   if(annular_strip>=0 && radial_strip>=0) {
