@@ -220,6 +220,9 @@ Int_t UNISLampWedgeMMMDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, D
   int annular_strip=-1;
   int radial_strip=-1;
   
+  printf("%f %f %f\n", TDetectorImpactPoint.X(), TDetectorImpactPoint.Y(), TDetectorImpactPoint.Z());
+  printf("angle=%f distance=%f\n", angle*TMath::RadToDeg(),distance);
+  
   //
   for(int i=0; i<TAnnularStrips_number; i++) {
     if(fabs(angle)<=TAnnularStripCoverageAngle[i] && fabs(distance-TAnnularStripRadius[i])<=TAnnularStripEffective_semi) annular_strip=i;
@@ -228,6 +231,8 @@ Int_t UNISLampWedgeMMMDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, D
     if(angle>=TRadialStripMinimumEffectiveAngle[i] && angle<=TRadialStripMaximumEffectiveAngle[i]) radial_strip=i;
   }
   //
+  
+  printf("%d %d -> pixel=%d\n", annular_strip, radial_strip, annular_strip*TRadialStrips_number+radial_strip);
   
   //
   if(annular_strip>=0 && radial_strip>=0) {
