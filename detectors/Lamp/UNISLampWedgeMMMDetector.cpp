@@ -214,7 +214,7 @@ Int_t UNISLampWedgeMMMDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, D
 {  
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  //Return -1 -> particle is not inside the detector
   
-  double angle = TDetectorImpactPoint.Angle(TXversor);
+  double angle = TDetectorImpactPoint.Angle(TXversor)*TDetectorImpactPoint.Dot(TYversor)/std::fabs(TDetectorImpactPoint.Dot(TYversor));
   double distance = TDetectorImpactPoint.Mag();
   
   int annular_strip=-1;

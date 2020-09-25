@@ -289,7 +289,7 @@ int UNISSequentialDecayTwoBody::ProcessSetCommand(const char * line)
     AngularDistributionFile.assign(AngularDistributionFile.substr(AngularDistributionFile.find("\"")+1,AngularDistributionFile.find_last_of("\"")-(AngularDistributionFile.find("\"")+1)));
     //
     //Adding the new angular distribution
-    TH1D * NewAngDistr = new TH1D(Form("AngDistr_%s",ANucleus.c_str()),"",500,0,180);
+    TH1D * NewAngDistr = new TH1D(Form("AngDistr_%s",ANucleus.c_str()),"",901,0,180);
     const int lines_read=ReadAngularDistribution(AngularDistributionFile.c_str(),NewAngDistr);
     //
     //Setting quantities to the correct nucleus

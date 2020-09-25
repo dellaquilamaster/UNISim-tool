@@ -181,7 +181,7 @@ double EnergyLossModule::GetEnergyLoss(int Z, int A, double Einc, const char * m
     }
 
     if(TheSplineInterpolator->Deriv(Eresidual/mass_uma)!=0) {
-      dThickness=fmin(dThicknessMax,std::fabs(fEnergyLossPrecision/TheSplineInterpolator->Deriv(Eresidual/mass_uma))); //variable integration step with fixed precision
+      dThickness=fmin((thickness_um-IntegrateThickness),fmin(dThicknessMax,std::fabs(fEnergyLossPrecision/TheSplineInterpolator->Deriv(Eresidual/mass_uma)))); //variable integration step with fixed precision
     }
 
     double ELossStep=dThickness*TheSplineInterpolator->Eval(Eresidual/mass_uma);

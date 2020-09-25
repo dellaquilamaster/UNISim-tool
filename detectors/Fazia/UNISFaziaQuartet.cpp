@@ -21,7 +21,7 @@ TTrueImpactPoint(0.,0.,0.),
 TTelescopeImpactPoint(0.,0.,0.)
 {
   //
-  //Placing the detector at 0 degrees and distance equale to the nominal one (100 cm)
+  //Placing the detector at 0 degrees and distance equal to the nominal one (100 cm)
   //
   //Telescope corners
   TTopLeftCorner.SetXYZ(TTelescopeTrue_semi,-TTelescopeTrue_semi,TNominalDistance);
