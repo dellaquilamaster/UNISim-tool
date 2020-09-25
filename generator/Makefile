@@ -1,4 +1,4 @@
-CFLAGS    :=`root-config --cflags --libs`
+CFLAGS    :=`root-config --cflags --libs` `nuclust-config --cflags --libs`
 
 DllSuf    := so
 SrcSuf    := cpp

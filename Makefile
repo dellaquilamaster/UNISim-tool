@@ -13,7 +13,6 @@ root:
 	$(MAKE) -C detectors/Fazia ;		$(MAKE) -C detectors/Fazia install
 	$(MAKE) -C generator ;			$(MAKE) -C generator install
 	$(MAKE) -C UNISShared ;			$(MAKE) -C UNISShared install
-	$(MAKE) -C LISETools ;			$(MAKE) -C LISETools install
 
 install:
 	$(MAKE) -C UNISFramework install
@@ -24,7 +23,6 @@ install:
 	$(MAKE) -C detectors/Fazia install
 	$(MAKE) -C generator install
 	$(MAKE) -C UNISShared install
-	$(MAKE) -C LISETools install
 
 distclean:
 	$(MAKE) -C UNISFramework distclean
@@ -35,7 +33,6 @@ distclean:
 	$(MAKE) -C detectors/Fazia distclean
 	$(MAKE) -C generator distclean
 	$(MAKE) -C UNISShared distclean
-	$(MAKE) -C LISETools distclean
 	
 	$(MAKE) -C main distclean
 
@@ -48,6 +45,5 @@ clean:
 	$(MAKE) -C detectors/Fazia clean
 	$(MAKE) -C generator clean
 	$(MAKE) -C UNISShared clean
-	$(MAKE) -C LISETools clean
 
 	$(MAKE) -C main clean

@@ -1,4 +1,4 @@
-CFLAGS    :=`root-config --cflags --libs` -lGeom -lEve -lGed -lRGL -lEG -lTreePlayer -lMathMore
+CFLAGS    :=`root-config --cflags --libs` -lGeom -lEve -lGed -lRGL -lEG -lTreePlayer -lMathMore `nuclust-config --libs --cflags`
 
 DllSuf    := so
 SrcSuf    := cpp
@@ -13,7 +13,6 @@ INCLUDES  += -I$(UNISimSrc)detectors/Lamp
 INCLUDES  += -I$(UNISimSrc)generator
 INCLUDES  += -I$(UNISimSrc)UNISRootEvent
 INCLUDES  += -I$(UNISimSrc)UNISShared
-INCLUDES  += -I$(UNISimSrc)LISETools
 
 RLIBS     := -L$(UNISimSrc)lib
 
