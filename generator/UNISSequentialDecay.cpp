@@ -234,14 +234,20 @@ int UNISSequentialDecay::ProcessSetCommand(const char * line)
     }
     //
     int ParticleToSet;
-    int Charge;
-    int Mass;
+    double Charge=-9999;
+    double Mass=-9999;
     LineStream>>ParticleToSet;
     while(LineStream>>WhatToSet) {
       if(WhatToSet.find("-Z=")!=std::string::npos) {
         Charge=std::stoi(WhatToSet.substr(WhatToSet.find("-Z=")+3));
       } else if(WhatToSet.find("-A=")!=std::string::npos) {
         Mass=std::stoi(WhatToSet.substr(WhatToSet.find("-A=")+3));
+      } else if(WhatToSet.find("-gamma")!=std::string::npos) {
+        Mass=0.;
+      } else if(WhatToSet.find("-electron")!=std::string::npos) {
+        Mass=0.510998950;
+      } else if(WhatToSet.find("-positron")!=std::string::npos) {
+        Mass=0.510998950;
       }
     }
     //
@@ -249,7 +255,7 @@ int UNISSequentialDecay::ProcessSetCommand(const char * line)
     UNISIon * NewParticle = new UNISIon();
     NewParticle->fZ=Charge;
     NewParticle->fA=Mass;
-    NewParticle->fMass=gNucData->get_mass_Z_A(Charge,Mass);
+    NewParticle->fMass=Charge!=-9999 ? gNucData->get_mass_Z_A(int(Charge),int(Mass)) : Mass;
     //
     //Setting quantities to the correct nucleus
     UNISIon * TheNucleusToSet=fTheReactionProducts[PathToTheNucleus[0]];
@@ -278,14 +284,20 @@ int UNISSequentialDecay::ProcessDefineCommand(const char * line)
   
   if(WhatToSet.compare("particle")==0) {
     int ParticleToSet;
-    int Charge;
-    int Mass;
+    double Charge=-9999;
+    double Mass=-9999;
     LineStream>>ParticleToSet;
     while(LineStream>>WhatToSet) {
       if(WhatToSet.find("-Z=")!=std::string::npos) {
         Charge=std::stoi(WhatToSet.substr(WhatToSet.find("-Z=")+3));
       } else if(WhatToSet.find("-A=")!=std::string::npos) {
         Mass=std::stoi(WhatToSet.substr(WhatToSet.find("-A=")+3));
+      } else if(WhatToSet.find("-gamma")!=std::string::npos) {
+        Mass=0.;
+      } else if(WhatToSet.find("-electron")!=std::string::npos) {
+        Mass=0.510998950;
+      } else if(WhatToSet.find("-positron")!=std::string::npos) {
+        Mass=0.510998950;
       }
     }
     //
@@ -293,7 +305,7 @@ int UNISSequentialDecay::ProcessDefineCommand(const char * line)
     UNISIon * NewParticle = new UNISIon();
     NewParticle->fZ=Charge;
     NewParticle->fA=Mass;
-    NewParticle->fMass=gNucData->get_mass_Z_A(Charge,Mass);
+    NewParticle->fMass=Charge!=-9999 ? gNucData->get_mass_Z_A(int(Charge),int(Mass)) : Mass;
     
     fTheReactionProducts[ParticleToSet]=NewParticle;
     //

@@ -153,7 +153,13 @@ T=Target
 x1,x2,...,xn = light ejectiles of the primary reaction  
 X* heavy residual excited that decays into Y* + y1 + ... + ym  
 P+T -> X* + x1 + x2 + ... + xn -> Y* + y1 + ... +ym + x1 + ... + xn  
-Equivalently, Y* can decay into other products and so on... For each step of the reaction, one might have even more than 1 product decaying, e.g. X1*, ..., Xl* in the first step of the reaction and a number of Yi* in the second and so on.
+Equivalently, Y* can decay into other products and so on... For each step of the reaction, one might have even more than 1 product decaying, e.g. X1*, ..., Xl* in the first step of the reaction and a number of Yi* in the second and so on.  
+The above explanation is valid also if one or more of the particles is not an ion. In this case, instead of the option -Z and -A, one can use:  
+````
+-gamma *** gamma ray
+-electron *** electron
+-positron *** positron
+````
 * SequentialDecayTwoBody : This model is analogous to SequentialDecay but with exclusively 2-body decay channels. An arbitray angular distribution can be specified with the following command (WARNING: angular distribution is always specified for the first particle of the decay): 
 ````
 set ang_distr 0 "file_name.dat"
