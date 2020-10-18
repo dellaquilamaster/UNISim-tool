@@ -33,7 +33,7 @@
 #include <TGLViewer.h>
 #include <TCanvas.h>
 
-#include "../DetectionSetup/TDetectionUnit.h"
+#include "../DetectionSetup/UNISDetectionUnit.h"
 #include "UNISFaziaQuartet.h"
 
 #define GRAPHICAL_DEBUG
@@ -64,7 +64,7 @@
  * By defayult, detectors at phi=0 are located on the horizontal plane at the right side of the beam (upstream)
  * *****************************************/
 
-class UNISFaziaBlock : public TDetectionUnit
+class UNISFaziaBlock : public UNISDetectionUnit
 {
 public :
   UNISFaziaBlock(double theta_pos, double phi_pos, double displacement=0., Double_t pad_width=2., Double_t frame_width=0.1);

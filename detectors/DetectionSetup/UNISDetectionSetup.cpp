@@ -1,36 +1,36 @@
-#include "TDetectionSetup.h"
+#include "UNISDetectionSetup.h"
 
 //____________________________________________________
-TDetectionSetup::TDetectionSetup(const char * name) :
+UNISDetectionSetup::UNISDetectionSetup(const char * name) :
 fName(name),
 fNumDetectors(0)
 {}
 
 //____________________________________________________
-TDetectionSetup::~TDetectionSetup()
+UNISDetectionSetup::~UNISDetectionSetup()
 {}
 
 //____________________________________________________
-void TDetectionSetup::RegisterUnit(TDetectionUnit * NewUnit)
+void UNISDetectionSetup::RegisterUnit(UNISDetectionUnit * NewUnit)
 {
   fTheDetectors.push_back(NewUnit);
   fNumDetectors++;
 }
 
 //____________________________________________________
-int TDetectionSetup::Size() const
+int UNISDetectionSetup::Size() const
 {
   return fNumDetectors;
 }
 
 //____________________________________________________
-const char * TDetectionSetup::GetName() const
+const char * UNISDetectionSetup::GetName() const
 {
   return fName.c_str();
 }
 
 //____________________________________________________
-void TDetectionSetup::Draw (Option_t * opt, double Xmin, double Xmax, double Ymin, double Ymax) const
+void UNISDetectionSetup::Draw (Option_t * opt, double Xmin, double Xmax, double Ymin, double Ymax) const
 {
   for(Int_t i=0; i<fNumDetectors; i++)
   {
@@ -41,33 +41,24 @@ void TDetectionSetup::Draw (Option_t * opt, double Xmin, double Xmax, double Ymi
 }
 
 //____________________________________________________
-void TDetectionSetup::Draw3D (Option_t * opt) const
+void UNISDetectionSetup::Draw3D (Option_t * opt) const
 {  
   for(Int_t i=0; i<fNumDetectors; i++)
   {
     i==0 ? fTheDetectors[i]->Draw3D(opt) : fTheDetectors[i]->Draw3D(Form("%s SAME",opt));
   }
   
-  //
-  if(gEve) {
-    TGLViewer *v = gEve->GetDefaultGLViewer();
-    v->ColorSet().Background().SetColor(kWhite);
-    v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
-    v->RefreshPadEditor(v);
-  }
-  //
-  
   return; 
 }
 
 //____________________________________________________
-TDetectionUnit * TDetectionSetup::GetDetector(int numdetector)
+UNISDetectionUnit * UNISDetectionSetup::GetDetector(int numdetector)
 {
-  return (TDetectionUnit*)fTheDetectors[numdetector];
+  return (UNISDetectionUnit*)fTheDetectors[numdetector];
 }
 
 //____________________________________________________
-bool TDetectionSetup::IsInside(double theta, double phi, double x0, double y0, double z0) const
+bool UNISDetectionSetup::IsInside(double theta, double phi, double x0, double y0, double z0) const
 {
   for(int i=0; i<fNumDetectors; i++) {
     if(fTheDetectors[i]->IsInside(theta, phi, x0, y0, z0)) return true;   
@@ -76,7 +67,7 @@ bool TDetectionSetup::IsInside(double theta, double phi, double x0, double y0, d
 }
 
 //____________________________________________________
-TDetectionUnit * TDetectionSetup::GetDetector(double theta, double phi, double x0, double y0, double z0)
+UNISDetectionUnit * UNISDetectionSetup::GetDetector(double theta, double phi, double x0, double y0, double z0)
 {
   //
   //WARNING: more than 1 detector might see a particle
@@ -99,7 +90,7 @@ TDetectionUnit * TDetectionSetup::GetDetector(double theta, double phi, double x
 }
 
 //____________________________________________________
-int TDetectionSetup::GetDetectorIndex(double theta, double phi, double x0, double y0, double z0) const
+int UNISDetectionSetup::GetDetectorIndex(double theta, double phi, double x0, double y0, double z0) const
 {
   //
   //WARNING: more than 1 detector might see a particle

@@ -33,10 +33,9 @@
 #include <math.h>
 #include <vector>
 #include <map>
-#include <TEveManager.h>
 #include <TRint.h>
-#include <TEveStraightLineSet.h>
-#include <TEveBox.h>
+#include <TGeoManager.h>
+#include <TGeoTrack.h>
 #include <TCanvas.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -54,13 +53,13 @@
 #include <nuclear_masses.h>
 #include <EnergyLossModule.h>
 #include <RelativisticKinematics.h>
-#include <TDetectionSetup.h>
-#include <TDetectionUnit.h>
-#include <TStripCluster.h>
-#include <TStripDetector.h>
+#include <UNISDetectionSetup.h>
+#include <UNISDetectionUnit.h>
+#include <UNISStripCluster.h>
+#include <UNISStripDetector.h>
 #include <UNISFaziaQuartet.h>
 #include <UNISFaziaBlock.h>
-#include <TLampWedgeDetector.h>
+#include <UNISLampWedgeDetector.h>
 #include <UNISLampWedgeMMMDetector.h>
 #include <UNISIon.h>
 #include <UNISShared.h>
@@ -102,6 +101,7 @@ private :
   std::string fOutputFolder;
   std::string fOutputFileName;
   bool fGraphics;
+  bool fAdvancedGraphics;
   bool fVerbose;
   double fStartTime;
   //
@@ -142,7 +142,7 @@ private :
   
   //
   //The detection setup
-  TDetectionSetup * fExpSetup; 
+  UNISDetectionSetup * fExpSetup; 
   //
   
   //

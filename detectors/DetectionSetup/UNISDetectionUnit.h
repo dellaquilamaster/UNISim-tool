@@ -1,10 +1,12 @@
-#ifndef TDETECTIONUNIT_H
-#define TDETECTIONUNIT_H
+#ifndef UNISDETECTIONUNIT_H
+#define UNISDETECTIONUNIT_H
 
 #include <TROOT.h>
 #include <TVector3.h>
+#include <TGeoManager.h>
+#include <TGeoMatrix.h>
 
-class TDetectionUnit
+class UNISDetectionUnit
 {
 public : 
   
@@ -16,6 +18,8 @@ public :
   virtual void Draw3D(Option_t * opt="") const;
   
 protected :
+  TGeoVolumeAssembly * fDetector;
+  TGeoHMatrix * fDetectorMatrix;
   
 };
 

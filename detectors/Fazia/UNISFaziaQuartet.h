@@ -19,19 +19,16 @@
 #include <TLine.h>
 #include <TAxis.h>
 #include <TLatex.h>
-#include <TPolyLine3D.h>
-#include <TPolyMarker3D.h>
-#include <TEveManager.h>
+#include <TCanvas.h>
+#include <TGeoManager.h>
+#include <TGeoMatrix.h>
 #include <TGeoTube.h>
 #include <TGeoCone.h>
 #include <TGeoPara.h>
-#include <TEveGeoShape.h>
-#include <TEveTrans.h>
-#include <TEveText.h>
-#include <TGLViewer.h>
-#include <TCanvas.h>
+#include <TGeoShape.h>
+#include <TGeoCompositeShape.h>
 
-#include "../DetectionSetup/TDetectionUnit.h"
+#include "../DetectionSetup/UNISDetectionUnit.h"
 
 #define GRAPHICAL_DEBUG
 
@@ -52,7 +49,7 @@
  * By defayult, detectors at phi=0 are located on the horizontal plane at the right side of the beam (upstream)
  * *****************************************/
 
-class UNISFaziaQuartet : public TDetectionUnit
+class UNISFaziaQuartet : public UNISDetectionUnit
 {
 private: 
   TVector3    TXlabversor; // X-axis versor in the lab frame (vertical axis)
@@ -114,13 +111,12 @@ public:
 #endif
   
 private :
-  TEveGeoShape * DetectorQuartet;
-  TEveGeoShape *** fPad;
-  TEveGeoShape *** fTopFrame;
-  TEveGeoShape *** fBottomFrame;
-  TEveGeoShape *** fLeftFrame;
-  TEveGeoShape *** fRightFrame;
-  TEveGeoShape *** fCsICrystal;
+  TGeoVolume * fPad;
+  TGeoVolume * fTopFrame;
+  TGeoVolume * fBottomFrame;
+  TGeoVolume * fLeftFrame;
+  TGeoVolume * fRightFrame;
+  TGeoVolume * fCsICrystal;
   //
   void Generate3D(Double_t, Double_t);
   void Rotate3DX(Double_t);

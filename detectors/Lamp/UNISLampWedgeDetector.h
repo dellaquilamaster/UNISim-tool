@@ -1,13 +1,16 @@
 /* *****************************************
- * TLampDetector
- * 22/12/2015
+ * UNISLampDetector
+ * 2019
+ * 16/10/2020
+ * - Changed class name
+ * - Re-implemented graphics
  * C++ Object made to simulate a 
  * wedge of a lamp-like detector.
  * Created by: DELL'AQUILA DANIELE
  * Email:      daniele.dellaquila@irb.hr
  * *****************************************/
-#ifndef _TLAMPWEDGEDETECTOR
-#define _TLAMPWEDGEDETECTOR
+#ifndef UNISLAMPWEDGEDETECTOR_H
+#define UNISLAMPWEDGEDETECTOR_H
 
 #include <TVector3.h>
 #include <TMath.h>
@@ -18,17 +21,15 @@
 #include <TLine.h>
 #include <TAxis.h>
 #include <TLatex.h>
-#include <TPolyLine3D.h>
-#include <TPolyMarker3D.h>
-#include <TEveManager.h>
+#include <TGeoManager.h>
+#include <TGeoMatrix.h>
 #include <TGeoTube.h>
 #include <TGeoCone.h>
-#include <TEveGeoShape.h>
-#include <TEveTrans.h>
-#include <TEveText.h>
-#include <TGLViewer.h>
+#include <TGeoPara.h>
+#include <TGeoTube.h>
+#include <TGeoCompositeShape.h>
 
-#include "../DetectionSetup/TDetectionUnit.h"
+#include "../DetectionSetup/UNISDetectionUnit.h"
 
 #define GRAPHICAL_DEBUG
 
@@ -64,7 +65,7 @@
  * 
  * *****************************************/
 
-class TLampWedgeDetector : public TDetectionUnit
+class UNISLampWedgeDetector : public UNISDetectionUnit
 {
 private:
   TVector3   TXlabversor; // X-axis versor in the lab frame (vertical axis)
@@ -105,19 +106,30 @@ private:
   Double_t   Td;
   
 public:
-  TLampWedgeDetector(Double_t distance=15, Double_t phi_pos=0, Double_t tilt=0., Double_t bottom_frame_distance=2, Int_t N_Strips=16, Double_t strip_width=0.5, Double_t inter_width=0.01, Double_t nominal_radius=5., 
+  UNISLampWedgeDetector(Double_t distance=15, Double_t phi_pos=0, Double_t tilt=0., Double_t bottom_frame_distance=2, Int_t N_Strips=16, Double_t strip_width=0.5, Double_t inter_width=0.01, Double_t nominal_radius=5., 
                      Double_t nominal_coverage=42., Double_t nominal_frame_coverage=45, Double_t bottom_frame=1., Option_t * opt="");    
-  ~TLampWedgeDetector();
+  ~UNISLampWedgeDetector();
 
   Int_t     IsInside(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; //returns 1 if the particle is inside the detector
   Int_t     GetPixel(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; //returns an absolute number identifying the number of pixel fired, -1 if not inside the active area;
 
-  void      RotateX(Double_t); //Rotation of the whole detector around the Y-axis 
-  void      RotateY(Double_t); //Rotation of the whole detector around the X-axis
+  void      RotateX(Double_t); //Rotation of the whole detector around the X-axis 
+  void      RotateZ(Double_t); //Rotation of the whole detector around the Z-axis
+  void      TranslateLongitudinal(Double_t);
   void      Draw(Option_t * opt="", double Xmin=0, double Xmax=0, double Ymin=0, double Ymax=0) const override;
   void      Draw3D(Option_t * opt="") const override;
   TGraph*   GetGraphObject();
   TVector3  GetImpactPointLab(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; // Get the impact point in the lab reference frame
+  
+private :
+  TGeoVolume * fFrame;
+  TGeoVolume ** fStrip;
+
+  //
+  void Generate3D(Double_t, Double_t);
+  void Rotate3DX(Double_t);
+  void Rotate3DZ(Double_t);
+  void TranslateLongitudinal3D(Double_t);
   
 #ifdef GRAPHICAL_DEBUG
   void      ShowImpactPoint(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.);

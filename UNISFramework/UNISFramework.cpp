@@ -14,6 +14,8 @@ fPhysicsModelName(""),
 fPhysicsConfigFileName(""),
 fOutputFolder("./output/"),
 fOutputFileName(),
+fGraphics(false),
+fAdvancedGraphics(false),
 fTheTree(0),
 fTheFile(0),
 fUMAToMeV(931.4936148),
@@ -27,7 +29,9 @@ fApp(new TRint("The Unified-Simulation-tool", new int(), 0, 0, 0, kTRUE))
 
 //____________________________________________________
 UNISFramework::~UNISFramework()
-{}
+{
+  fApp->Terminate(0);
+}
 
 //____________________________________________________
 void UNISFramework::SetIterations(int value)
@@ -91,7 +95,13 @@ int UNISFramework::ProcessSetCommand(const char * line)
   if(WhatToSet.compare("VERBOSE_MODE")==0) {
     fVerbose=ValueToSet.compare("true")==0 ? true : false;
   } else if(WhatToSet.compare("GRAPHICAL_MODE")==0) {
-    fGraphics=ValueToSet.compare("true")==0 ? true : false;
+    if(ValueToSet.compare("light")==0) {
+      fGraphics=true; 
+    } else if(ValueToSet.compare("advanced")==0) {
+      fGraphics=true;
+      fAdvancedGraphics=true;
+    }
+    fGraphics=ValueToSet.compare("false")==0 ? false : true;
   } else if(WhatToSet.compare("OUTPUT_DIRECTORY")==0) {
     fOutputFolder.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
     if(fOutputFolder.find_last_of('/')!=fOutputFolder.length()-1) {
@@ -195,7 +205,7 @@ int UNISFramework::ProcessDefineCommand(const char * line)
     LineStream>>SetupName;
     SetupName.assign(SetupName.substr(SetupName.find("\"")+1,SetupName.find_last_of("\"")-(SetupName.find("\"")+1)));
     
-    TDetectionSetup * NewSetup = new TDetectionSetup(SetupName.c_str());
+    UNISDetectionSetup * NewSetup = new UNISDetectionSetup(SetupName.c_str());
     
     fExpSetup=NewSetup;
     
@@ -261,7 +271,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
         }
       }
       
-      TStripDetector * NewDetector = new TStripDetector(distance,theta_pos,phi_pos,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
+      UNISStripDetector * NewDetector = new UNISStripDetector(distance,theta_pos,phi_pos,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
       fExpSetup->RegisterUnit(NewDetector);
       
     } else if(DetectorType.compare("DSSSD_ROT")==0) {
@@ -269,6 +279,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
       double Y0=0;
       double Z0=0;
       double tilt_X=0;
+      double tilt_Y=0;
       int strip_number=0;
       double strip_width=0;
       double strip_inter=0;
@@ -288,6 +299,9 @@ int UNISFramework::ProcessAddCommand(const char * line)
         } else if(ValueToSet.find("-tilt_X")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-tilt_X=")+8)); 
           tilt_X=std::stof(ValueToSet)*TMath::DegToRad();
+        } else if(ValueToSet.find("-tilt_Y")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-tilt_Y=")+8)); 
+          tilt_Y=std::stof(ValueToSet)*TMath::DegToRad();
         } else if(ValueToSet.find("-strips")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strips=")+8)); 
           strip_number=std::stoi(ValueToSet); 
@@ -306,7 +320,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
         }
       }
       
-      TStripDetector * NewDetector = new TStripDetector(X0,Y0,Z0,tilt_X,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
+      UNISStripDetector * NewDetector = new UNISStripDetector(X0,Y0,Z0,tilt_X,tilt_Y,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
       fExpSetup->RegisterUnit(NewDetector);
       
     } else if(DetectorType.compare("LAMP_WEDGE")==0) {
@@ -342,7 +356,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
         }
       }
       
-      TLampWedgeDetector * NewDetector = new TLampWedgeDetector(distance,phi_pos,tilt,bottom_frame_distance,strip_number,strip_width,strip_inter);
+      UNISLampWedgeDetector * NewDetector = new UNISLampWedgeDetector(distance,phi_pos,tilt,bottom_frame_distance,strip_number,strip_width,strip_inter);
       fExpSetup->RegisterUnit(NewDetector);
     } else if(DetectorType.compare("LAMP_WEDGE_MMM")==0) {
       double distance=0;
@@ -422,7 +436,7 @@ void UNISFramework::PrintConfiguration() const
   //Printing configuration quantities
   printf("----------------------\n");
   printf("Verbose Mode: %s\n", fVerbose ? "on" : "off");
-  printf("OpenGL Mode: %s\n", fGraphics ? "on" : "off");
+  printf("Graphical Mode: %s\n", fGraphics&&!fAdvancedGraphics ? "on (light)" : (fGraphics&&fAdvancedGraphics ? "on (advanced)" : "off"));
   printf("----------------------\n");
   printf("Beam: Z=%d A=%d Ekin=%f\n", fTheBeam.fZ, fTheBeam.fA, fBeamEnergy);
   printf("Target: Z=%d A=%d\n", fTheTarget.fZ, fTheTarget.fA);
@@ -526,7 +540,7 @@ void UNISFramework::ProcessIterations()
   //
   
   if(fGraphics) {
-    fExpSetup->Draw3D();
+    fExpSetup->Draw3D(fAdvancedGraphics ? "ogl" : "");
   }
   
   //
@@ -578,7 +592,7 @@ void UNISFramework::ProcessIterations()
     
     //
     //Display Tracks if needed
-    if(fGraphics && gEve) {  
+    if(fGraphics && !fAdvancedGraphics) {  
       DisplayTracks(); 
     }
     //
@@ -640,7 +654,7 @@ void UNISFramework::DetectEvent()
   for(int i=0; i<fevt->fmulti; i++) {
     int det_index = fExpSetup->GetDetectorIndex(fevt->fThetaOrigin[i],fevt->fPhiOrigin[i],fBeamPosition.X(),fBeamPosition.Y(),fBeamPosition.Z());
     if(det_index>=0) {
-      TDetectionUnit * TheDetector = fExpSetup->GetDetector(det_index);
+      UNISDetectionUnit * TheDetector = fExpSetup->GetDetector(det_index);
       int num_pixel = TheDetector->GetPixel(fevt->fThetaOrigin[i],fevt->fPhiOrigin[i],fBeamPosition.X(),fBeamPosition.Y(),fBeamPosition.Z());
       if(num_pixel>=0) {
         //The particle is detected
@@ -700,25 +714,30 @@ void UNISFramework::DisplayTracks()
 {
   //
   //Display the beam track
-  TEveStraightLineSet * BeamTrack = new TEveStraightLineSet(Form("BeamTrack"));
-  BeamTrack->AddLine(-fBeamCenter.Y(),fBeamCenter.X(),-20,-fBeamCenter.Y(),fBeamCenter.X(),fBeamCenter.Z());
-  BeamTrack->SetMainColor(kBlack);
-  gEve->AddElement(BeamTrack);
+  TGeoTrack * BeamTrack = new TGeoTrack();
+  BeamTrack->AddPoint(-fBeamCenter.Y(),fBeamCenter.X(),-20,0);
+  BeamTrack->AddPoint(-fBeamCenter.Y(),fBeamCenter.X(),fBeamCenter.Z(),0);
+  BeamTrack->SetLineColor(kBlack);
+  gGeoManager->AddTrack(BeamTrack);
   //
   
   //
   //Looping on event multiplicity to draw tracks
   for(int i=0; i<fevt->fmulti; i++) {
-    TEveStraightLineSet * ParticleTrack = new TEveStraightLineSet(Form("ParticleTrack_%d_Z%02d_A%02d",i,fevt->fZ[i],fevt->fA[i]));
+    TGeoTrack * ParticleTrack = new TGeoTrack();
     if(fevt->fXDetHit[i]!=-9999 && fevt->fYDetHit[i]!=-9999 && fevt->fZDetHit[i]!=-9999) { //The particle is detected
-      ParticleTrack->AddLine(-fBeamCenter.Y(),fBeamCenter.X(),fBeamCenter.Z(),-fevt->fYDetHit[i],fevt->fXDetHit[i],fevt->fZDetHit[i]);
+      ParticleTrack->AddPoint(-fBeamCenter.Y(),fBeamCenter.X(),fBeamCenter.Z(),0);
+      ParticleTrack->AddPoint(-fevt->fYDetHit[i],fevt->fXDetHit[i],fevt->fZDetHit[i],0);
     } else { //The particle escaped from the region
-      ParticleTrack->AddLine(-fBeamCenter.Y(),fBeamCenter.X(),fBeamCenter.Z(),-20*sin(fevt->fThetaOrigin[i])*sin(fevt->fPhiOrigin[i]),20*sin(fevt->fThetaOrigin[i])*cos(fevt->fPhiOrigin[i]),20*cos(fevt->fThetaOrigin[i]));
+      ParticleTrack->AddPoint(-fBeamCenter.Y(),fBeamCenter.X(),fBeamCenter.Z(),0);
+      ParticleTrack->AddPoint(-20*sin(fevt->fThetaOrigin[i])*sin(fevt->fPhiOrigin[i]),20*sin(fevt->fThetaOrigin[i])*cos(fevt->fPhiOrigin[i]),20*cos(fevt->fThetaOrigin[i]),0);
     }
-    fevt->fZ[i]<=10 ? ParticleTrack->SetMainColor(fevt->fZ[i]+fevt->fA[i]) : ParticleTrack->SetMainColor(kRed);
-    gEve->AddElement(ParticleTrack);
+    fevt->fZ[i]<=10 ? ParticleTrack->SetLineColor(fevt->fZ[i]+fevt->fA[i]) : ParticleTrack->SetLineColor(kRed);
+    gGeoManager->AddTrack(ParticleTrack);
   }
   //
+  
+  gGeoManager->DrawTracks();
 }
   
 //____________________________________________________

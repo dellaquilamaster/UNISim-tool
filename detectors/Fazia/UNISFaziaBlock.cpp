@@ -15,12 +15,12 @@ fDisplacement(displacement)
   //
   //Creation of quartets
   for(int i=0; i<fNumQuartetRowColumn; i++) {
-    for(int j=0; j<fNumQuartetRowColumn; j++) {
+    for(int j=0; j<fNumQuartetRowColumn; j++) {      
       const double tilt_angle = atan(fQuartetHalfWidth/fNominalDistance);
-      TVector3 AbsolutePosition(fQuartetHalfWidth-2*i*fQuartetHalfWidth,-fQuartetHalfWidth+2*j*fQuartetHalfWidth,fNominalDistance);
+      TVector3 AbsolutePosition(-fQuartetHalfWidth+2*i*fQuartetHalfWidth,fQuartetHalfWidth-2*j*fQuartetHalfWidth,fNominalDistance);
       fQuartets[i*fNumQuartetRowColumn+j] = new UNISFaziaQuartet(0.,0.,-100,pad_width,frame_width); //Quartet at 0 cm from the target
-      fQuartets[i*fNumQuartetRowColumn+j]->RotateY(tilt_angle-2*i*tilt_angle);
-      fQuartets[i*fNumQuartetRowColumn+j]->RotateX(tilt_angle-2*j*tilt_angle);
+      fQuartets[i*fNumQuartetRowColumn+j]->RotateX(-tilt_angle+2*j*tilt_angle);
+      fQuartets[i*fNumQuartetRowColumn+j]->RotateY(-tilt_angle+2*i*tilt_angle);
       fQuartets[i*fNumQuartetRowColumn+j]->Translate(AbsolutePosition.X(), AbsolutePosition.Y(), AbsolutePosition.Z());
       fQuartets[i*fNumQuartetRowColumn+j]->RotateZ(-phi_pos-180*TMath::DegToRad());
       fQuartets[i*fNumQuartetRowColumn+j]->RotateX(theta_pos);
@@ -107,6 +107,6 @@ void UNISFaziaBlock::Draw3D(Option_t * draw_opt) const
 {
   for(Int_t i=0; i<fNumQuartets; i++)
   {
-    fQuartets[i]->Draw3D();
+    fQuartets[i]->Draw3D(draw_opt);
   }
 }

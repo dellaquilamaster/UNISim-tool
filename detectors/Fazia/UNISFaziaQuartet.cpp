@@ -307,78 +307,61 @@ void UNISFaziaQuartet::RotateY(Double_t y_angle)
 
 void UNISFaziaQuartet::Generate3D(double theta_pos, double phi_pos)
 {
-  //Creating the Graphics Manager
-  TEveManager::Create();
   //
+  if(!gGeoManager) {
+    new TGeoManager();
+    TGeoVolume *TheMotherVolume = gGeoManager->MakeBox("TheMotherVolume",0,50,50,50);
+    TheMotherVolume->SetLineColor(kBlack);
+    gGeoManager->SetTopVisible(kFALSE); // the TOP is invisible
+    gGeoManager->SetTopVolume(TheMotherVolume);
+  }
   
   //
-  DetectorQuartet = new TEveGeoShape("DetectorQuartet");
+  fDetector = new TGeoVolumeAssembly("DetectorQuartet");
+  fDetectorMatrix = new TGeoHMatrix("DetectorTransformationMatrix");
   //
-  
+   
   //
-  fPad = new TEveGeoShape **[TRowColumn];
-  fTopFrame = new TEveGeoShape **[TRowColumn];
-  fBottomFrame = new TEveGeoShape **[TRowColumn];
-  fLeftFrame = new TEveGeoShape **[TRowColumn];
-  fRightFrame = new TEveGeoShape **[TRowColumn];
+  fPad         = new TGeoVolume("pad_volume",new TGeoBBox(TPadEffective_semi, TPadEffective_semi, 0.1));
+  fTopFrame    = new TGeoVolume("top_frame_volume",new TGeoBBox(TPadTrue_semi,TFrame_width/2., 0.2));
+  fBottomFrame = new TGeoVolume("bottom_frame_volume",new TGeoBBox(TPadTrue_semi,TFrame_width/2., 0.2));
+  fLeftFrame   = new TGeoVolume("left_frame_volume",new TGeoBBox(TFrame_width/2.,TPadTrue_semi, 0.2, 0));
+  fRightFrame  = new TGeoVolume("right_frame_volume",new TGeoBBox(TFrame_width/2.,TPadTrue_semi, 0.2, 0));
+  fPad->SetLineColor(kGray);
+  fTopFrame->SetLineColor(kYellow+2);
+  fBottomFrame->SetLineColor(kYellow+2);
+  fLeftFrame->SetLineColor(kYellow+2);
+  fRightFrame->SetLineColor(kYellow+2);
   //
   
   //
   for(Int_t i=0; i<TRowColumn; i++)
   {
-    fPad[i] = new TEveGeoShape *[TRowColumn];
-    fTopFrame[i] = new TEveGeoShape *[TRowColumn];
-    fBottomFrame[i] = new TEveGeoShape *[TRowColumn];
-    fLeftFrame[i] = new TEveGeoShape *[TRowColumn];
-    fRightFrame[i] = new TEveGeoShape *[TRowColumn];
     for(Int_t j=0; j<TRowColumn; j++)
     {      
-      fPad[i][j]  = new TEveGeoShape(Form("fPad_%02d_%02d",i,j));
-      fPad[i][j]->SetShape(new TGeoPara(TPadEffective_semi, TPadEffective_semi, 0.1, 0, 0, 0));
-      fPad[i][j]->SetMainColor(kGray);
-      fPad[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
-      fTopFrame[i][j]  = new TEveGeoShape(Form("fTopFrame_%02d_%02d",i,j));
-      fTopFrame[i][j]->SetShape(new TGeoPara(TPadTrue_semi,TFrame_width/2., 0.2, 0, 0, 0));
-      fTopFrame[i][j]->SetMainColor(kYellow+2);
-      fTopFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi+TPadEffective_semi+TFrame_width/2.,0);
-      fBottomFrame[i][j]  = new TEveGeoShape(Form("fBottomFrame_%02d_%02d",i,j));
-      fBottomFrame[i][j]->SetShape(new TGeoPara(TPadTrue_semi,TFrame_width/2., 0.2, 0, 0, 0));
-      fBottomFrame[i][j]->SetMainColor(kYellow+2);
-      fBottomFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi-TPadEffective_semi-TFrame_width/2.,0);
-      fLeftFrame[i][j]  = new TEveGeoShape(Form("fLeftFrame_%02d_%02d",i,j));
-      fLeftFrame[i][j]->SetShape(new TGeoPara(TFrame_width/2.,TPadTrue_semi, 0.2, 0, 0, 0));
-      fLeftFrame[i][j]->SetMainColor(kYellow+2);
-      fLeftFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi-TPadEffective_semi-TFrame_width/2.,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
-      fRightFrame[i][j]  = new TEveGeoShape(Form("fRightFrame_%02d_%02d",i,j));
-      fRightFrame[i][j]->SetShape(new TGeoPara(TFrame_width/2.,TPadTrue_semi, 0.2, 0, 0, 0));
-      fRightFrame[i][j]->SetMainColor(kYellow+2);
-      fRightFrame[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi+TPadEffective_semi+TFrame_width/2.,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
-      //
-      //Placing at 0 degrees
-      fPad[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
-      fTopFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
-      fBottomFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
-      fLeftFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
-      fRightFrame[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance);
-      //
+      fDetector->AddNode(fPad,i*TRowColumn+j,new TGeoTranslation(-(TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi,0));
+      fDetector->AddNode(fTopFrame,i*TRowColumn+j,new TGeoTranslation(-(TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi+TPadEffective_semi+TFrame_width/2.,0));
+      fDetector->AddNode(fBottomFrame,i*TRowColumn+j,new TGeoTranslation(-(TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi-TPadEffective_semi-TFrame_width/2.,0));
+      fDetector->AddNode(fLeftFrame,i*TRowColumn+j,new TGeoTranslation(-(TRowColumn-(2*i+1))*TPadTrue_semi-TPadEffective_semi-TFrame_width/2.,(TRowColumn-(2*j+1))*TPadTrue_semi,0));
+      fDetector->AddNode(fRightFrame,i*TRowColumn+j,new TGeoTranslation(-(TRowColumn-(2*i+1))*TPadTrue_semi+TPadEffective_semi+TFrame_width/2.,(TRowColumn-(2*j+1))*TPadTrue_semi,0));
     }
   }
+  //
+  
+  //
+  fDetectorMatrix->MultiplyLeft(TGeoTranslation(0,0,TNominalDistance));
+  //
+  
+  //
   //Drawing decoratively a block of CsIs
-  fCsICrystal = new TEveGeoShape **[TRowColumn];
   const double fCsICrystalLength=10.; // cm
+  fCsICrystal = new TGeoVolume("crystal_volume",new TGeoPara(TPadEffective_semi, TPadEffective_semi, fCsICrystalLength/2., 0, 0, 0));
+  fCsICrystal->SetLineColor(kBlue-4);
   for(Int_t i=0; i<TRowColumn; i++)
   {
-    fCsICrystal[i] = new TEveGeoShape *[TRowColumn];
     for(Int_t j=0; j<TRowColumn; j++)
     {      
-      fCsICrystal[i][j]  = new TEveGeoShape(Form("fPad_%02d_%02d",i,j));
-      fCsICrystal[i][j]->SetShape(new TGeoPara(TPadEffective_semi, TPadEffective_semi, fCsICrystalLength/2., 0, 0, 0));
-      fCsICrystal[i][j]->SetMainColor(kBlue-4);
-      fCsICrystal[i][j]->RefMainTrans().Move3PF((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi,0);
-      //
-      //Placing at 0 degrees
-      fCsICrystal[i][j]->RefMainTrans().Move3PF(0., 0., TNominalDistance+fCsICrystalLength/2.+0.1);
-      //
+      fDetector->AddNode(fCsICrystal,i*TRowColumn+j,new TGeoTranslation((TRowColumn-(2*i+1))*TPadTrue_semi,(TRowColumn-(2*j+1))*TPadTrue_semi,fCsICrystalLength/2.+0.1));
     }
   }
   //
@@ -396,89 +379,22 @@ void UNISFaziaQuartet::Generate3D(double theta_pos, double phi_pos)
 
 void UNISFaziaQuartet::Rotate3DX(Double_t x_angle)
 {
-  //
-  for(Int_t i=0; i<TRowColumn; i++)
-  {
-    for(Int_t j=0; j<TRowColumn; j++)
-    {      
-      //
-      //Rotation about X axis
-      fPad[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
-      fTopFrame[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
-      fBottomFrame[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
-      fLeftFrame[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
-      fRightFrame[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
-      //
-      fCsICrystal[i][j]->RefMainTrans().RotatePF(3, 1, x_angle);
-      //
-    }
-  }
-  //
+  fDetectorMatrix->RotateX(x_angle*TMath::RadToDeg());
 }
 
 void UNISFaziaQuartet::Rotate3DY(Double_t y_angle)
 {
-  //
-  for(Int_t i=0; i<TRowColumn; i++)
-  {
-    for(Int_t j=0; j<TRowColumn; j++)
-    {      
-      //
-      //Rotation about X axis
-      fPad[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
-      fTopFrame[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
-      fBottomFrame[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
-      fLeftFrame[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
-      fRightFrame[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
-      //
-      fCsICrystal[i][j]->RefMainTrans().RotatePF(3, 2, y_angle);
-      //
-    }
-  }
-  //
+  fDetectorMatrix->RotateY(y_angle*TMath::RadToDeg());
 }
 
 void UNISFaziaQuartet::Rotate3DZ(Double_t z_angle)
 {
-  //
-  for(Int_t i=0; i<TRowColumn; i++)
-  {
-    for(Int_t j=0; j<TRowColumn; j++)
-    {      
-      //
-      //Rotation about X axis
-      fPad[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
-      fTopFrame[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
-      fBottomFrame[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
-      fLeftFrame[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
-      fRightFrame[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
-      //
-      fCsICrystal[i][j]->RefMainTrans().RotatePF(1, 2, z_angle);
-      //
-    }
-  }
-  //
+  fDetectorMatrix->RotateZ(z_angle*TMath::RadToDeg());
 }
 
 void UNISFaziaQuartet::Translate3D(Double_t x, Double_t y, Double_t z)
 {  
-  for(Int_t i=0; i<TRowColumn; i++)
-  {
-    for(Int_t j=0; j<TRowColumn; j++)
-    {      
-      //
-      //Rotation about X axis
-      fPad[i][j]->RefMainTrans().Move3PF(-y, x, z);
-      fTopFrame[i][j]->RefMainTrans().Move3PF(-y, x, z);
-      fBottomFrame[i][j]->RefMainTrans().Move3PF(-y, x, z);
-      fLeftFrame[i][j]->RefMainTrans().Move3PF(-y, x, z);
-      fRightFrame[i][j]->RefMainTrans().Move3PF(-y, x, z);
-      //
-      fCsICrystal[i][j]->RefMainTrans().Move3PF(-y, x, z);
-      //
-    }
-  }
-  //
+  fDetectorMatrix->MultiplyLeft(TGeoTranslation(x,y,z));
 }
 
 // destructor
@@ -563,107 +479,52 @@ void UNISFaziaQuartet::Draw3D(Option_t * draw_opt) const
 {  
   //
   if(strstr(draw_opt,"SAME")==0 && strstr(draw_opt,"same")==0) {
-    //
-    //Creating the Graphics Manager
-    TEveManager::Create();
-    //
+    // 
+    TGeoTube * Z_axis_line_shape = new TGeoTube("Z_axis_line_shape",0, 0.2, 15);
+    TGeoCone * Z_axis_end_shape = new TGeoCone("Z_axis_end_shape",2,0,1,0,0);
+    TGeoTranslation * Z_axis_arrow_trans = new TGeoTranslation("Z_axis_arrow_trans",0,0,15);
+    Z_axis_arrow_trans->RegisterYourself();
+    TGeoCompositeShape * Z_axis_shape = new TGeoCompositeShape("","(Z_axis_line_shape+Z_axis_end_shape:Z_axis_arrow_trans)");
+    TGeoVolume * Z_axis_volume = new TGeoVolume("Z_axis_volume", Z_axis_shape);
+    TGeoHMatrix * Z_axis_matrix = new TGeoHMatrix();
+    Z_axis_volume->SetLineColor(kBlue);
+    gGeoManager->GetMasterVolume()->AddNode(Z_axis_volume,0,Z_axis_matrix);
+    Z_axis_matrix->Multiply(TGeoTranslation(0,0,15));
     
-    //NOTE:
-    //the Y-axis (first component of the vectors, horizontal axis) is considered with a "-" sign
-    //for the rotation use the following scheme:
-    // 3, 1 = rotation around X
-    // 3, 2 = rotation around Y
-    // 1, 2 = rotation around Z
-    // Use RotatePF to rotate in the parent frame and RotateLF to rotate in the local frame
-    //
+    TGeoTube * X_axis_line_shape = new TGeoTube("X_axis_line_shape",0, 0.2, 15);
+    TGeoCone * X_axis_end_shape = new TGeoCone("X_axis_end_shape",2,0,1,0,0);
+    TGeoTranslation * X_axis_arrow_trans = new TGeoTranslation("X_axis_arrow_trans",0,0,15);
+    X_axis_arrow_trans->RegisterYourself();
+    TGeoCompositeShape * X_axis_shape = new TGeoCompositeShape("(X_axis_line_shape+X_axis_end_shape:X_axis_arrow_trans)");
+    TGeoVolume * X_axis_volume = new TGeoVolume("X_axis_volume", X_axis_shape);
+    TGeoHMatrix * X_axis_matrix = new TGeoHMatrix();
+    X_axis_volume->SetLineColor(kRed);
+    gGeoManager->GetMasterVolume()->AddNode(X_axis_volume,0,X_axis_matrix);
+    X_axis_matrix->RotateY(90);
+    X_axis_matrix->Multiply(TGeoTranslation(0,0,15));
     
-    //
-    //Generating Axes
-    TEveGeoShape * TheAxes = new TEveGeoShape("TheAxes");
-    gEve->AddElement(TheAxes);
-    //
-    TEveGeoShape * XaxisLine = new TEveGeoShape("XaxisLine");
-    XaxisLine->SetShape(new TGeoTube(0, 0.2, 10));
-    XaxisLine->SetMainColor(kGreen+1);
-    XaxisLine->RefMainTrans().RotatePF(3, 2, 90*TMath::DegToRad());
-    XaxisLine->RefMainTrans().Move3PF(0, 10, 0);
-    XaxisLine->SetMainTransparency(0);
-    TheAxes->AddElement(XaxisLine);
-    TEveGeoShape * YaxisLine = new TEveGeoShape("YaxisLine");
-    YaxisLine->SetShape(new TGeoTube(0, 0.2, 10));
-    YaxisLine->SetMainColor(kRed);
-    YaxisLine->RefMainTrans().RotatePF(3, 1, -90*TMath::DegToRad());
-    YaxisLine->RefMainTrans().Move3PF(-10, 0, 0);
-    YaxisLine->SetMainTransparency(0);
-    TheAxes->AddElement(YaxisLine);
-    TEveGeoShape * ZaxisLine = new TEveGeoShape("ZaxisLine");
-    ZaxisLine->SetShape(new TGeoTube(0, 0.2, 10));
-    ZaxisLine->SetMainColor(kBlue);
-    ZaxisLine->RefMainTrans().Move3PF(0, 0, 10);
-    ZaxisLine->SetMainTransparency(0);
-    TheAxes->AddElement(ZaxisLine);
-    TEveGeoShape * XaxisArrow = new TEveGeoShape("XaxisArrow");
-    XaxisArrow->SetShape(new TGeoCone(0.6, 0, 0.8, 0, 0));
-    XaxisArrow->SetMainColor(kGreen+1);
-    XaxisArrow->RefMainTrans().RotatePF(3, 2, 90*TMath::DegToRad());
-    XaxisArrow->RefMainTrans().Move3PF(0, 20, 0);
-    XaxisArrow->SetMainTransparency(0);
-    TheAxes->AddElement(XaxisArrow);
-    TEveGeoShape * YaxisArrow = new TEveGeoShape("YaxisArrow");
-    YaxisArrow->SetShape(new TGeoCone(0.6, 0, 0.8, 0, 0));
-    YaxisArrow->SetMainColor(kRed);
-    YaxisArrow->RefMainTrans().RotatePF(3, 1, -90*TMath::DegToRad());
-    YaxisArrow->RefMainTrans().Move3PF(-20, 0, 0);
-    YaxisArrow->SetMainTransparency(0);
-    TheAxes->AddElement(YaxisArrow);
-    TEveGeoShape * ZaxisArrow = new TEveGeoShape("ZaxisArrow");
-    ZaxisArrow->SetShape(new TGeoCone(0.6, 0, 0.8, 0, 0));
-    ZaxisArrow->SetMainColor(kBlue);
-    ZaxisArrow->RefMainTrans().Move3PF(0, 0, 20);
-    ZaxisArrow->SetMainTransparency(0);
-    TheAxes->AddElement(ZaxisArrow);
-    TEveText * XaxisText = new TEveText("X");
-    XaxisText->RefMainTrans().Move3PF(0, 21, 0);
-    XaxisText->SetMainColor(kGreen+1);
-    XaxisText->SetFontSize(20);
-    XaxisText->SetLighting(kTRUE);
-    TheAxes->AddElement(XaxisText);
-    TEveText * YaxisText = new TEveText("Y");
-    YaxisText->RefMainTrans().Move3PF(-21, 1, 0);
-    YaxisText->SetMainColor(kRed);
-    YaxisText->SetFontSize(20);
-    YaxisText->SetLighting(kTRUE);
-    TheAxes->AddElement(YaxisText);
-    TEveText * ZaxisText = new TEveText("Z");
-    ZaxisText->RefMainTrans().Move3PF(0, 1, 21);
-    ZaxisText->SetMainColor(kBlue);
-    ZaxisText->SetFontSize(20);
-    ZaxisText->SetLighting(kTRUE);
-    TheAxes->AddElement(ZaxisText);
+    TGeoTube * Y_axis_line_shape = new TGeoTube("Y_axis_line_shape",0, 0.2, 15);
+    TGeoCone * Y_axis_end_shape = new TGeoCone("Y_axis_end_shape",2,0,1,0,0);
+    TGeoTranslation * Y_axis_arrow_trans = new TGeoTranslation("Y_axis_arrow_trans",0,0,15);
+    Y_axis_arrow_trans->RegisterYourself();
+    TGeoCompositeShape * Y_axis_shape = new TGeoCompositeShape("(Y_axis_line_shape+Y_axis_end_shape:Y_axis_arrow_trans)");
+    TGeoVolume * Y_axis_volume = new TGeoVolume("Y_axis_volume", Y_axis_shape);
+    TGeoHMatrix * Y_axis_matrix = new TGeoHMatrix();
+    Y_axis_volume->SetLineColor(kGreen+1);
+    gGeoManager->GetMasterVolume()->AddNode(Y_axis_volume,0,Y_axis_matrix);
+    Y_axis_matrix->RotateX(-90);
+    Y_axis_matrix->Multiply(TGeoTranslation(0,0,15));
     //
   }
   //
-  
+                     
   //
-  gEve->AddElement(DetectorQuartet);
-  for(Int_t i=0; i<TRowColumn; i++)
-  {
-    for(Int_t j=0; j<TRowColumn; j++)
-    {      
-      //
-      DetectorQuartet->AddElement(fPad[i][j]);
-      DetectorQuartet->AddElement(fTopFrame[i][j]);
-      DetectorQuartet->AddElement(fBottomFrame[i][j]);
-      DetectorQuartet->AddElement(fLeftFrame[i][j]);
-      DetectorQuartet->AddElement(fRightFrame[i][j]);
-      DetectorQuartet->AddElement(fCsICrystal[i][j]);
-      //
-    }
-  }
+  gGeoManager->GetMasterVolume()->AddNode(fDetector,1,fDetectorMatrix);
   //
   
-  // Drawing3D  
-  gEve->Redraw3D(kTRUE);
+  //
+  std::string option_string(draw_opt);
+  gGeoManager->GetMasterVolume()->Draw(option_string.find("ogl")!=std::string::npos ? "ogl" : "");
   //
 }
 

@@ -6,119 +6,18 @@
 #include <TGraph.h>
 #include <TCanvas.h>
 
-#include "TStripDetector.h"
+#include "UNISStripDetector.h"
 
 // standard constructor
-TStripDetector::TStripDetector(Double_t distance, Double_t theta_pos, Double_t phi_pos, Int_t N_Strips, 
+UNISStripDetector::UNISStripDetector(Double_t distance, Double_t theta_pos, Double_t phi_pos, Int_t N_Strips, 
 				   Double_t strip_width, Double_t inter_width, Double_t frame_width, Double_t dead_layer, Option_t *opt) :
 TXlabversor(1,0,0),
 TYlabversor(0,1,0),
 TZlabversor(0,0,1),
-TTiltAngle(-9999)
-{
-  TPixels_number=N_Strips*N_Strips;
-  TStrips_number=N_Strips;
-  TPixelEffective_width=strip_width-inter_width;
-  TInter_width=inter_width; 
-  TFrame_width=frame_width; 
-  TDeadLayer=dead_layer; 
-  TPixelTrue_width=strip_width;
-  TPixelEffective_semi=0.5*TPixelEffective_width;
-  TPixelTrue_semi=0.5*TPixelTrue_width;
-  TTelescopeEffective_semi=TPixelTrue_semi*TStrips_number;
-  TTelescopeTrue_semi=TTelescopeEffective_semi+TDeadLayer+TFrame_width;
-  TStrip_hit=(Int_t*)new Int_t[2];
-  TTrueImpactPoint.SetXYZ(0.,0.,0.);
-  TTelescopeImpactPoint.SetXYZ(0.,0.,0.);
-  /*Telescope's corners*/
-  TTopLeftCorner.SetXYZ(TTelescopeTrue_semi,-TTelescopeTrue_semi,distance);
-  TTopRightCorner.SetXYZ(TTelescopeTrue_semi,TTelescopeTrue_semi,distance);
-  TBottomLeftCorner.SetXYZ(-TTelescopeTrue_semi,-TTelescopeTrue_semi,distance);
-  TTopLeftXCorner= TTelescopeEffective_semi;
-  TTopLeftYCorner= TTelescopeEffective_semi;
-  /* vectors allocations*/
-  TCenters       =new TVector3*[TStrips_number];
-  TCentersXprime =new Double_t*[TStrips_number];
-  TCentersYprime =new Double_t*[TStrips_number];
-  for(Int_t i = 0; i<TStrips_number; i++)
-  {
-    TCenters[i]       = new TVector3[TStrips_number]; 
-    TCentersXprime[i] = new Double_t[TStrips_number]; 
-    TCentersYprime[i] = new Double_t[TStrips_number]; 
-  }
-
-  /*Setting the position of the telescope center*/
-  TTelescopeCenter.SetXYZ(0.,0.,distance);
-  /*Rotation of the telescope center to the input position*/
-  TTelescopeCenter.RotateX(theta_pos);
-  TTelescopeCenter.RotateZ(phi_pos+180*TMath::DegToRad());
-  Ta=TTelescopeCenter.X()/TTelescopeCenter.Mag();
-  Tb=TTelescopeCenter.Y()/TTelescopeCenter.Mag();
-  Tc=TTelescopeCenter.Z()/TTelescopeCenter.Mag();
-  Td=-distance;
-  /*rotation of the corners to the input position*/
-  TTopLeftCorner   .RotateZ(-phi_pos-180*TMath::DegToRad()); 
-  TTopRightCorner  .RotateZ(-phi_pos-180*TMath::DegToRad()); 
-  TBottomLeftCorner.RotateZ(-phi_pos-180*TMath::DegToRad());
-  TTopLeftCorner   .RotateX(theta_pos);
-  TTopRightCorner  .RotateX(theta_pos);
-  TBottomLeftCorner.RotateX(theta_pos);
-  TTopLeftCorner   .RotateZ(phi_pos+180*TMath::DegToRad());
-  TTopRightCorner  .RotateZ(phi_pos+180*TMath::DegToRad());
-  TBottomLeftCorner.RotateZ(phi_pos+180*TMath::DegToRad());
-  /*calculation of the X Y versors*/
-  TXversor=(TTopLeftCorner-TBottomLeftCorner);
-  TXversor*=(1./TXversor.Mag());
-  TYversor=(TTopRightCorner-TTopLeftCorner);
-  TYversor*=(1./TYversor.Mag());    
-  /*************************************************************************************/
-  // placement of the entire cluster of pixels on a plane orthogonal to z-axis at the input distance
-  // here i represents the strip front and j represents the strip back
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCenters[i][j].SetXYZ((TStrips_number-(2*j+1))*TPixelTrue_semi,-(TStrips_number-(2*i+1))*TPixelTrue_semi,distance);
-    }
-  }
-  // first rotation around the z axis
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCenters[i][j].RotateZ(-phi_pos-180*TMath::DegToRad());
-    }
-  }
-  // rotation of the entire custer of pixels to the inpunt (theta,phi) position
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCenters[i][j].RotateX(theta_pos);
-      TCenters[i][j].RotateZ(phi_pos+180*TMath::DegToRad());
-    }
-  }
-  // determination of the pixel center coordinates respect to the top right corner of the telescope
-  // Here the axes are oriented towards the inner side of the strip, such as that all the coordinates are positive within the detector
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
-      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
-    }
-  }
-  /**************************************************************************************/
-}
-
-// constructor with arbitrary tilt angle, center position (X0, Y0, Z0)
-// tilt_X = tilt angle with respect to the X-axis (vertical)
-TStripDetector::TStripDetector(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, 
-                   Int_t N_Strips, Double_t strip_width, Double_t inter_width, Double_t frame_width, Double_t dead_layer, Option_t *opt) :
-TXlabversor(1,0,0),
-TYlabversor(0,1,0),
-TZlabversor(0,0,1),
-TTiltAngle(tilt_X),
+TTrueImpactPoint(0.,0.,0.),
+TTelescopeImpactPoint(0.,0.,0.),
+TTiltXAngle(-9999),
+TTiltYAngle(-9999),
 TStrips_number(N_Strips),                                                  
 TPixels_number(N_Strips*N_Strips),                                         
 TPixelTrue_width(strip_width),                                             
@@ -130,20 +29,22 @@ TPixelEffective_width(strip_width-inter_width),
 TPixelEffective_semi(0.5*TPixelEffective_width),                           
 TTelescopeEffective_semi(TPixelTrue_semi*TStrips_number),                  
 TTelescopeTrue_semi(TTelescopeEffective_semi+TDeadLayer+TFrame_width),                                             
-TStrip_hit((Int_t*)new Int_t[2])                                    
+TStrip_hit((Int_t*)new Int_t[2])
 {
   //
-  //Placing the entire cluster centered at (0,0,0) and perpendicular to the beam axis
-  /*Telescope's corners*/
-  TTopLeftCorner.SetXYZ(TTelescopeTrue_semi,-TTelescopeTrue_semi,0.);
-  TTopRightCorner.SetXYZ(TTelescopeTrue_semi,TTelescopeTrue_semi,0.);
-  TBottomLeftCorner.SetXYZ(-TTelescopeTrue_semi,-TTelescopeTrue_semi,0.);
+  //Setting the position of the telescope center
+  TTelescopeCenter.SetXYZ(0.,0.,distance);
+  //Telescope's corners
+  TTopLeftCorner.SetXYZ(TTelescopeTrue_semi,-TTelescopeTrue_semi,distance);
+  TTopRightCorner.SetXYZ(TTelescopeTrue_semi,TTelescopeTrue_semi,distance);
+  TBottomLeftCorner.SetXYZ(-TTelescopeTrue_semi,-TTelescopeTrue_semi,distance);
   TTopLeftXCorner= TTelescopeEffective_semi;
   TTopLeftYCorner= TTelescopeEffective_semi;
-  /* vectors allocations*/
+  //vectors allocations*
   TCenters       =new TVector3*[TStrips_number];
   TCentersXprime =new Double_t*[TStrips_number];
   TCentersYprime =new Double_t*[TStrips_number];
+  //
   for(Int_t i = 0; i<TStrips_number; i++)
   {
     TCenters[i]       = new TVector3[TStrips_number]; 
@@ -151,49 +52,89 @@ TStrip_hit((Int_t*)new Int_t[2])
     TCentersYprime[i] = new Double_t[TStrips_number]; 
   }
   //
-  // placement of the entire cluster of pixels on a plane orthogonal to z-axis and centered at (0,0,0)
+  
+  //
+  //calculation of the X Y versors
+  TXversor=(TTopLeftCorner-TBottomLeftCorner);
+  TXversor*=(1./TXversor.Mag());
+  TYversor=(TTopRightCorner-TTopLeftCorner);
+  TYversor*=(1./TYversor.Mag());  
+  //
+
+  //
+  // placement of the entire cluster of pixels on a plane orthogonal to z-axis at the input distance
   // here i represents the strip front and j represents the strip back
-  // Setting the position of the telescope center first
-  TTelescopeCenter.SetXYZ(0.,0.,0.);
   for(Int_t i=0; i<TStrips_number; i++)
   {
     for(Int_t j=0; j<TStrips_number; j++)
     {
-      TCenters[i][j].SetXYZ((TStrips_number-(2*j+1))*TPixelTrue_semi,-(TStrips_number-(2*i+1))*TPixelTrue_semi,0.);
-    }
-  }
-  //
-  //Rotation of the detector to the input tilt angle
-  //
-  RotateX(TTiltAngle);
-  //
-  //Translation of the detector to the input position
-  //
-  TTelescopeCenter=TTelescopeCenter+X0*TXlabversor+Y0*TYlabversor+Z0*TZlabversor; //Detector center
-  TTopLeftCorner+=X0*TXlabversor+Y0*TYlabversor+Z0*TZlabversor;
-  TTopRightCorner+=X0*TXlabversor+Y0*TYlabversor+Z0*TZlabversor;
-  TBottomLeftCorner+=X0*TXlabversor+Y0*TYlabversor+Z0*TZlabversor;
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCenters[i][j]=TCenters[i][j]+X0*TXlabversor+Y0*TYlabversor+Z0*TZlabversor; //i,j strip center
+      TCenters[i][j].SetXYZ((TStrips_number-(2*j+1))*TPixelTrue_semi,-(TStrips_number-(2*i+1))*TPixelTrue_semi,distance);
     }
   }
   //
   
+  // determination of the pixel center coordinates respect to the top right corner of the telescope
+  // Here the axes are oriented towards the inner side of the strip, such as that all the coordinates are positive within the detector
+  for(Int_t i=0; i<TStrips_number; i++)
+  {
+    for(Int_t j=0; j<TStrips_number; j++)
+    {
+      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
+      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
+    }
+  }
+  //
   //
   //Calculation of the detector plane equation
   TVector3 OriginalDirection(0,0,1);
-  OriginalDirection.RotateX(TTiltAngle);
   Ta=OriginalDirection.X()/OriginalDirection.Mag();
   Tb=OriginalDirection.Y()/OriginalDirection.Mag();
   Tc=OriginalDirection.Z()/OriginalDirection.Mag();
   Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
   //
+  
+  //
+  Generate3D(0.,0.);
+  //
+  
+  //
+  Translate3D(0,0,distance);
+  //
+    
+  //
+  //We operate now a series of rotations to reach the final position
+  //First: Rotation about the Z-axis of a quantity (-phi)
+  RotateZ(-phi_pos-180*TMath::DegToRad()); 
+  //Second: Rotation about the X-axis of a quantity (theta)
+  RotateX(theta_pos);
+  //Third: Rotation about the Z-axis of a quantity (phi)
+  RotateZ(phi_pos-180*TMath::DegToRad());
+  //  
+}  
+
+// constructor with arbitrary tilt angle, center position (X0, Y0, Z0)
+// tilt_X = tilt angle with respect to the X-axis (vertical)
+UNISStripDetector::UNISStripDetector(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y,
+                   Int_t N_Strips, Double_t strip_width, Double_t inter_width, Double_t frame_width, Double_t dead_layer, Option_t *opt) :
+UNISStripDetector(0., 0., 0., N_Strips, strip_width, inter_width, frame_width, dead_layer, opt)
+{
+  //
+  //
+  TTiltXAngle=tilt_X;
+  TTiltYAngle=tilt_Y;
+  //
+  //
+  //We operate now a series of rotations to reach the final position
+  //First: Rotation about the X-axis of the titl_X angle
+  RotateX(TTiltXAngle); 
+  //Second: Rotation about the Y-axis of the titl_Y angle
+  RotateY(TTiltYAngle);
+  //Third: Translation to the desired position
+  Translate(X0,Y0,Z0);
+  //
 }
 
-void TStripDetector::RotateX(Double_t x_angle)
+void UNISStripDetector::RotateX(Double_t x_angle)
 {
   /*Rotation of the telescope center to the input position*/
   TTelescopeCenter.RotateX(x_angle);
@@ -211,11 +152,13 @@ void TStripDetector::RotateX(Double_t x_angle)
   TTopLeftCorner   .RotateX(x_angle); 
   TTopRightCorner  .RotateX(x_angle); 
   TBottomLeftCorner.RotateX(x_angle);
-  /*calculation of the X Y versors*/
+  //
+  //calculation of the X Y versors
   TXversor=(TTopLeftCorner-TBottomLeftCorner);
   TXversor*=(1./TXversor.Mag());
   TYversor=(TTopRightCorner-TTopLeftCorner);
-  TYversor*=(1./TYversor.Mag());    
+  TYversor*=(1./TYversor.Mag());  
+  // 
   // determination of the pixel center coordinates respect to the top right corner of the telescope
   // Here the axes are oriented towards the inner side of the strip, such as that all the coordinates are positive within the detector
   for(Int_t i=0; i<TStrips_number; i++)
@@ -238,14 +181,19 @@ void TStripDetector::RotateX(Double_t x_angle)
   Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
   //
   
+  //
+  Rotate3DX(x_angle);
+  //  
+  
   return;
 }
 
-void TStripDetector::RotateY(Double_t y_angle)
+void UNISStripDetector::RotateY(Double_t y_angle)
 {
   /*Rotation of the telescope center to the input position*/
   TTelescopeCenter.RotateY(y_angle);
   //
+  
   /*Rotation of the pad's centers*/
   for(Int_t i=0; i<TStrips_number; i++)
   {
@@ -258,11 +206,13 @@ void TStripDetector::RotateY(Double_t y_angle)
   TTopLeftCorner   .RotateY(y_angle); 
   TTopRightCorner  .RotateY(y_angle); 
   TBottomLeftCorner.RotateY(y_angle);
-  /*calculation of the X Y versors*/
+  //
+  //calculation of the X Y versors
   TXversor=(TTopLeftCorner-TBottomLeftCorner);
   TXversor*=(1./TXversor.Mag());
   TYversor=(TTopRightCorner-TTopLeftCorner);
-  TYversor*=(1./TYversor.Mag());    
+  TYversor*=(1./TYversor.Mag());  
+  // 
   // determination of the pixel center coordinates respect to the top right corner of the telescope
   // Here the axes are oriented towards the inner side of the strip, such as that all the coordinates are positive within the detector
   for(Int_t i=0; i<TStrips_number; i++)
@@ -285,11 +235,126 @@ void TStripDetector::RotateY(Double_t y_angle)
   Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
   //
   
+  //
+  Rotate3DY(y_angle);
+  //  
+  
+  return;
+}
+
+void UNISStripDetector::RotateZ(Double_t z_angle)
+{
+  /*Rotation of the telescope center to the input position*/
+  TTelescopeCenter.RotateZ(z_angle);
+  //
+  
+  /*Rotation of the pad's centers*/
+  for(Int_t i=0; i<TStrips_number; i++)
+  {
+    for(Int_t j=0; j<TStrips_number; j++)
+    {
+      TCenters[i][j].RotateZ(z_angle);
+    }
+  }
+  /*rotation of the corners to the input position*/
+  TTopLeftCorner   .RotateZ(z_angle); 
+  TTopRightCorner  .RotateZ(z_angle); 
+  TBottomLeftCorner.RotateZ(z_angle);
+  //
+  //calculation of the X Y versors
+  TXversor=(TTopLeftCorner-TBottomLeftCorner);
+  TXversor*=(1./TXversor.Mag());
+  TYversor=(TTopRightCorner-TTopLeftCorner);
+  TYversor*=(1./TYversor.Mag());  
+  // 
+  // determination of the pixel center coordinates respect to the top right corner of the telescope
+  // Here the axes are oriented towards the inner side of the strip, such as that all the coordinates are positive within the detector
+  for(Int_t i=0; i<TStrips_number; i++)
+  {
+    for(Int_t j=0; j<TStrips_number; j++)
+    {
+      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
+      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
+    }
+  }
+  //
+  
+  //
+  //Calculation of the detector plane equation
+  TVector3 OriginalDirection(Ta,Tb,Tc);
+  OriginalDirection.RotateZ(z_angle);
+  Ta=OriginalDirection.X()/OriginalDirection.Mag();
+  Tb=OriginalDirection.Y()/OriginalDirection.Mag();
+  Tc=OriginalDirection.Z()/OriginalDirection.Mag();
+  Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
+  //
+  
+  //
+  Rotate3DZ(z_angle);
+  //  
+  
+  return;
+}
+
+
+void UNISStripDetector::Translate(Double_t x, Double_t y, Double_t z)
+{
+  //
+  TVector3 TranslationVector (x, y, z);
+  
+  //Translation of the telescope center
+  TTelescopeCenter+=TranslationVector;
+  
+  //Translation of the corners
+  TTopLeftCorner+=TranslationVector;
+  TTopRightCorner+=TranslationVector;
+  TBottomLeftCorner+=TranslationVector;
+  
+  //Translation of pixels
+  for(Int_t i=0; i<TStrips_number; i++)
+  {
+    for(Int_t j=0; j<TStrips_number; j++)
+    {
+      TCenters[i][j]+=TranslationVector;
+    }
+  }
+  
+  //Calculation of detector reference frame vectors
+  TXversor=(TTopLeftCorner-TBottomLeftCorner);
+  TXversor*=(1./TXversor.Mag());
+  TYversor=(TTopRightCorner-TTopLeftCorner);
+  TYversor*=(1./TYversor.Mag()); 
+  
+  //
+  //Calculation of the detector plane equation
+  TVector3 OriginalDirection(Ta,Tb,Tc);
+  Ta=OriginalDirection.X()/OriginalDirection.Mag();
+  Tb=OriginalDirection.Y()/OriginalDirection.Mag();
+  Tc=OriginalDirection.Z()/OriginalDirection.Mag();
+  Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
+  //
+  
+  // determination of the pixel center coordinates respect to the top right corner of the telescope
+  // Here the axes are oriented towards the inner side of the pad, such as that all the coordinates are positive within the detector
+  for(Int_t i=0; i<TStrips_number; i++)
+  {
+    for(Int_t j=0; j<TStrips_number; j++)
+    {
+      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
+      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
+    }
+  }
+  //
+  
+  //
+  Translate3D(x,y,z);
+  //
+  
   return;
 }
 
 // destructor
-TStripDetector::~TStripDetector()
+UNISStripDetector::~UNISStripDetector()
 {
   for(Int_t i=0; i<TStrips_number; i++)  
   {
@@ -304,7 +369,7 @@ TStripDetector::~TStripDetector()
 
 // returns 1 if the particle is inside the telescope, 0 if not.
 // this function sets also the impact point XY coordinates
-Int_t TStripDetector::IsInside(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+Int_t UNISStripDetector::IsInside(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {
   Double_t t; /*t parameter for the parametric equation of the particle direction*/
   Double_t l,m,n; /*particle direction parameters*/
@@ -335,7 +400,7 @@ Int_t TStripDetector::IsInside(Double_t theta_inc, Double_t phi_inc, Double_t x0
 // Returns an absolute number identifying the pixel fired according to the following scheme:
 // back*num_strips + front
 // If the particle is not inside the active area -> return value = -1
-Int_t TStripDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+Int_t UNISStripDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {  
   Int_t i,j;
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  /*If not the particle is inside the telescope*/
@@ -360,7 +425,7 @@ Int_t TStripDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0
 }
 
 // returns the number of the hit strip front. Returns -1 if the particle is not within the effective area.
-Int_t TStripDetector::GetStripFront(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+Int_t UNISStripDetector::GetStripFront(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {  
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  //Check if the particle is inside the active detector    
     
@@ -382,7 +447,7 @@ Int_t TStripDetector::GetStripFront(Double_t theta_inc, Double_t phi_inc, Double
 }
 
 // returns the number of the hit strip front. Returns -1 if the particle is not within the effective area.
-Int_t TStripDetector::GetStripBack(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+Int_t UNISStripDetector::GetStripBack(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {  
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  //Check if the particle is inside the active detector     
     
@@ -403,14 +468,14 @@ Int_t TStripDetector::GetStripBack(Double_t theta_inc, Double_t phi_inc, Double_
 }
 
 //returns -100 if the particle is not inside the telescope
-Double_t TStripDetector::GetThetaPixel(Int_t numfront, Int_t numback)
+Double_t UNISStripDetector::GetThetaPixel(Int_t numfront, Int_t numback)
 {
   if  (numfront<0 || numback<0) return -100;
   return GetPixelCenter(numfront,numback).Theta();
 }
 
 //returns -100 if the particle is not inside the telescope
-Double_t TStripDetector::GetPhiPixel(Int_t numfront, Int_t numback)
+Double_t UNISStripDetector::GetPhiPixel(Int_t numfront, Int_t numback)
 {
   if  (numfront<0 || numback<0) return -100;
   return GetPixelCenter(numfront,numback).Phi();
@@ -418,16 +483,16 @@ Double_t TStripDetector::GetPhiPixel(Int_t numfront, Int_t numback)
 
 //returns -1 if the particle is not inside the telescope in the other cases returns 1 and write theta and phi detected 
 //in the input memory addresses
-Int_t TStripDetector::GetThetaPhiPixel(Double_t * ptheta_det, Double_t * pphi_det, Int_t numfront, Int_t numback)
+Int_t UNISStripDetector::GetThetaPhiPixel(Double_t * ptheta_det, Double_t * pphi_det, Int_t numfront, Int_t numback)
 {
   if  (numfront<0 || numback<0) return -1;
-  *ptheta_det=TStripDetector::GetThetaPixel(numfront, numback);
-  *pphi_det=TStripDetector::GetPhiPixel(numfront, numback);
+  *ptheta_det=UNISStripDetector::GetThetaPixel(numfront, numback);
+  *pphi_det=UNISStripDetector::GetPhiPixel(numfront, numback);
   return 1;
 }
 
 //draws the telescope on the X-Y plane
-void TStripDetector::Draw(Option_t * draw_opt, double Xmin, double Xmax, double Ymin, double Ymax) const
+void UNISStripDetector::Draw(Option_t * draw_opt, double Xmin, double Xmax, double Ymin, double Ymax) const
 {
   TLine * LeftOuterFrameBorder=new TLine((TCenters[0][0]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[0][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X(),(TCenters[0][TStrips_number-1]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[0][TStrips_number-1]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X());
   TLine * RightOuterFrameBorder=new TLine((TCenters[TStrips_number-1][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[TStrips_number-1][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X(),(TCenters[TStrips_number-1][TStrips_number-1]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[TStrips_number-1][TStrips_number-1]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X());
@@ -505,152 +570,135 @@ void TStripDetector::Draw(Option_t * draw_opt, double Xmin, double Xmax, double 
 }
 
 //3D drawing function
-void TStripDetector::Draw3D(Option_t * draw_opt) const
+void UNISStripDetector::Draw3D(Option_t * draw_opt) const
 {
   //
   if(strstr(draw_opt,"SAME")==0 && strstr(draw_opt,"same")==0) {
-    //
-    //Creating the Graphics Manager
-    TEveManager::Create();
-    //
+    // 
+    TGeoTube * Z_axis_line_shape = new TGeoTube("Z_axis_line_shape",0, 0.2, 15);
+    TGeoCone * Z_axis_end_shape = new TGeoCone("Z_axis_end_shape",2,0,1,0,0);
+    TGeoTranslation * Z_axis_arrow_trans = new TGeoTranslation("Z_axis_arrow_trans",0,0,15);
+    Z_axis_arrow_trans->RegisterYourself();
+    TGeoCompositeShape * Z_axis_shape = new TGeoCompositeShape("","(Z_axis_line_shape+Z_axis_end_shape:Z_axis_arrow_trans)");
+    TGeoVolume * Z_axis_volume = new TGeoVolume("Z_axis_volume", Z_axis_shape);
+    TGeoHMatrix * Z_axis_matrix = new TGeoHMatrix();
+    Z_axis_volume->SetLineColor(kBlue);
+    gGeoManager->GetMasterVolume()->AddNode(Z_axis_volume,0,Z_axis_matrix);
+    Z_axis_matrix->Multiply(TGeoTranslation(0,0,15));
     
-    //NOTE:
-    //the Y-axis (first component of the vectors, horizontal axis) is considered with a "-" sign
-    //for the rotation use the following scheme:
-    // 3, 1 = rotation around X
-    // 3, 2 = rotation around Y
-    // 1, 2 = rotation around Z
-    // Use RotatePF to rotate in the parent frame and RotateLF to rotate in the local frame
-    //
+    TGeoTube * X_axis_line_shape = new TGeoTube("X_axis_line_shape",0, 0.2, 15);
+    TGeoCone * X_axis_end_shape = new TGeoCone("X_axis_end_shape",2,0,1,0,0);
+    TGeoTranslation * X_axis_arrow_trans = new TGeoTranslation("X_axis_arrow_trans",0,0,15);
+    X_axis_arrow_trans->RegisterYourself();
+    TGeoCompositeShape * X_axis_shape = new TGeoCompositeShape("(X_axis_line_shape+X_axis_end_shape:X_axis_arrow_trans)");
+    TGeoVolume * X_axis_volume = new TGeoVolume("X_axis_volume", X_axis_shape);
+    TGeoHMatrix * X_axis_matrix = new TGeoHMatrix();
+    X_axis_volume->SetLineColor(kRed);
+    gGeoManager->GetMasterVolume()->AddNode(X_axis_volume,0,X_axis_matrix);
+    X_axis_matrix->RotateY(90);
+    X_axis_matrix->Multiply(TGeoTranslation(0,0,15));
     
-    //
-    //Generating Axes
-    TEveGeoShape * TheAxes = new TEveGeoShape("TheAxes");
-    gEve->AddElement(TheAxes);
-    //
-    TEveGeoShape * XaxisLine = new TEveGeoShape("XaxisLine");
-    XaxisLine->SetShape(new TGeoTube(0, 0.2, 10));
-    XaxisLine->SetMainColor(kGreen+1);
-    XaxisLine->RefMainTrans().RotatePF(3, 2, 90*TMath::DegToRad());
-    XaxisLine->RefMainTrans().Move3PF(0, 10, 0);
-    XaxisLine->SetMainTransparency(0);
-    TheAxes->AddElement(XaxisLine);
-    TEveGeoShape * YaxisLine = new TEveGeoShape("YaxisLine");
-    YaxisLine->SetShape(new TGeoTube(0, 0.2, 10));
-    YaxisLine->SetMainColor(kRed);
-    YaxisLine->RefMainTrans().RotatePF(3, 1, -90*TMath::DegToRad());
-    YaxisLine->RefMainTrans().Move3PF(-10, 0, 0);
-    YaxisLine->SetMainTransparency(0);
-    TheAxes->AddElement(YaxisLine);
-    TEveGeoShape * ZaxisLine = new TEveGeoShape("ZaxisLine");
-    ZaxisLine->SetShape(new TGeoTube(0, 0.2, 10));
-    ZaxisLine->SetMainColor(kBlue);
-    ZaxisLine->RefMainTrans().Move3PF(0, 0, 10);
-    ZaxisLine->SetMainTransparency(0);
-    TheAxes->AddElement(ZaxisLine);
-    TEveGeoShape * XaxisArrow = new TEveGeoShape("XaxisArrow");
-    XaxisArrow->SetShape(new TGeoCone(0.6, 0, 0.8, 0, 0));
-    XaxisArrow->SetMainColor(kGreen+1);
-    XaxisArrow->RefMainTrans().RotatePF(3, 2, 90*TMath::DegToRad());
-    XaxisArrow->RefMainTrans().Move3PF(0, 20, 0);
-    XaxisArrow->SetMainTransparency(0);
-    TheAxes->AddElement(XaxisArrow);
-    TEveGeoShape * YaxisArrow = new TEveGeoShape("YaxisArrow");
-    YaxisArrow->SetShape(new TGeoCone(0.6, 0, 0.8, 0, 0));
-    YaxisArrow->SetMainColor(kRed);
-    YaxisArrow->RefMainTrans().RotatePF(3, 1, -90*TMath::DegToRad());
-    YaxisArrow->RefMainTrans().Move3PF(-20, 0, 0);
-    YaxisArrow->SetMainTransparency(0);
-    TheAxes->AddElement(YaxisArrow);
-    TEveGeoShape * ZaxisArrow = new TEveGeoShape("ZaxisArrow");
-    ZaxisArrow->SetShape(new TGeoCone(0.6, 0, 0.8, 0, 0));
-    ZaxisArrow->SetMainColor(kBlue);
-    ZaxisArrow->RefMainTrans().Move3PF(0, 0, 20);
-    ZaxisArrow->SetMainTransparency(0);
-    TheAxes->AddElement(ZaxisArrow);
-    TEveText * XaxisText = new TEveText("X");
-    XaxisText->RefMainTrans().Move3PF(0, 21, 0);
-    XaxisText->SetMainColor(kGreen+1);
-    XaxisText->SetFontSize(20);
-    XaxisText->SetLighting(kTRUE);
-    TheAxes->AddElement(XaxisText);
-    TEveText * YaxisText = new TEveText("Y");
-    YaxisText->RefMainTrans().Move3PF(-21, 1, 0);
-    YaxisText->SetMainColor(kRed);
-    YaxisText->SetFontSize(20);
-    YaxisText->SetLighting(kTRUE);
-    TheAxes->AddElement(YaxisText);
-    TEveText * ZaxisText = new TEveText("Z");
-    ZaxisText->RefMainTrans().Move3PF(0, 1, 21);
-    ZaxisText->SetMainColor(kBlue);
-    ZaxisText->SetFontSize(20);
-    ZaxisText->SetLighting(kTRUE);
-    TheAxes->AddElement(ZaxisText);
+    TGeoTube * Y_axis_line_shape = new TGeoTube("Y_axis_line_shape",0, 0.2, 15);
+    TGeoCone * Y_axis_end_shape = new TGeoCone("Y_axis_end_shape",2,0,1,0,0);
+    TGeoTranslation * Y_axis_arrow_trans = new TGeoTranslation("Y_axis_arrow_trans",0,0,15);
+    Y_axis_arrow_trans->RegisterYourself();
+    TGeoCompositeShape * Y_axis_shape = new TGeoCompositeShape("(Y_axis_line_shape+Y_axis_end_shape:Y_axis_arrow_trans)");
+    TGeoVolume * Y_axis_volume = new TGeoVolume("Y_axis_volume", Y_axis_shape);
+    TGeoHMatrix * Y_axis_matrix = new TGeoHMatrix();
+    Y_axis_volume->SetLineColor(kGreen+1);
+    gGeoManager->GetMasterVolume()->AddNode(Y_axis_volume,0,Y_axis_matrix);
+    Y_axis_matrix->RotateX(-90);
+    Y_axis_matrix->Multiply(TGeoTranslation(0,0,15));
     //
   }
   //
-  
-  //Generating detector frame
-  TEveGeoShape * DetectorFrame = new TEveGeoShape("DetectorFrame");
-  DetectorFrame->SetShape(new TGeoPara(TTelescopeTrue_semi, TTelescopeTrue_semi, 0.05, 0, 0, 0));
-  DetectorFrame->SetMainColor(kYellow+2);
+                     
   //
-  //Rotation (translation) of the frame to the input position
-  if(TTiltAngle==-9999) {
-    //First constructor used, the detector is facing the target perpendicularly
-    double theta_angle=TTelescopeCenter.Theta();
-    double phi_angle=TTelescopeCenter.Phi()-TMath::Pi()/2.;
-    DetectorFrame->RefMainTrans().Move3PF(0., 0., TTelescopeCenter.Mag());
-    DetectorFrame->RefMainTrans().RotatePF(1, 2, -phi_angle-180*TMath::DegToRad());
-    DetectorFrame->RefMainTrans().RotatePF(3, 1, theta_angle);
-    DetectorFrame->RefMainTrans().RotatePF(1, 2, phi_angle+180*TMath::DegToRad());
-  } else {
-    //Second constructor used, the detector has a tilt angle with respect to the X (vertical) axis and an absolute translaction
-    DetectorFrame->RefMainTrans().RotatePF(3, 1, TTiltAngle);
-    DetectorFrame->RefMainTrans().Move3PF(-TTelescopeCenter.Y(), TTelescopeCenter.X(), TTelescopeCenter.Z());
+  gGeoManager->GetMasterVolume()->AddNode(fDetector,1,fDetectorMatrix);
+  //
+  
+  //
+  std::string option_string(draw_opt);
+  gGeoManager->GetMasterVolume()->Draw(option_string.find("ogl")!=std::string::npos ? "ogl" : "");
+  //
+}
+
+void UNISStripDetector::Generate3D(double theta_pos, double phi_pos)
+{
+  //
+  if(!gGeoManager) {
+    new TGeoManager();
+    TGeoVolume *TheMotherVolume = gGeoManager->MakeBox("TheMotherVolume",0,50,50,50);
+    TheMotherVolume->SetLineColor(kBlack);
+    gGeoManager->SetTopVisible(kFALSE); // the TOP is invisible
+    gGeoManager->SetTopVolume(TheMotherVolume);
   }
-  gEve->AddElement(DetectorFrame);
+  
+  //
+  fDetector = new TGeoVolumeAssembly("DetectorQuartet");
+  fDetectorMatrix = new TGeoHMatrix("DetectorTransformationMatrix");
+  //
+   
+  //
+  fFrame       = new TGeoVolume("pad_volume",new TGeoBBox(TTelescopeTrue_semi, TTelescopeTrue_semi, 0.05));
+  fPixel       = new TGeoVolume("top_frame_volume",new TGeoBBox(TPixelEffective_semi, TPixelEffective_semi, 0.1));
+  fFrame->SetLineColor(kYellow+2);
+  fPixel->SetLineColor(kGray);
   //
   
   //
-  //Generating pixels
-  TEveGeoShape * Pixel[TStrips_number][TStrips_number];
+  //Adding frame to mother volume
+  fDetector->AddNode(fFrame,0,new TGeoTranslation(0., 0., 0.));
+  //
+  
+  //
+  //Pixels
   for(Int_t i=0; i<TStrips_number; i++)
   {
     for(Int_t j=0; j<TStrips_number; j++)
     {      
-      Pixel[i][j]  = new TEveGeoShape(Form("Pixel_%02d_%02d",i,j));
-      Pixel[i][j]->SetShape(new TGeoPara(TPixelEffective_semi, TPixelEffective_semi, 0.1, 0, 0, 0));
-      Pixel[i][j]->SetMainColor(kGray);
-      Pixel[i][j]->RefMainTrans().Move3PF((TStrips_number-(2*i+1))*TPixelTrue_semi,(TStrips_number-(2*j+1))*TPixelTrue_semi,0);
-      //
-      //Rotation (translation) to the final position
-      if(TTiltAngle==-9999) {
-        //First constructor used, the detector is facing the target perpendicularly
-        double theta_angle=TTelescopeCenter.Theta();
-        double phi_angle=TTelescopeCenter.Phi()-TMath::Pi()/2.;
-        Pixel[i][j]->RefMainTrans().Move3PF(0., 0., TTelescopeCenter.Mag());
-        Pixel[i][j]->RefMainTrans().RotatePF(1, 2, -phi_angle-180*TMath::DegToRad());
-        Pixel[i][j]->RefMainTrans().RotatePF(3, 1, theta_angle);
-        Pixel[i][j]->RefMainTrans().RotatePF(1, 2, phi_angle+180*TMath::DegToRad());
-      } else {
-        //Second constructor used, the detector has a tilt angle with respect to the X (vertical) axis and an absolute translaction
-        Pixel[i][j]->RefMainTrans().RotatePF(3, 1, TTiltAngle);
-        Pixel[i][j]->RefMainTrans().Move3PF(-TTelescopeCenter.Y(), TTelescopeCenter.X(), TTelescopeCenter.Z());
-      }
-      //
-      DetectorFrame->AddElement(Pixel[i][j]);
+      fDetector->AddNode(fPixel,i*TStrips_number+j,new TGeoTranslation(-(TStrips_number-(2*i+1))*TPixelTrue_semi,(TStrips_number-(2*j+1))*TPixelTrue_semi,0));
     }
   }
   //
   
-  // Drawing3D  
-  gEve->Redraw3D(kTRUE);
   //
+  fDetectorMatrix->MultiplyLeft(TGeoTranslation(0,0,TTelescopeCenter.Mag()));
+  //
+  
+  //
+  //We operate now a series of rotations to reach the final position
+  //First: Rotation about the Z-axis of a quantity (-phi)
+  Rotate3DZ(-phi_pos-180*TMath::DegToRad()); 
+  //Second: Rotation about the X-axis of a quantity (theta)
+  Rotate3DX(theta_pos);
+  //Third: Rotation about the Z-axis of a quantity (phi)
+  Rotate3DZ(phi_pos+180*TMath::DegToRad());
+  //
+}  
+
+void UNISStripDetector::Rotate3DX(Double_t x_angle)
+{
+  fDetectorMatrix->RotateX(x_angle*TMath::RadToDeg());
+}
+
+void UNISStripDetector::Rotate3DY(Double_t y_angle)
+{
+  fDetectorMatrix->RotateY(y_angle*TMath::RadToDeg());
+}
+
+void UNISStripDetector::Rotate3DZ(Double_t z_angle)
+{
+  fDetectorMatrix->RotateZ(z_angle*TMath::RadToDeg());
+}
+
+void UNISStripDetector::Translate3D(Double_t x, Double_t y, Double_t z)
+{  
+  fDetectorMatrix->MultiplyLeft(TGeoTranslation(x,y,z));
 }
 
 // returns the pointer to a TGraph object that contains all the pads centers
-TGraph* TStripDetector::GetGraphObject()
+TGraph* UNISStripDetector::GetGraphObject()
 {
   Double_t x[TPixels_number],y[TPixels_number];
   for(Int_t i=0; i<TStrips_number; i++)
@@ -669,18 +717,18 @@ TGraph* TStripDetector::GetGraphObject()
 }
 
 // returns the TVector3 of the telescope center
-TVector3 TStripDetector::GetDetectorCenter()
+TVector3 UNISStripDetector::GetDetectorCenter()
 {
   return TTelescopeCenter; 
 }
 
 // returns the TVector3 of the pixel center identified by a given strip front and back in the lab reference frame
-TVector3 TStripDetector::GetPixelCenter(int stripf, int stripb)
+TVector3 UNISStripDetector::GetPixelCenter(int stripf, int stripb)
 {
   return TCenters[stripf][stripb]; 
 }
 
-TVector3 TStripDetector::GetImpactPointLab(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+TVector3 UNISStripDetector::GetImpactPointLab(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return TVector3(0,0,0);
     
@@ -688,7 +736,7 @@ TVector3 TStripDetector::GetImpactPointLab(Double_t theta_inc, Double_t phi_inc,
 }
 
 #ifdef GRAPHICAL_DEBUG
-void TStripDetector::ShowImpactPoint(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+void UNISStripDetector::ShowImpactPoint(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {
   Draw();
 

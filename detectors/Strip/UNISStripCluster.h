@@ -1,40 +1,43 @@
 /* *****************************************
  * 25/04/2019
- * This class handles a cluster of TStripDetector object
+ * This class handles a cluster of UNISStripDetector object
  * New draw functions added.
+ * 16/10/2020
+ * Changed class name
+ * Updated graphical libraries
  * Created by: DELL'AQUILA DANIELE
  * Email:      daniele.dellaquila@irb.hr
  * *****************************************/
-#ifndef TSTRIPCLUSTER_H
-#define TSTRIPCLUSTER_H
+#ifndef UNISSTRIPCLUSTER_H
+#define UNISSTRIPCLUSTER_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
 #include <TVector3.h>
 
-#include "TStripDetector.h"
+#include "UNISStripDetector.h"
 
 #define GRAPHICAL_DEBUG
 
-class TStripCluster
+class UNISStripCluster
 {
 public :
-  TStripCluster();
-  ~TStripCluster();
+  UNISStripCluster();
+  ~UNISStripCluster();
   
-  void AddDetector(Double_t distance=15, Double_t theta_pos=0, Double_t phi_pos=0, Int_t N_Strips=16, 
-		   Double_t strip_width=0.2, Double_t inter_width=0.01, Double_t frame_width=0.2, Double_t dead_layer=0.2, Option_t * opt="");  // Add a detector to the cluster facing the target
-  void AddDetector(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X=0.,
-           Int_t N_Strips=16, Double_t strip_width=0.2, Double_t inter_width=0.01, Double_t frame_width=0.2, Double_t dead_layer=0.2, Option_t * opt="");  // Add a detector to the cluster with an arbitrary tilt
+  void AddDetector(Double_t distance=15, Double_t theta_pos=0, Double_t phi_pos=0, 
+                   Int_t N_Strips=16, Double_t strip_width=0.2, Double_t inter_width=0.01, Double_t frame_width=0.2, Double_t dead_layer=0., Option_t * opt="");  // Add a detector to the cluster facing the target
+  void AddDetector(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X=0., Double_t tilt_Y=0.,
+                   Int_t N_Strips=16, Double_t strip_width=0.2, Double_t inter_width=0.01, Double_t frame_width=0.2, Double_t dead_layer=0., Option_t * opt="");  // Add a detector to the cluster with an arbitrary tilt
   void Clear();  // Clear the cluster
   bool CheckOverlap() const; // Check for detector overlap, if overlaps are found it returns true
   
   int Size() const;  // Get the number of telescopes in the cluster
-  TStripDetector * GetDetector(int);  // Get a pointer to the TStripDetector at a certain index
+  UNISStripDetector * GetDetector(int);  // Get a pointer to the UNISStripDetector at a certain index
   
   int IsInside(double theta, double phi, double x0=0, double y0=0, double z0=0) const;  // returns 1 if the particle is inside the cluster, 0 otherwise
-  TStripDetector * GetDetector(double theta, double phi, double x0=0, double y0=0, double z0=0); // returns the pointer to the detector object that detects the particle, 0 if the particle is not inside the cluster
+  UNISStripDetector * GetDetector(double theta, double phi, double x0=0, double y0=0, double z0=0); // returns the pointer to the detector object that detects the particle, 0 if the particle is not inside the cluster
   int GetDetectorIndex(double theta, double phi, double x0=0, double y0=0, double z0=0) const; // returns the index of the detector object that detects the particle, -1 if the particle is not inside the cluster
   int GetDetectorStripFront(int numdet, double theta, double phi, double x0=0, double y0=0, double z0=0) const; // returns the strip front struck on a particolar detector, -1 if not in active area
   int GetDetectorStripBack(int numdet, double theta, double phi, double x0=0, double y0=0, double z0=0) const; // returns the strip back struck on a particolar detector, -1 if not in active area
@@ -52,7 +55,7 @@ public :
     
 private :
   int fNumDetectors;
-  std::vector <TStripDetector *> fTheDetectors;
+  std::vector <UNISStripDetector *> fTheDetectors;
     
 };
 

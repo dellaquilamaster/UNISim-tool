@@ -1,8 +1,9 @@
-#include "UNISLampWedgeMMMDetector.h"
+#include "UNISLampWedgeDetector.h"
 
 
 //____________________________________________________
-UNISLampWedgeMMMDetector::UNISLampWedgeMMMDetector(Double_t distance, Double_t phi_pos, Double_t tilt, Double_t bottom_frame_distance, Double_t inter_width) :
+UNISLampWedgeDetector::UNISLampWedgeDetector(Double_t distance, Double_t phi_pos, Double_t tilt, Double_t bottom_frame_distance, Int_t N_Strips, Double_t strip_width, Double_t inter_width, Double_t nominal_radius, 
+                                             Double_t nominal_coverage, Double_t nominal_frame_coverage, Double_t bottom_frame, Option_t * opt) :
 TXlabversor(1,0,0),
 TYlabversor(0,1,0),
 TZlabversor(0,0,1),
@@ -10,33 +11,30 @@ TDistanceBeamAxis(distance),
 TAzimuthalAngle(phi_pos),
 TTiltAngle(tilt),
 TBottomFrame_distance(bottom_frame_distance),
-TAnnularStrips_number(16),                                                  
-TRadialStrips_number(8),                                                  
-TAnnularStripTrue_width(0.6410),                                             
-TAnnularStripTrue_semi(0.5*TAnnularStripTrue_width),                                                                        
+TStrips_number(N_Strips),                                                  
+TStripTrue_width(strip_width),                                             
+TStripTrue_semi(0.5*TStripTrue_width),                                     
 TInter_width(inter_width),   
-TAnnularStripEffective_width(TAnnularStripTrue_width-TInter_width),
-TAnnularStripEffective_semi(TAnnularStripEffective_width/2.),
-TInnerNominal_radius(6.520),
-TStripNominalCoverageAngle(56./2.*TMath::DegToRad()), //TO BE FIXED
-TAnnularStripCoverageAngle(new Double_t[TAnnularStrips_number]),
-TRadialStripMinimumEffectiveAngle(new Double_t[TRadialStrips_number]),
-TRadialStripMaximumEffectiveAngle(new Double_t[TRadialStrips_number]),
-TFrameCoverageAngle(60./2.*TMath::DegToRad()),                                                    
-TBottomFrame(1.),
-TTopFrame_distance(TBottomFrame_distance+TBottomFrame+TAnnularStripTrue_width*TAnnularStrips_number+TBottomFrame),
+TStripEffective_width(TStripTrue_width-TInter_width),
+TStripEffective_semi(TStripEffective_width/2.),
+TInnerNominal_radius(nominal_radius),
+TStripNominalCoverageAngle(nominal_coverage/2.*TMath::DegToRad()),
+TStripCoverageAngle(new Double_t[TStrips_number]),
+TFrameCoverageAngle(nominal_frame_coverage/2.*TMath::DegToRad()),                                                    
+TBottomFrame(bottom_frame),
+TTopFrame_distance(TBottomFrame_distance+TBottomFrame+TStripTrue_width*TStrips_number+TBottomFrame),
 TNominalDistanceBeamLine(TInnerNominal_radius-TBottomFrame),
-TNominalDistanceTopBeamLine(TNominalDistanceBeamLine+2*TBottomFrame+TAnnularStrips_number*TAnnularStripTrue_width),
-TAnnularStripRadius(new Double_t[TAnnularStrips_number])
+TNominalDistanceTopBeamLine(TNominalDistanceBeamLine+2*TBottomFrame+TStrips_number*TStripTrue_width),
+TStripRadius(new Double_t[TStrips_number])
 {
   //
   //Placing the detector plane orthogonal to the beam axis and with is bottom center touching the beam line
   //The plane is identified by the three reference points (origin on the beam-line and 2 additional points)
   TDetectorReference.SetXYZ(0.,0.,0.);
-  TDetectorTopReference=TDetectorReference+TXlabversor;
-  TDetectorRightReference=TDetectorReference+TYlabversor;
+  TDetectorTopReference=TDetectorReference+TYlabversor;
+  TDetectorRightReference=TDetectorReference-TXlabversor;
   //
-  //Moving reference point according to the bottom frame displacement  
+  //Moving reference point according to the bottom frame displacement
   TDetectorReference+=TBottomFrame_distance*TXlabversor;
   TDetectorTopReference+=TBottomFrame_distance*TXlabversor;
   TDetectorRightReference+=TBottomFrame_distance*TXlabversor;
@@ -44,16 +42,14 @@ TAnnularStripRadius(new Double_t[TAnnularStrips_number])
   
   //
   //Generating strips
-  for(int i=0; i<TAnnularStrips_number; i++) {
+  for(int i=0; i<TStrips_number; i++) {
+    TStripRadius[i]=TInnerNominal_radius+(2*i+1)*TStripTrue_semi;
+    TStripCoverageAngle[i]=TStripNominalCoverageAngle;
     //
-    TAnnularStripRadius[i]=TInnerNominal_radius+(2*i+1)*TAnnularStripTrue_semi;
-    TAnnularStripCoverageAngle[i]=TStripNominalCoverageAngle;
-    //
-  }
-  for(int i=0; i<TRadialStrips_number; i++) {
-    //
-    TRadialStripMinimumEffectiveAngle[i]=-TStripNominalCoverageAngle+i*TStripNominalCoverageAngle*2/TRadialStrips_number+asin(TInter_width/(2.*TInnerNominal_radius));
-    TRadialStripMaximumEffectiveAngle[i]=-TStripNominalCoverageAngle+(i+1)*TStripNominalCoverageAngle*2./TRadialStrips_number-asin(TInter_width/(2.*TInnerNominal_radius));
+    //Last 3 strips have a narrower coverage angle respectively 36.4 deg (86.67%), 29.2 deg (69.52%) and 18.9 deg (45%)
+    if(i==TStrips_number-3) TStripCoverageAngle[i]*=0.8667;
+    if(i==TStrips_number-2) TStripCoverageAngle[i]*=0.6952;
+    if(i==TStrips_number-1) TStripCoverageAngle[i]*=0.4500;
     //
   }
   //
@@ -74,8 +70,6 @@ TAnnularStripRadius(new Double_t[TAnnularStrips_number])
   //
   //Calculation of the detector plane equation
   TVector3 OriginalDirection(0,0,1);
-  OriginalDirection.RotateY(TTiltAngle);
-  OriginalDirection.RotateZ(TAzimuthalAngle);
   Ta=OriginalDirection.X()/OriginalDirection.Mag();
   Tb=OriginalDirection.Y()/OriginalDirection.Mag();
   Tc=OriginalDirection.Z()/OriginalDirection.Mag();
@@ -99,15 +93,15 @@ TAnnularStripRadius(new Double_t[TAnnularStrips_number])
   //
   //Azimuthal rotation
   RotateZ(phi_pos+180*TMath::DegToRad());
-  //    
+  //
 }
 
 //____________________________________________________
-UNISLampWedgeMMMDetector::~UNISLampWedgeMMMDetector()
+UNISLampWedgeDetector::~UNISLampWedgeDetector()
 {}
 
 //____________________________________________________
-void UNISLampWedgeMMMDetector::RotateX(Double_t angle)
+void UNISLampWedgeDetector::RotateX(Double_t angle)
 {
   //
   //Rotation of the telescope reference frame to the input position
@@ -139,11 +133,15 @@ void UNISLampWedgeMMMDetector::RotateX(Double_t angle)
   Td=-(Ta*TDetectorReference.X()+Tb*TDetectorReference.Y()+Tc*TDetectorReference.Z());
   //
   
+  //
+  Rotate3DX(angle);
+  //
+  
   return;
 }
 
 //____________________________________________________
-void UNISLampWedgeMMMDetector::RotateZ(Double_t angle)
+void UNISLampWedgeDetector::RotateZ(Double_t angle)
 {
   //
   //Rotation of the telescope reference frame to the input position
@@ -164,7 +162,7 @@ void UNISLampWedgeMMMDetector::RotateZ(Double_t angle)
   //Calculation of the reference origin
   TDetectorNominalReference=TDetectorReference-TNominalDistanceBeamLine*TXversor;
   //
-
+  
   //
   //Calculation of the detector plane equation
   TVector3 OriginalDirection(Ta,Tb,Tc);
@@ -175,11 +173,14 @@ void UNISLampWedgeMMMDetector::RotateZ(Double_t angle)
   Td=-(Ta*TDetectorReference.X()+Tb*TDetectorReference.Y()+Tc*TDetectorReference.Z());
   //
   
+  //
+  Rotate3DZ(angle);
+  //
+  
   return;
 }
 
-
-void UNISLampWedgeMMMDetector::TranslateLongitudinal(Double_t z)
+void UNISLampWedgeDetector::TranslateLongitudinal(Double_t z)
 {
   //
   TDetectorReference+=z*TZlabversor;
@@ -194,7 +195,7 @@ void UNISLampWedgeMMMDetector::TranslateLongitudinal(Double_t z)
   return;
 }
 
-void UNISLampWedgeMMMDetector::Generate3D(double tilt, double phi_pos)
+void UNISLampWedgeDetector::Generate3D(double tilt, double phi_pos)
 {
   //
   if(!gGeoManager) {
@@ -212,34 +213,23 @@ void UNISLampWedgeMMMDetector::Generate3D(double tilt, double phi_pos)
      
   //
   fFrame       = new TGeoVolume("frame_volume",new TGeoTubeSeg(TNominalDistanceBeamLine, TNominalDistanceTopBeamLine, 0.05, -90-TFrameCoverageAngle*TMath::RadToDeg() , -90+TFrameCoverageAngle*TMath::RadToDeg()));
-  fFrame->SetLineColor(kGreen+2);
+  fFrame->SetLineColor(kYellow+2);
   fDetector->AddNode(fFrame,0,new TGeoTranslation(0,-TBottomFrame_distance,0));  
   //
   
   //
-  fStripAnnular= new TGeoVolume *[TAnnularStrips_number];
-  fStripRadial = new TGeoVolume *[TRadialStrips_number];
+  fStrip       = new TGeoVolume *[TStrips_number];
   //
   
   //
-  for(int i=0; i<TAnnularStrips_number; i++)
-  {
-    fStripAnnular[i] = new TGeoVolume(Form("strip_annular_%02d_volume", i), new TGeoTubeSeg(TNominalDistanceBeamLine+TBottomFrame+TInter_width/2.+i*TAnnularStripTrue_width, TNominalDistanceBeamLine+TBottomFrame+TAnnularStripEffective_width+TInter_width/2.+i*TAnnularStripTrue_width, 0.1, -TAnnularStripCoverageAngle[i]*TMath::RadToDeg() , TAnnularStripCoverageAngle[i]*TMath::RadToDeg())); 
-    //
-    fStripAnnular[i]->SetLineColor(kGray);
-    //
-    fDetector->AddNode(fStripAnnular[i],0,new TGeoTranslation(0,-TBottomFrame_distance,0));
-    //
-  }
-  for(int i=0; i<TRadialStrips_number; i++)
+  for(Int_t i=0; i<TStrips_number; i++)
   {
     //
-    fStripRadial[i] = new TGeoVolume(Form("strip_radial_%02d_volume", i), new TGeoTubeSeg(TNominalDistanceBeamLine+TBottomFrame+TInter_width/2., TNominalDistanceBeamLine+TBottomFrame+TAnnularStripTrue_width*TAnnularStrips_number-TInter_width/2., 0.1, TRadialStripMinimumEffectiveAngle[i]*TMath::RadToDeg() , TRadialStripMaximumEffectiveAngle[i]*TMath::RadToDeg()));
+    fStrip[i] = new TGeoVolume(Form("strip_%02d_volume", i), new TGeoTubeSeg(TNominalDistanceBeamLine+TBottomFrame+TInter_width/2.+i*TStripTrue_width, TNominalDistanceBeamLine+TBottomFrame+TStripEffective_width+TInter_width/2.+i*TStripTrue_width, 0.1, 
+                                                                             -90-TStripCoverageAngle[i]*TMath::RadToDeg() , -90+TStripCoverageAngle[i]*TMath::RadToDeg())); 
+    fStrip[i]->SetLineColor(kGray);
     //
-    fStripRadial[i]->SetLineColor(kGray);
-    //
-    fDetector->AddNode(fStripRadial[i],0,new TGeoTranslation(0,-TBottomFrame_distance,0));
-    //
+    fDetector->AddNode(fStrip[i],0,new TGeoTranslation(0,-TBottomFrame_distance,0));
   }
   //
   
@@ -252,17 +242,17 @@ void UNISLampWedgeMMMDetector::Generate3D(double tilt, double phi_pos)
   //
 }
 
-void UNISLampWedgeMMMDetector::Rotate3DX(Double_t x_angle)
+void UNISLampWedgeDetector::Rotate3DX(Double_t x_angle)
 {
   fDetectorMatrix->RotateX(x_angle*TMath::RadToDeg());
 }
 
-void UNISLampWedgeMMMDetector::Rotate3DZ(Double_t z_angle)
+void UNISLampWedgeDetector::Rotate3DZ(Double_t z_angle)
 {
   fDetectorMatrix->RotateZ(z_angle*TMath::RadToDeg());
 }
 
-void UNISLampWedgeMMMDetector::TranslateLongitudinal3D(Double_t z)
+void UNISLampWedgeDetector::TranslateLongitudinal3D(Double_t z)
 {
   fDetectorMatrix->MultiplyLeft(TGeoTranslation(0.,0.,z));
 }
@@ -270,7 +260,7 @@ void UNISLampWedgeMMMDetector::TranslateLongitudinal3D(Double_t z)
 // returns 1 if the particle is inside the telescope, 0 if not.
 // this function sets also the impact point XY coordinates
 //____________________________________________________
-Int_t UNISLampWedgeMMMDetector::IsInside(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+Int_t UNISLampWedgeDetector::IsInside(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {
   Double_t t; /*t parameter for the parametric equation of the particle direction*/
   Double_t l,m,n; /*particle direction parameters*/
@@ -294,7 +284,7 @@ Int_t UNISLampWedgeMMMDetector::IsInside(Double_t theta_inc, Double_t phi_inc, D
   double angle = TDetectorImpactPoint.Angle(TXversor);
   double distance = TDetectorImpactPoint.Mag();
     
-  if (fabs(angle)<=TStripNominalCoverageAngle && distance>=TAnnularStripRadius[0]-TAnnularStripTrue_semi && distance<=TAnnularStripRadius[TAnnularStrips_number-1]+TAnnularStripTrue_semi) return 1;
+  if (fabs(angle)<=TStripNominalCoverageAngle && distance>=TStripRadius[0]-TStripTrue_semi && distance<=TStripRadius[TStrips_number-1]+TStripTrue_semi) return 1;
   
   return 0;
 }
@@ -303,45 +293,26 @@ Int_t UNISLampWedgeMMMDetector::IsInside(Double_t theta_inc, Double_t phi_inc, D
 // Returns an absolute number identifying the pixel fired (in this case just strip)
 // If the particle is not inside the active area -> return value = -1
 //____________________________________________________
-Int_t UNISLampWedgeMMMDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+Int_t UNISLampWedgeDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {  
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  //Return -1 -> particle is not inside the detector
   
-  double angle = TDetectorImpactPoint.Angle(TXversor)*TDetectorImpactPoint.Dot(TYversor)/std::fabs(TDetectorImpactPoint.Dot(TYversor));
+  double angle = TDetectorImpactPoint.Angle(TXversor);
   double distance = TDetectorImpactPoint.Mag();
   
-  int annular_strip=-1;
-  int radial_strip=-1;
-  
-  printf("%f %f %f\n", TDetectorImpactPoint.X(), TDetectorImpactPoint.Y(), TDetectorImpactPoint.Z());
-  printf("angle=%f distance=%f\n", angle*TMath::RadToDeg(),distance);
-  
-  //
-  for(int i=0; i<TAnnularStrips_number; i++) {
-    if(fabs(angle)<=TAnnularStripCoverageAngle[i] && fabs(distance-TAnnularStripRadius[i])<=TAnnularStripEffective_semi) annular_strip=i;
+  for(int i=0; i<TStrips_number; i++) {
+    if(fabs(angle)<=TStripCoverageAngle[i] && fabs(distance-TStripRadius[i])<=TStripEffective_semi) return i;
   }
-  for(int i=0; i<TRadialStrips_number; i++) {
-    if(angle>=TRadialStripMinimumEffectiveAngle[i] && angle<=TRadialStripMaximumEffectiveAngle[i]) radial_strip=i;
-  }
-  //
-  
-  printf("%d %d -> pixel=%d\n", annular_strip, radial_strip, annular_strip*TRadialStrips_number+radial_strip);
-  
-  //
-  if(annular_strip>=0 && radial_strip>=0) {
-    return annular_strip*TRadialStrips_number+radial_strip;
-  }
-  //
   
   return -1;
 }
 
 //draws the telescope on the X-Y plane
-void UNISLampWedgeMMMDetector::Draw(Option_t * draw_opt, double Xmin, double Xmax, double Ymin, double Ymax) const
+void UNISLampWedgeDetector::Draw(Option_t * draw_opt, double Xmin, double Xmax, double Ymin, double Ymax) const
 {}
 
 //3D drawing function
-void UNISLampWedgeMMMDetector::Draw3D(Option_t * draw_opt) const
+void UNISLampWedgeDetector::Draw3D(Option_t * draw_opt) const
 {
   //
   if(strstr(draw_opt,"SAME")==0 && strstr(draw_opt,"same")==0) {
@@ -394,7 +365,7 @@ void UNISLampWedgeMMMDetector::Draw3D(Option_t * draw_opt) const
   //
 }
 
-TVector3 UNISLampWedgeMMMDetector::GetImpactPointLab(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+TVector3 UNISLampWedgeDetector::GetImpactPointLab(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return TVector3(0,0,0);
     
@@ -402,6 +373,6 @@ TVector3 UNISLampWedgeMMMDetector::GetImpactPointLab(Double_t theta_inc, Double_
 }
 
 #ifdef GRAPHICAL_DEBUG
-void UNISLampWedgeMMMDetector::ShowImpactPoint(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+void UNISLampWedgeDetector::ShowImpactPoint(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {}
 #endif

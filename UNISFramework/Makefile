@@ -1,4 +1,4 @@
-CFLAGS    :=`root-config --cflags --libs` -lGeom -lEve -lGed -lRGL -lEG -lTreePlayer -lMathMore `nuclust-config --libs --cflags`
+CFLAGS    :=`root-config --cflags --libs` -lGeom -lGeomPainter -lGeomBuilder -lEve -lGed -lRGL -lEG -lTreePlayer -lMathMore `nuclust-config --cflags --libs`
 
 DllSuf    := so
 SrcSuf    := cpp

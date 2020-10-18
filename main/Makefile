@@ -1,4 +1,4 @@
-CFLAGS    :=`root-config --cflags --libs` -lGeom -lEve -lGed -lRGL -lEG -lTreePlayer -lMathMore `nuclust-config --cflags --libs`
+CFLAGS    :=`root-config --cflags --libs` -lGeom -lGeomPainter -lGeomBuilder -lEve -lGed -lRGL -lEG -lTreePlayer -lMathMore `nuclust-config --cflags --libs`
 
 PROG      :=exec_UNISim-tool.exe
 

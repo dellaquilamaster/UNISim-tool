@@ -1,12 +1,12 @@
-#include "TStripCluster.h"
+#include "UNISStripCluster.h"
 
 //____________________________________________________
-TStripCluster::TStripCluster() :
+UNISStripCluster::UNISStripCluster() :
 fNumDetectors(0)
 {}
 
 //____________________________________________________
-TStripCluster::~TStripCluster()
+UNISStripCluster::~UNISStripCluster()
 {
   for(int i=0; i<fTheDetectors.size(); i++) {
     delete fTheDetectors[i];   
@@ -15,7 +15,7 @@ TStripCluster::~TStripCluster()
 }
 
 //____________________________________________________
-void TStripCluster::Clear()
+void UNISStripCluster::Clear()
 {
   for(int i=0; i<fTheDetectors.size(); i++) {
     delete fTheDetectors[i];   
@@ -25,45 +25,45 @@ void TStripCluster::Clear()
 }
 
 //____________________________________________________
-void TStripCluster::AddDetector(Double_t distance, Double_t theta_pos, Double_t phi_pos,
+void UNISStripCluster::AddDetector(Double_t distance, Double_t theta_pos, Double_t phi_pos,
                                 Int_t N_Strips, Double_t strip_width, Double_t inter_width, 
                                 Double_t frame_width, Double_t dead_layer, Option_t * opt)
 {
-  TStripDetector * NewDetector = new TStripDetector(distance, theta_pos, phi_pos, N_Strips, strip_width, inter_width, frame_width, dead_layer, opt);
+  UNISStripDetector * NewDetector = new UNISStripDetector(distance, theta_pos, phi_pos, N_Strips, strip_width, inter_width, frame_width, dead_layer, opt);
   fTheDetectors.push_back(NewDetector);
   fNumDetectors++;
 }
 
 //____________________________________________________
-void TStripCluster::AddDetector(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X,
+void UNISStripCluster::AddDetector(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y,
                                 Int_t N_Strips, Double_t strip_width, Double_t inter_width, 
                                 Double_t frame_width, Double_t dead_layer, Option_t * opt)
 {
-  TStripDetector * NewDetector = new TStripDetector(X0, Y0, Z0, tilt_X, N_Strips, strip_width, inter_width, frame_width, dead_layer, opt);
+  UNISStripDetector * NewDetector = new UNISStripDetector(X0, Y0, Z0, tilt_X, tilt_Y, N_Strips, strip_width, inter_width, frame_width, dead_layer, opt);
   fTheDetectors.push_back(NewDetector);
   fNumDetectors++;
 }
 
 //____________________________________________________
-bool TStripCluster::CheckOverlap() const
+bool UNISStripCluster::CheckOverlap() const
 {
   return false;
 }
 
 //____________________________________________________
-int TStripCluster::Size() const
+int UNISStripCluster::Size() const
 {
   return fNumDetectors;
 }
 
 //____________________________________________________
-TStripDetector * TStripCluster::GetDetector(int numdetector)
+UNISStripDetector * UNISStripCluster::GetDetector(int numdetector)
 {
   return fTheDetectors[numdetector];
 }
 
 //____________________________________________________
-int TStripCluster::IsInside(double theta, double phi, double x0, double y0, double z0) const
+int UNISStripCluster::IsInside(double theta, double phi, double x0, double y0, double z0) const
 {
   for(int i=0; i<fNumDetectors; i++) {
     if(fTheDetectors[i]->IsInside(theta, phi, x0, y0, z0)) return 1;   
@@ -72,7 +72,7 @@ int TStripCluster::IsInside(double theta, double phi, double x0, double y0, doub
 }
 
 //____________________________________________________
-TStripDetector * TStripCluster::GetDetector(double theta, double phi, double x0, double y0, double z0)
+UNISStripDetector * UNISStripCluster::GetDetector(double theta, double phi, double x0, double y0, double z0)
 {
   for(int i=0; i<fNumDetectors; i++) {
     if(fTheDetectors[i]->IsInside(theta, phi, x0, y0, z0)) return fTheDetectors[i];   
@@ -81,7 +81,7 @@ TStripDetector * TStripCluster::GetDetector(double theta, double phi, double x0,
 }
 
 //____________________________________________________
-int TStripCluster::GetDetectorIndex(double theta, double phi, double x0, double y0, double z0) const
+int UNISStripCluster::GetDetectorIndex(double theta, double phi, double x0, double y0, double z0) const
 {
   for(int i=0; i<fNumDetectors; i++) {
     if(fTheDetectors[i]->IsInside(theta, phi, x0, y0, z0)) return i;   
@@ -90,43 +90,43 @@ int TStripCluster::GetDetectorIndex(double theta, double phi, double x0, double 
 }
 
 //____________________________________________________
-int TStripCluster::GetDetectorStripFront(int numdet, double theta, double phi, double x0, double y0, double z0) const
+int UNISStripCluster::GetDetectorStripFront(int numdet, double theta, double phi, double x0, double y0, double z0) const
 {
   return fTheDetectors[numdet]->GetStripFront(theta, phi, x0, y0, z0);   
 }
 
 //____________________________________________________
-int TStripCluster::GetDetectorStripBack(int numdet, double theta, double phi, double x0, double y0, double z0) const
+int UNISStripCluster::GetDetectorStripBack(int numdet, double theta, double phi, double x0, double y0, double z0) const
 {
   return fTheDetectors[numdet]->GetStripBack(theta, phi, x0, y0, z0);   
 }
 
 //____________________________________________________
-double TStripCluster::GetDetectorPixelTheta(int numdet, int stripf, int stripb) const
+double UNISStripCluster::GetDetectorPixelTheta(int numdet, int stripf, int stripb) const
 {
   return fTheDetectors[numdet]->GetThetaPixel(stripf, stripb);
 }
 
 //____________________________________________________
-double TStripCluster::GetDetectorPixelPhi(int numdet, int stripf, int stripb) const
+double UNISStripCluster::GetDetectorPixelPhi(int numdet, int stripf, int stripb) const
 {
   return fTheDetectors[numdet]->GetPhiPixel(stripf, stripb); 
 }
 
 //____________________________________________________
-TVector3 TStripCluster::GetDetectorPixelCenter(int numdet, int stripf, int stripb) const
+TVector3 UNISStripCluster::GetDetectorPixelCenter(int numdet, int stripf, int stripb) const
 {
   return fTheDetectors[numdet]->GetPixelCenter(stripf, stripb); 
 }
 
 //____________________________________________________
-TVector3 TStripCluster::GetDetectorCenter(int numdet) const
+TVector3 UNISStripCluster::GetDetectorCenter(int numdet) const
 {
   return fTheDetectors[numdet]->GetDetectorCenter();
 }
 
 //____________________________________________________
-void TStripCluster::Draw(Option_t * draw_opt, double Xmin, double Xmax, double Ymin, double Ymax) const
+void UNISStripCluster::Draw(Option_t * draw_opt, double Xmin, double Xmax, double Ymin, double Ymax) const
 {
   for(Int_t i=0; i<fNumDetectors; i++)
   {
@@ -137,11 +137,11 @@ void TStripCluster::Draw(Option_t * draw_opt, double Xmin, double Xmax, double Y
 }
 
 //____________________________________________________
-void TStripCluster::Draw3D(Option_t * draw_opt) const
+void UNISStripCluster::Draw3D(Option_t * draw_opt) const
 {
   for(Int_t i=0; i<fNumDetectors; i++)
   {
-    i==0 ? fTheDetectors[i]->Draw3D("") : fTheDetectors[i]->Draw3D("SAME");
+    i==0 ? fTheDetectors[i]->Draw3D(draw_opt) : fTheDetectors[i]->Draw3D(Form("%s SAME", draw_opt));
   }
   
   return; 
@@ -149,13 +149,13 @@ void TStripCluster::Draw3D(Option_t * draw_opt) const
 
 #ifdef GRAPHICAL_DEBUG
 //____________________________________________________
-void TStripCluster::ShowImpactPoint(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0, double Xmin, double Xmax, double Ymin, double Ymax)
+void UNISStripCluster::ShowImpactPoint(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0, double Xmin, double Xmax, double Ymin, double Ymax)
 {
   Draw("", Xmin, Xmax, Ymin, Ymax); //Crate the canvas and draw the cluster
   
   if(IsInside(theta_inc,phi_inc, x0, y0, z0))
   { 
-    TStripDetector * TheDetector = GetDetector(theta_inc,phi_inc,x0,y0,z0);
+    UNISStripDetector * TheDetector = GetDetector(theta_inc,phi_inc,x0,y0,z0);
     
     if(TheDetector==0) return;
     

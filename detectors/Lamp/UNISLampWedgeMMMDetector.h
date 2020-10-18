@@ -18,17 +18,15 @@
 #include <TLine.h>
 #include <TAxis.h>
 #include <TLatex.h>
-#include <TPolyLine3D.h>
-#include <TPolyMarker3D.h>
-#include <TEveManager.h>
+#include <TGeoManager.h>
+#include <TGeoMatrix.h>
 #include <TGeoTube.h>
 #include <TGeoCone.h>
-#include <TEveGeoShape.h>
-#include <TEveTrans.h>
-#include <TEveText.h>
-#include <TGLViewer.h>
+#include <TGeoPara.h>
+#include <TGeoTube.h>
+#include <TGeoCompositeShape.h>
 
-#include "../DetectionSetup/TDetectionUnit.h"
+#include "../DetectionSetup/UNISDetectionUnit.h"
 
 #define GRAPHICAL_DEBUG
 
@@ -68,7 +66,7 @@
  * 
  * *****************************************/
 
-class UNISLampWedgeMMMDetector : public TDetectionUnit
+class UNISLampWedgeMMMDetector : public UNISDetectionUnit
 {
 private:
   TVector3   TXlabversor; // X-axis versor in the lab frame (vertical axis)
@@ -118,12 +116,24 @@ public:
   Int_t     IsInside(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; //returns 1 if the particle is inside the detector
   Int_t     GetPixel(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; //returns an absolute number identifying the number of pixel fired, -1 if not inside the active area;
 
-  void      RotateX(Double_t); //Rotation of the whole detector around the Y-axis 
-  void      RotateY(Double_t); //Rotation of the whole detector around the X-axis
+  void      RotateX(Double_t); //Rotation of the whole detector around the X-axis 
+  void      RotateZ(Double_t); //Rotation of the whole detector around the Z-axis
+  void      TranslateLongitudinal(Double_t);
   void      Draw(Option_t * opt="", double Xmin=0, double Xmax=0, double Ymin=0, double Ymax=0) const override;
   void      Draw3D(Option_t * opt="") const override;
   TGraph*   GetGraphObject();
   TVector3  GetImpactPointLab(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; // Get the impact point in the lab reference frame
+  
+private :
+  TGeoVolume * fFrame;
+  TGeoVolume ** fStripAnnular;
+  TGeoVolume ** fStripRadial;
+
+  //
+  void Generate3D(Double_t, Double_t);
+  void Rotate3DX(Double_t);
+  void Rotate3DZ(Double_t);
+  void TranslateLongitudinal3D(Double_t);
   
 #ifdef GRAPHICAL_DEBUG
   void      ShowImpactPoint(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.);
