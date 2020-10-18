@@ -11,6 +11,7 @@ root:
 	$(MAKE) -C detectors/Strip ;		$(MAKE) -C detectors/Strip install
 	$(MAKE) -C detectors/Lamp ;		$(MAKE) -C detectors/Lamp install
 	$(MAKE) -C detectors/Fazia ;		$(MAKE) -C detectors/Fazia install
+	$(MAKE) -C detectors/Silicon ;		$(MAKE) -C detectors/Silicon install
 	$(MAKE) -C generator ;			$(MAKE) -C generator install
 	$(MAKE) -C UNISShared ;			$(MAKE) -C UNISShared install
 
@@ -21,6 +22,7 @@ install:
 	$(MAKE) -C detectors/Strip install
 	$(MAKE) -C detectors/Lamp install
 	$(MAKE) -C detectors/Fazia install
+	$(MAKE) -C detectors/Silicon install
 	$(MAKE) -C generator install
 	$(MAKE) -C UNISShared install
 
@@ -31,6 +33,7 @@ distclean:
 	$(MAKE) -C detectors/Strip distclean
 	$(MAKE) -C detectors/Lamp distclean
 	$(MAKE) -C detectors/Fazia distclean
+	$(MAKE) -C detectors/Silicon distclean
 	$(MAKE) -C generator distclean
 	$(MAKE) -C UNISShared distclean
 	
@@ -43,6 +46,7 @@ clean:
 	$(MAKE) -C detectors/Strip clean
 	$(MAKE) -C detectors/Lamp clean
 	$(MAKE) -C detectors/Fazia clean
+	$(MAKE) -C detectors/Silicon clean
 	$(MAKE) -C generator clean
 	$(MAKE) -C UNISShared clean
 

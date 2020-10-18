@@ -133,7 +133,7 @@ private :
   TGeoVolume * fFrame;
   TGeoVolume * fPixel;
   //
-  void Generate3D(Double_t, Double_t);
+  void Generate3D();
   void Rotate3DX(Double_t);
   void Rotate3DY(Double_t);
   void Rotate3DZ(Double_t);

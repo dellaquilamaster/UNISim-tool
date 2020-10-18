@@ -58,7 +58,7 @@ TTelescopeTrue_semi(TTelescopeEffective_semi+TDeadLayer+TFrame_width)
   //
   
   //
-  Generate3D(0.,0.);
+  Generate3D();
   //
   
   //
@@ -359,7 +359,7 @@ void UNISStripSingleSidedDetector::Draw3D(Option_t * draw_opt) const
   //
 }
 
-void UNISStripSingleSidedDetector::Generate3D(double theta_pos, double phi_pos)
+void UNISStripSingleSidedDetector::Generate3D()
 {
   //
   if(!gGeoManager) {
@@ -396,20 +396,6 @@ void UNISStripSingleSidedDetector::Generate3D(double theta_pos, double phi_pos)
   {  
     fDetector->AddNode(fStrip,i,new TGeoTranslation(-(TStrips_number-(2*i+1))*TStripTrue_semi,0,0));
   }
-  //
-  
-  //
-  fDetectorMatrix->MultiplyLeft(TGeoTranslation(0,0,TTelescopeCenter.Mag()));
-  //
-  
-  //
-  //We operate now a series of rotations to reach the final position
-  //First: Rotation about the Z-axis of a quantity (-phi)
-  Rotate3DZ(-phi_pos-180*TMath::DegToRad()); 
-  //Second: Rotation about the X-axis of a quantity (theta)
-  Rotate3DX(theta_pos);
-  //Third: Rotation about the Z-axis of a quantity (phi)
-  Rotate3DZ(phi_pos+180*TMath::DegToRad());
   //
 }  
 

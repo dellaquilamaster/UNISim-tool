@@ -61,6 +61,7 @@
 #include <UNISFaziaBlock.h>
 #include <UNISLampWedgeDetector.h>
 #include <UNISLampWedgeMMMDetector.h>
+#include <UNISSiliconPhotoDiode.h>
 #include <UNISIon.h>
 #include <UNISShared.h>
 

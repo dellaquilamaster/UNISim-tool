@@ -1,6 +1,0 @@
-.L TStripDetector.C 
-TStripDetector provola(70)
-.q
-.L TStripDetector.C 
-TStripDetector provolissima(75)
-.q

@@ -10,6 +10,7 @@ INCLUDES  += -I$(UNISimSrc)detectors/DetectionSetup
 INCLUDES  += -I$(UNISimSrc)detectors/Strip
 INCLUDES  += -I$(UNISimSrc)detectors/Fazia
 INCLUDES  += -I$(UNISimSrc)detectors/Lamp
+INCLUDES  += -I$(UNISimSrc)detectors/Silicon
 INCLUDES  += -I$(UNISimSrc)generator
 INCLUDES  += -I$(UNISimSrc)UNISRootEvent
 INCLUDES  += -I$(UNISimSrc)UNISShared
