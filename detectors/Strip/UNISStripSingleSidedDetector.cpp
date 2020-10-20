@@ -72,7 +72,7 @@ TTelescopeTrue_semi(TTelescopeEffective_semi+TDeadLayer+TFrame_width)
   //Second: Rotation about the X-axis of a quantity (theta)
   RotateX(theta_pos);
   //Third: Rotation about the Z-axis of a quantity (phi)
-  RotateZ(phi_pos-180*TMath::DegToRad());
+  RotateZ(phi_pos+180*TMath::DegToRad());
   //  
 }  
 
@@ -376,7 +376,7 @@ void UNISStripSingleSidedDetector::Generate3D()
   //
    
   //
-  fFrame       = new TGeoVolume("frame_volume",new TGeoBBox(TTelescopeTrue_semi, TTelescopeTrue_semi, 0.05));
+  fFrame       = new TGeoVolume("frame_volume",new TGeoBBox(TTelescopeTrue_semi, TTelescopeTrue_semi+0.5, 0.05));
   fStrip       = new TGeoVolume("strip_volume",new TGeoBBox(TStripEffective_semi, TStripTrue_semi*TStrips_number, 0.1));
   fStripGround = new TGeoVolume("strip_ground_volume",new TGeoBBox(TStripTrue_semi*TStrips_number, TStripTrue_semi*TStrips_number, 0.05));
   fFrame->SetLineColor(kAzure+1);
@@ -386,7 +386,7 @@ void UNISStripSingleSidedDetector::Generate3D()
   
   //
   //Adding frame to mother volume
-  fDetector->AddNode(fFrame,0,new TGeoTranslation(0., 0., 0.));
+  fDetector->AddNode(fFrame,0,new TGeoTranslation(0., -0.5, 0.));
   fDetector->AddNode(fStripGround,0,new TGeoTranslation(0., 0., 0.05));
   //
   

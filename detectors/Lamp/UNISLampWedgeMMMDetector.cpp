@@ -139,6 +139,10 @@ void UNISLampWedgeMMMDetector::RotateX(Double_t angle)
   Td=-(Ta*TDetectorReference.X()+Tb*TDetectorReference.Y()+Tc*TDetectorReference.Z());
   //
   
+  //
+  Rotate3DX(angle);
+  //
+  
   return;
 }
 
@@ -174,6 +178,10 @@ void UNISLampWedgeMMMDetector::RotateZ(Double_t angle)
   Tc=OriginalDirection.Z()/OriginalDirection.Mag();
   Td=-(Ta*TDetectorReference.X()+Tb*TDetectorReference.Y()+Tc*TDetectorReference.Z());
   //
+  
+  //
+  Rotate3DZ(angle);
+  //  
   
   return;
 }
@@ -224,21 +232,21 @@ void UNISLampWedgeMMMDetector::Generate3D(double tilt, double phi_pos)
   //
   for(int i=0; i<TAnnularStrips_number; i++)
   {
-    fStripAnnular[i] = new TGeoVolume(Form("strip_annular_%02d_volume", i), new TGeoTubeSeg(TNominalDistanceBeamLine+TBottomFrame+TInter_width/2.+i*TAnnularStripTrue_width, TNominalDistanceBeamLine+TBottomFrame+TAnnularStripEffective_width+TInter_width/2.+i*TAnnularStripTrue_width, 0.1, -TAnnularStripCoverageAngle[i]*TMath::RadToDeg() , TAnnularStripCoverageAngle[i]*TMath::RadToDeg())); 
+    fStripAnnular[i] = new TGeoVolume(Form("strip_annular_%02d_volume", i), new TGeoTubeSeg(TNominalDistanceBeamLine+TBottomFrame+TInter_width/2.+i*TAnnularStripTrue_width, TNominalDistanceBeamLine+TBottomFrame+TAnnularStripEffective_width+TInter_width/2.+i*TAnnularStripTrue_width, 0.1, -90-TAnnularStripCoverageAngle[i]*TMath::RadToDeg() , -90+TAnnularStripCoverageAngle[i]*TMath::RadToDeg())); 
     //
     fStripAnnular[i]->SetLineColor(kGray);
     //
-    fDetector->AddNode(fStripAnnular[i],0,new TGeoTranslation(0,-TBottomFrame_distance,0));
+    fDetector->AddNode(fStripAnnular[i],0,new TGeoTranslation(0,-TBottomFrame_distance,-0.1));
     //
   }
   for(int i=0; i<TRadialStrips_number; i++)
   {
     //
-    fStripRadial[i] = new TGeoVolume(Form("strip_radial_%02d_volume", i), new TGeoTubeSeg(TNominalDistanceBeamLine+TBottomFrame+TInter_width/2., TNominalDistanceBeamLine+TBottomFrame+TAnnularStripTrue_width*TAnnularStrips_number-TInter_width/2., 0.1, TRadialStripMinimumEffectiveAngle[i]*TMath::RadToDeg() , TRadialStripMaximumEffectiveAngle[i]*TMath::RadToDeg()));
+    fStripRadial[i] = new TGeoVolume(Form("strip_radial_%02d_volume", i), new TGeoTubeSeg(TNominalDistanceBeamLine+TBottomFrame+TInter_width/2., TNominalDistanceBeamLine+TBottomFrame+TAnnularStripTrue_width*TAnnularStrips_number-TInter_width/2., 0.1, -90+TRadialStripMinimumEffectiveAngle[i]*TMath::RadToDeg() , -90+TRadialStripMaximumEffectiveAngle[i]*TMath::RadToDeg()));
     //
     fStripRadial[i]->SetLineColor(kGray);
     //
-    fDetector->AddNode(fStripRadial[i],0,new TGeoTranslation(0,-TBottomFrame_distance,0));
+    fDetector->AddNode(fStripRadial[i],0,new TGeoTranslation(0,-TBottomFrame_distance,0.1));
     //
   }
   //
@@ -313,8 +321,8 @@ Int_t UNISLampWedgeMMMDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, D
   int annular_strip=-1;
   int radial_strip=-1;
   
-  printf("%f %f %f\n", TDetectorImpactPoint.X(), TDetectorImpactPoint.Y(), TDetectorImpactPoint.Z());
-  printf("angle=%f distance=%f\n", angle*TMath::RadToDeg(),distance);
+//   printf("%f %f %f\n", TDetectorImpactPoint.X(), TDetectorImpactPoint.Y(), TDetectorImpactPoint.Z());
+//   printf("angle=%f distance=%f\n", angle*TMath::RadToDeg(),distance);
   
   //
   for(int i=0; i<TAnnularStrips_number; i++) {
@@ -325,7 +333,7 @@ Int_t UNISLampWedgeMMMDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, D
   }
   //
   
-  printf("%d %d -> pixel=%d\n", annular_strip, radial_strip, annular_strip*TRadialStrips_number+radial_strip);
+//   printf("%d %d -> pixel=%d\n", annular_strip, radial_strip, annular_strip*TRadialStrips_number+radial_strip);
   
   //
   if(annular_strip>=0 && radial_strip>=0) {

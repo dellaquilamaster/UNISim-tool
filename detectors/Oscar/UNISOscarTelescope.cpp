@@ -1,104 +1,86 @@
-#include <TVector3.h>
-#include <TMath.h>
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <TGraph.h>
-#include <TCanvas.h>
+#include "UNISOscarTelescope.h"
 
-#include "UNISStripDetector.h"
-
-// standard constructor
-UNISStripDetector::UNISStripDetector(Double_t distance, Double_t theta_pos, Double_t phi_pos, Int_t N_Strips, 
-				   Double_t strip_width, Double_t inter_width, Double_t frame_width, Double_t dead_layer, Option_t *opt) :
-TXlabversor(1,0,0),
-TYlabversor(0,1,0),
-TZlabversor(0,0,1),
-TTrueImpactPoint(0.,0.,0.),
-TTelescopeImpactPoint(0.,0.,0.),
-TTiltXAngle(-9999),
-TTiltYAngle(-9999),
-TStrips_number(N_Strips),                                                  
-TPixels_number(N_Strips*N_Strips),                                         
-TPixelTrue_width(strip_width),                                             
-TPixelTrue_semi(0.5*TPixelTrue_width),                                     
-TInter_width(inter_width),                                                 
-TFrame_width(frame_width),                                                 
-TDeadLayer(dead_layer),                                                    
-TPixelEffective_width(strip_width-inter_width),                            
-TPixelEffective_semi(0.5*TPixelEffective_width),                           
-TTelescopeEffective_semi(TPixelTrue_semi*TStrips_number),                  
-TTelescopeTrue_semi(TTelescopeEffective_semi+TDeadLayer+TFrame_width),                                             
-TStrip_hit((Int_t*)new Int_t[2])
+//____________________________________________________
+UNISOscarTelescope::UNISOscarTelescope(Double_t distance, Double_t theta_pos, Double_t phi_pos, Option_t * opt) :
+fNumPads(16),
+fNumStrips(16),
+fPadRowsColumns(sqrt(fNumPads)),
+fPadWidth(1.),
+fPadSemi(fPadWidth/2.),
+fPadFrameWidth(0.14),
+fPadBottomContactsWidth(0.18),
+fPhotoDiodeWidth(2*fPadFrameWidth+fPadWidth),
+fPhotoDiodeHeight(2*fPadFrameWidth+fPadWidth+fPadBottomContactsWidth),
+fFrameWidth((fPhotoDiodeWidth*fPadRowsColumns)+1),
+fFrameHeight((fPhotoDiodeHeight*fPadRowsColumns)+2.),
+fIsStrip(true),
+fStripPadDistance(0.5),
+fXlabversor(1,0,0),
+fYlabversor(0,1,0),
+fZlabversor(0,0,1),
+fCenter(0,-0.5,0),
+fLabImpactPoint(0.,0.,0.),
+fFrameImpactPoint(0.,0.,0.),
+fPads(new UNISSiliconPhotoDiode * [fNumPads])
 {
   //
-  //Setting the position of the telescope center
-  TTelescopeCenter.SetXYZ(0.,0.,distance);
-  //Telescope's corners
-  TTopLeftCorner.SetXYZ(TTelescopeTrue_semi,-TTelescopeTrue_semi,distance);
-  TTopRightCorner.SetXYZ(TTelescopeTrue_semi,TTelescopeTrue_semi,distance);
-  TBottomLeftCorner.SetXYZ(-TTelescopeTrue_semi,-TTelescopeTrue_semi,distance);
-  TTopLeftXCorner= TTelescopeEffective_semi;
-  TTopLeftYCorner= TTelescopeEffective_semi;
-  //vectors allocations*
-  TCenters       =new TVector3*[TStrips_number];
-  TCentersXprime =new Double_t*[TStrips_number];
-  TCentersYprime =new Double_t*[TStrips_number];
+  if(std::string(opt).find("pads")!=std::string::npos) fIsStrip=false;
   //
-  for(Int_t i = 0; i<TStrips_number; i++)
-  {
-    TCenters[i]       = new TVector3[TStrips_number]; 
-    TCentersXprime[i] = new Double_t[TStrips_number]; 
-    TCentersYprime[i] = new Double_t[TStrips_number]; 
-  }
+  
+  //
+  //Setting the position of the telescope center
+  fCenter+=TVector3(0.,0.,distance);
+  //Telescope's corners
+  fTopLeftCorner.SetXYZ(fFrameWidth/2.,fFrameHeight/2.,distance);
+  fTopRightCorner.SetXYZ(-((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),fFrameHeight/2.,distance);
+  fBottomLeftCorner.SetXYZ(((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),-fFrameHeight/2.,distance);
+  fBottomRightCorner.SetXYZ(-((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),-fFrameHeight/2.,distance);
   //
   
   //
   //calculation of the X Y versors
-  TXversor=(TTopLeftCorner-TBottomLeftCorner);
-  TXversor*=(1./TXversor.Mag());
-  TYversor=(TTopRightCorner-TTopLeftCorner);
-  TYversor*=(1./TYversor.Mag());  
-  //
-
-  //
-  // placement of the entire cluster of pixels on a plane orthogonal to z-axis at the input distance
-  // here i represents the strip front and j represents the strip back
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCenters[i][j].SetXYZ((TStrips_number-(2*j+1))*TPixelTrue_semi,-(TStrips_number-(2*i+1))*TPixelTrue_semi,distance);
-    }
-  }
+  fYversor=(fTopLeftCorner-fBottomLeftCorner);
+  fYversor*=(1./fYversor.Mag());
+  fXversor=(fTopRightCorner-fTopLeftCorner);
+  fXversor*=(1./fXversor.Mag());  
   //
   
-  // determination of the pixel center coordinates respect to the top right corner of the telescope
-  // Here the axes are oriented towards the inner side of the strip, such as that all the coordinates are positive within the detector
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
-      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
-    }
-  }
-  //
   //
   //Calculation of the detector plane equation
   TVector3 OriginalDirection(0,0,1);
-  Ta=OriginalDirection.X()/OriginalDirection.Mag();
-  Tb=OriginalDirection.Y()/OriginalDirection.Mag();
-  Tc=OriginalDirection.Z()/OriginalDirection.Mag();
-  Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
+  fa=OriginalDirection.X()/OriginalDirection.Mag();
+  fb=OriginalDirection.Y()/OriginalDirection.Mag();
+  fc=OriginalDirection.Z()/OriginalDirection.Mag();
+  fd=-(fa*fCenter.X()+fb*fCenter.Y()+fc*fCenter.Z());
   //
   
   //
-  Generate3D(0.,0.);
+  //Creation of a telescope along the beam axis at zero-distance from the target
+  //
+  //pads
+  for(int row=0; row<fPadRowsColumns; row++) {
+    for(int col=0; col<fPadRowsColumns; col++) {
+      const double y_coordinate = (2*std::fabs((fPadRowsColumns-1)/2.-row)*(fPadSemi+fPadFrameWidth/2.)+(std::fabs((fPadRowsColumns-1)/2.-row)-0.5)*(fPadBottomContactsWidth));
+      fPads[row*fPadRowsColumns+col] = new UNISSiliconPhotoDiode(-(fPadRowsColumns-1)*fPhotoDiodeWidth/2.+col*fPhotoDiodeWidth, //x-coordinate
+                                                                 (row < fPadRowsColumns/2 ? y_coordinate : -y_coordinate), //y-coordinate
+                                                                 0., //z-coordinate
+                                                                 0,0, row<fPadRowsColumns/2 ? TMath::Pi() : 0); //inserting pad with only z-tilt
+    }
+  }
+  //
+  //strips
+  if(fIsStrip) {
+    fStrip = new UNISStripSingleSidedDetector(0.,0.,-0.3,0.,0.,16,0.312,0.01,0.4,0.);
+  }
   //
   
   //
-  Translate3D(0,0,distance);
+  Generate3D();
+  //
+  
+  
+  //
+  Translate(0,0,distance);
   //
     
   //
@@ -108,268 +90,205 @@ TStrip_hit((Int_t*)new Int_t[2])
   //Second: Rotation about the X-axis of a quantity (theta)
   RotateX(theta_pos);
   //Third: Rotation about the Z-axis of a quantity (phi)
-  RotateZ(phi_pos-180*TMath::DegToRad());
+  RotateZ(phi_pos+180*TMath::DegToRad());
   //  
-}  
-
-// constructor with arbitrary tilt angle, center position (X0, Y0, Z0)
-// tilt_X = tilt angle with respect to the X-axis (vertical)
-UNISStripDetector::UNISStripDetector(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y,
-                   Int_t N_Strips, Double_t strip_width, Double_t inter_width, Double_t frame_width, Double_t dead_layer, Option_t *opt) :
-UNISStripDetector(0., 0., 0., N_Strips, strip_width, inter_width, frame_width, dead_layer, opt)
-{
-  //
-  //
-  TTiltXAngle=tilt_X;
-  TTiltYAngle=tilt_Y;
-  //
-  //
-  //We operate now a series of rotations to reach the final position
-  //First: Rotation about the X-axis of the titl_X angle
-  RotateX(TTiltXAngle); 
-  //Second: Rotation about the Y-axis of the titl_Y angle
-  RotateY(TTiltYAngle);
-  //Third: Translation to the desired position
-  Translate(X0,Y0,Z0);
-  //
 }
 
-void UNISStripDetector::RotateX(Double_t x_angle)
+//____________________________________________________
+UNISOscarTelescope::UNISOscarTelescope(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y, Option_t * opt) :
+UNISOscarTelescope(0,0,0,opt)
 {
-  /*Rotation of the telescope center to the input position*/
-  TTelescopeCenter.RotateX(x_angle);
+  
+}
+
+//____________________________________________________
+UNISOscarTelescope::~UNISOscarTelescope()
+{}
+
+//____________________________________________________
+void UNISOscarTelescope::RotateX(Double_t angle)
+{
+  //
+  fCenter.RotateX(angle);
   //
   
-  /*Rotation of the pad's centers*/
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCenters[i][j].RotateX(x_angle);
-    }
-  }
-  /*rotation of the corners to the input position*/
-  TTopLeftCorner   .RotateX(x_angle); 
-  TTopRightCorner  .RotateX(x_angle); 
-  TBottomLeftCorner.RotateX(x_angle);
+  //
+  //rotation of the corners to the input position
+  fTopLeftCorner   .RotateX(angle); 
+  fTopRightCorner  .RotateX(angle); 
+  fBottomLeftCorner.RotateX(angle);
+  fBottomRightCorner.RotateX(angle);
   //
   //calculation of the X Y versors
-  TXversor=(TTopLeftCorner-TBottomLeftCorner);
-  TXversor*=(1./TXversor.Mag());
-  TYversor=(TTopRightCorner-TTopLeftCorner);
-  TYversor*=(1./TYversor.Mag());  
-  // 
-  // determination of the pixel center coordinates respect to the top right corner of the telescope
-  // Here the axes are oriented towards the inner side of the strip, such as that all the coordinates are positive within the detector
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
-      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
-    }
-  }
+  fYversor=(fTopLeftCorner-fBottomLeftCorner);
+  fYversor*=(1./fYversor.Mag());
+  fXversor=(fTopRightCorner-fTopLeftCorner);
+  fXversor*=(1./fXversor.Mag());  
   //
   
   //
   //Calculation of the detector plane equation
-  TVector3 OriginalDirection(Ta,Tb,Tc);
-  OriginalDirection.RotateX(x_angle);
-  Ta=OriginalDirection.X()/OriginalDirection.Mag();
-  Tb=OriginalDirection.Y()/OriginalDirection.Mag();
-  Tc=OriginalDirection.Z()/OriginalDirection.Mag();
-  Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
+  TVector3 OriginalDirection(fa,fb,fc);
+  OriginalDirection.RotateX(angle);
+  fa=OriginalDirection.X()/OriginalDirection.Mag();
+  fb=OriginalDirection.Y()/OriginalDirection.Mag();
+  fc=OriginalDirection.Z()/OriginalDirection.Mag();
+  fd=-(fa*fCenter.X()+fb*fCenter.Y()+fc*fCenter.Z());
   //
   
   //
-  Rotate3DX(x_angle);
-  //  
+  //Rotating pads
+  for(int pad=0; pad<fNumPads; pad++) {
+    fPads[pad]->RotateX(angle); 
+  }
+  //
   
-  return;
+  //
+  //Rotating strips
+  if(fIsStrip) {
+    fStrip->RotateX(angle); 
+  }
+  //
+  
+  //
+  //Rotating 3D frame
+  fDetectorMatrix->RotateX(angle*TMath::RadToDeg());
+  //
 }
 
-void UNISStripDetector::RotateY(Double_t y_angle)
+//____________________________________________________
+void UNISOscarTelescope::RotateY(Double_t angle)
 {
-  /*Rotation of the telescope center to the input position*/
-  TTelescopeCenter.RotateY(y_angle);
+  //
+  fCenter.RotateY(angle);
   //
   
-  /*Rotation of the pad's centers*/
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCenters[i][j].RotateY(y_angle);
-    }
-  }
-  /*rotation of the corners to the input position*/
-  TTopLeftCorner   .RotateY(y_angle); 
-  TTopRightCorner  .RotateY(y_angle); 
-  TBottomLeftCorner.RotateY(y_angle);
+  //
+  //rotation of the corners to the input position
+  fTopLeftCorner   .RotateY(angle); 
+  fTopRightCorner  .RotateY(angle); 
+  fBottomLeftCorner.RotateY(angle);
+  fBottomRightCorner.RotateY(angle);
   //
   //calculation of the X Y versors
-  TXversor=(TTopLeftCorner-TBottomLeftCorner);
-  TXversor*=(1./TXversor.Mag());
-  TYversor=(TTopRightCorner-TTopLeftCorner);
-  TYversor*=(1./TYversor.Mag());  
-  // 
-  // determination of the pixel center coordinates respect to the top right corner of the telescope
-  // Here the axes are oriented towards the inner side of the strip, such as that all the coordinates are positive within the detector
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
-      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
-    }
-  }
+  fYversor=(fTopLeftCorner-fBottomLeftCorner);
+  fYversor*=(1./fYversor.Mag());
+  fXversor=(fTopRightCorner-fTopLeftCorner);
+  fXversor*=(1./fXversor.Mag());  
   //
   
   //
   //Calculation of the detector plane equation
-  TVector3 OriginalDirection(Ta,Tb,Tc);
-  OriginalDirection.RotateY(y_angle);
-  Ta=OriginalDirection.X()/OriginalDirection.Mag();
-  Tb=OriginalDirection.Y()/OriginalDirection.Mag();
-  Tc=OriginalDirection.Z()/OriginalDirection.Mag();
-  Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
+  TVector3 OriginalDirection(fa,fb,fc);
+  OriginalDirection.RotateY(angle);
+  fa=OriginalDirection.X()/OriginalDirection.Mag();
+  fb=OriginalDirection.Y()/OriginalDirection.Mag();
+  fc=OriginalDirection.Z()/OriginalDirection.Mag();
+  fd=-(fa*fCenter.X()+fb*fCenter.Y()+fc*fCenter.Z());
   //
   
   //
-  Rotate3DY(y_angle);
-  //  
+  //Rotating pads
+  for(int pad=0; pad<fNumPads; pad++) {
+    fPads[pad]->RotateY(angle); 
+  }
+  //
   
-  return;
+  //
+  //Rotating strips
+  if(fIsStrip) {
+    fStrip->RotateY(angle); 
+  }
+  //
+  
+  //
+  //Rotating 3D frame
+  fDetectorMatrix->RotateY(angle*TMath::RadToDeg());
+  //
 }
 
-void UNISStripDetector::RotateZ(Double_t z_angle)
+//____________________________________________________
+void UNISOscarTelescope::RotateZ(Double_t angle)
 {
-  /*Rotation of the telescope center to the input position*/
-  TTelescopeCenter.RotateZ(z_angle);
+  //
+  fCenter.RotateZ(angle);
   //
   
-  /*Rotation of the pad's centers*/
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCenters[i][j].RotateZ(z_angle);
-    }
-  }
-  /*rotation of the corners to the input position*/
-  TTopLeftCorner   .RotateZ(z_angle); 
-  TTopRightCorner  .RotateZ(z_angle); 
-  TBottomLeftCorner.RotateZ(z_angle);
+  //
+  //rotation of the corners to the input position
+  fTopLeftCorner   .RotateZ(angle); 
+  fTopRightCorner  .RotateZ(angle); 
+  fBottomLeftCorner.RotateZ(angle);
+  fBottomRightCorner.RotateZ(angle);
   //
   //calculation of the X Y versors
-  TXversor=(TTopLeftCorner-TBottomLeftCorner);
-  TXversor*=(1./TXversor.Mag());
-  TYversor=(TTopRightCorner-TTopLeftCorner);
-  TYversor*=(1./TYversor.Mag());  
-  // 
-  // determination of the pixel center coordinates respect to the top right corner of the telescope
-  // Here the axes are oriented towards the inner side of the strip, such as that all the coordinates are positive within the detector
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
-      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
-    }
-  }
+  fYversor=(fTopLeftCorner-fBottomLeftCorner);
+  fYversor*=(1./fYversor.Mag());
+  fXversor=(fTopRightCorner-fTopLeftCorner);
+  fXversor*=(1./fXversor.Mag());  
   //
   
   //
   //Calculation of the detector plane equation
-  TVector3 OriginalDirection(Ta,Tb,Tc);
-  OriginalDirection.RotateZ(z_angle);
-  Ta=OriginalDirection.X()/OriginalDirection.Mag();
-  Tb=OriginalDirection.Y()/OriginalDirection.Mag();
-  Tc=OriginalDirection.Z()/OriginalDirection.Mag();
-  Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
+  TVector3 OriginalDirection(fa,fb,fc);
+  OriginalDirection.RotateZ(angle);
+  fa=OriginalDirection.X()/OriginalDirection.Mag();
+  fb=OriginalDirection.Y()/OriginalDirection.Mag();
+  fc=OriginalDirection.Z()/OriginalDirection.Mag();
+  fd=-(fa*fCenter.X()+fb*fCenter.Y()+fc*fCenter.Z());
   //
   
   //
-  Rotate3DZ(z_angle);
+  //Rotating pads
+  for(int pad=0; pad<fNumPads; pad++) {
+    fPads[pad]->RotateZ(angle); 
+  }
+  //
+  
+  //
+  //Rotating strips
+  if(fIsStrip) {
+    fStrip->RotateZ(angle); 
+  }
+  //
+  
+  //
+  //Rotating 3D frame
+  fDetectorMatrix->RotateZ(angle*TMath::RadToDeg());
+  //
+}
+
+//____________________________________________________
+void UNISOscarTelescope::Translate(Double_t x, Double_t y, Double_t z)
+{
+  //
+  fCenter+=TVector3(x,y,z);
   //  
   
-  return;
-}
-
-
-void UNISStripDetector::Translate(Double_t x, Double_t y, Double_t z)
-{
   //
-  TVector3 TranslationVector (x, y, z);
-  
-  //Translation of the telescope center
-  TTelescopeCenter+=TranslationVector;
-  
-  //Translation of the corners
-  TTopLeftCorner+=TranslationVector;
-  TTopRightCorner+=TranslationVector;
-  TBottomLeftCorner+=TranslationVector;
-  
-  //Translation of pixels
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCenters[i][j]+=TranslationVector;
-    }
-  }
-  
-  //Calculation of detector reference frame vectors
-  TXversor=(TTopLeftCorner-TBottomLeftCorner);
-  TXversor*=(1./TXversor.Mag());
-  TYversor=(TTopRightCorner-TTopLeftCorner);
-  TYversor*=(1./TYversor.Mag()); 
-  
-  //
-  //Calculation of the detector plane equation
-  TVector3 OriginalDirection(Ta,Tb,Tc);
-  Ta=OriginalDirection.X()/OriginalDirection.Mag();
-  Tb=OriginalDirection.Y()/OriginalDirection.Mag();
-  Tc=OriginalDirection.Z()/OriginalDirection.Mag();
-  Td=-(Ta*TTelescopeCenter.X()+Tb*TTelescopeCenter.Y()+Tc*TTelescopeCenter.Z());
-  //
-  
-  // determination of the pixel center coordinates respect to the top right corner of the telescope
-  // Here the axes are oriented towards the inner side of the pad, such as that all the coordinates are positive within the detector
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TCentersXprime[i][j]=TTopLeftXCorner-(TCenters[i][j]-TTelescopeCenter).Dot(TXversor);
-      TCentersYprime[i][j]=TTopLeftYCorner+(TCenters[i][j]-TTelescopeCenter).Dot(TYversor);
-    }
+  //Translating pads
+  for(int pad=0; pad<fNumPads; pad++) {
+    fPads[pad]->Translate(x,y,z); 
   }
   //
   
   //
-  Translate3D(x,y,z);
+  //Translating strips
+  if(fIsStrip) {
+    fStrip->Translate(x,y,z);
+  }
   //
   
-  return;
+  //
+  //Translating 3D frame
+  fDetectorMatrix->MultiplyLeft(TGeoTranslation(x,y,z));
+  //
 }
 
-// destructor
-UNISStripDetector::~UNISStripDetector()
-{
-  for(Int_t i=0; i<TStrips_number; i++)  
-  {
-    delete[] TCenters[i];
-    delete[] TCentersXprime[i];
-    delete[] TCentersYprime[i];
-  }  
-  delete [] TCenters;
-  delete [] TCentersXprime;
-  delete [] TCentersYprime;
-}
-
+//
 // returns 1 if the particle is inside the telescope, 0 if not.
 // this function sets also the impact point XY coordinates
-Int_t UNISStripDetector::IsInside(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+Int_t UNISOscarTelescope::IsInside(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {
   Double_t t; /*t parameter for the parametric equation of the particle direction*/
   Double_t l,m,n; /*particle direction parameters*/
@@ -378,199 +297,112 @@ Int_t UNISStripDetector::IsInside(Double_t theta_inc, Double_t phi_inc, Double_t
   n=TMath::Cos(theta_inc);
 
   /*solution of the direction/plane interception*/
-  if((t=-(Ta*x0+Tb*y0+Tc*z0+Td)/(Ta*l+Tb*m+Tc*n))<0) return 0;
+  if((t=-(fa*x0+fb*y0+fc*z0+fd)/(fa*l+fb*m+fc*n))<0) return 0;
   
   /*setting the true impact point*/
-  TTrueImpactPoint.SetXYZ(x0+t*l,y0+t*m,z0+t*n);
+  fLabImpactPoint.SetXYZ(x0+t*l,y0+t*m,z0+t*n);
     
   // setting he impact point in the telescope frame
-  TTelescopeImpactPoint=TTrueImpactPoint-TTelescopeCenter;
-  TImpactX=TTelescopeImpactPoint.Dot(TXversor);
-  TImpactY=TTelescopeImpactPoint.Dot(TYversor); 
+  fFrameImpactPoint=fLabImpactPoint-fCenter;
+  const double ImpactXprime = fFrameImpactPoint.Dot(fXversor);
+  const double ImpactYprime = fFrameImpactPoint.Dot(fYversor); 
   
-  /*inside condition*/
-  if(TMath::Abs(TImpactX)<=TTelescopeEffective_semi && TMath::Abs(TImpactY)<=TTelescopeEffective_semi)
+  //
+  //Inside condition
+  if(std::fabs(ImpactXprime)<=fFrameWidth/2. && std::fabs(ImpactYprime)<=fFrameHeight/2.)
   {
     return 1;
   }
+  //
   return 0;
 }
 
 // 
-// Returns an absolute number identifying the pixel fired according to the following scheme:
-// back*num_strips + front
+// Returns 0 if the particle is inside the active area:
 // If the particle is not inside the active area -> return value = -1
-Int_t UNISStripDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+Int_t UNISOscarTelescope::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {  
-  Int_t i,j;
+  //
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  /*If not the particle is inside the telescope*/
-
-  // Impact point coordinates with respect to the Top Left corner
-  // These quantities are always positive within the surface of the detector
-  TImpactXprime=TTopLeftXCorner-TImpactX;
-  TImpactYprime=TImpactY+TTopLeftYCorner;
-  // Matrix i,j indexes inside the telescope
-  // i = strip front (vertical)
-  // j = strip back (horizontal)
-  i=Int_t(TImpactYprime/TPixelTrue_width);
-  j=Int_t(TImpactXprime/TPixelTrue_width);
-  
-  /*check if the particle is inside the effective area*/
-  if(fabs(TImpactXprime-TCentersXprime[i][j])<TPixelEffective_semi && fabs(TImpactYprime-TCentersYprime[i][j])<TPixelEffective_semi) 
-  {
-    return j*TStrips_number+i;
-  }
-  /*particle not inside the effective area*/
-  return -1;
-}
-
-// returns the number of the hit strip front. Returns -1 if the particle is not within the effective area.
-Int_t UNISStripDetector::GetStripFront(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
-{  
-  if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  //Check if the particle is inside the active detector    
+  //
     
-  Int_t i,j;
-  // Impact point coordinates with respect to the Top Left corner
-  // These quantities are always positive within the surface of the detector
-  TImpactXprime=TTopLeftXCorner-TImpactX;
-  TImpactYprime=TImpactY+TTopLeftYCorner;
-  
-  // Matrix i,j indexes inside the telescope
-  // i = strip front (vertical)
-  // j = strip back (horizontal)
-  i=Int_t(TImpactYprime/TPixelTrue_width);
-  j=Int_t(TImpactXprime/TPixelTrue_width);
-  
-  /*check if the particle is inside the effective area, if so, returs the front strip number*/
-  if(fabs(TImpactXprime-TCentersXprime[i][j])<TPixelEffective_semi && fabs(TImpactYprime-TCentersYprime[i][j])<TPixelEffective_semi)  return i;
-  return -1;
-}
-
-// returns the number of the hit strip front. Returns -1 if the particle is not within the effective area.
-Int_t UNISStripDetector::GetStripBack(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
-{  
-  if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  //Check if the particle is inside the active detector     
+  int PixelPad=-1;
+  int PixelStrip;
     
-  Int_t i,j;
-  // Impact point coordinates with respect to the Top Left corner
-  // These quantities are always positive within the surface of the detector
-  TImpactXprime=TTopLeftXCorner-TImpactX;
-  TImpactYprime=TImpactY+TTopLeftYCorner;
-  // Matrix i,j indexes inside the telescope
-  // i = strip front (vertical)
-  // j = strip back (horizontal)
-  i=Int_t(TImpactYprime/TPixelTrue_width);
-  j=Int_t(TImpactXprime/TPixelTrue_width);
-  
-  /*check if the particle is inside the effective area and, if so, returs the back strip number*/
-  if(fabs(TImpactXprime-TCentersXprime[i][j])<TPixelEffective_semi && fabs(TImpactYprime-TCentersYprime[i][j])<TPixelEffective_semi)  return j;
-  return -1;
-}
-
-//returns -100 if the particle is not inside the telescope
-Double_t UNISStripDetector::GetThetaPixel(Int_t numfront, Int_t numback)
-{
-  if  (numfront<0 || numback<0) return -100;
-  return GetPixelCenter(numfront,numback).Theta();
-}
-
-//returns -100 if the particle is not inside the telescope
-Double_t UNISStripDetector::GetPhiPixel(Int_t numfront, Int_t numback)
-{
-  if  (numfront<0 || numback<0) return -100;
-  return GetPixelCenter(numfront,numback).Phi();
-}
-
-//returns -1 if the particle is not inside the telescope in the other cases returns 1 and write theta and phi detected 
-//in the input memory addresses
-Int_t UNISStripDetector::GetThetaPhiPixel(Double_t * ptheta_det, Double_t * pphi_det, Int_t numfront, Int_t numback)
-{
-  if  (numfront<0 || numback<0) return -1;
-  *ptheta_det=UNISStripDetector::GetThetaPixel(numfront, numback);
-  *pphi_det=UNISStripDetector::GetPhiPixel(numfront, numback);
-  return 1;
-}
-
-//draws the telescope on the X-Y plane
-void UNISStripDetector::Draw(Option_t * draw_opt, double Xmin, double Xmax, double Ymin, double Ymax) const
-{
-  TLine * LeftOuterFrameBorder=new TLine((TCenters[0][0]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[0][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X(),(TCenters[0][TStrips_number-1]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[0][TStrips_number-1]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X());
-  TLine * RightOuterFrameBorder=new TLine((TCenters[TStrips_number-1][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[TStrips_number-1][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X(),(TCenters[TStrips_number-1][TStrips_number-1]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[TStrips_number-1][TStrips_number-1]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X());
-  TLine * TopOuterFrameBorder=new TLine((TCenters[0][0]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[0][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X(),(TCenters[TStrips_number-1][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[TStrips_number-1][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X());
-  TLine * BottomOuterFrameBorder=new TLine((TCenters[0][TStrips_number-1]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[0][TStrips_number-1]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X(),(TCenters[TStrips_number-1][TStrips_number-1]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y(),(TCenters[TStrips_number-1][TStrips_number-1]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X());
-  
-  TLatex * FirstFront = new TLatex((TCenters[0][0]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).Y(),(TCenters[0][0]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).X(),"0");
-  TLatex * LastFront = new TLatex((TCenters[TStrips_number-1][0]+TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).Y(),(TCenters[TStrips_number-1][0]+TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).X(),Form("%d",TStrips_number-1));
-  TLatex * FirstBack = new TLatex((TCenters[0][0]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).Y(),(TCenters[0][0]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).X(),"0");
-  TLatex * LastBack = new TLatex((TCenters[0][TStrips_number-1]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).Y(),(TCenters[0][TStrips_number-1]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).X(),Form("%d",TStrips_number-1));
-
-  TLine * LeftPixelBorder[TStrips_number][TStrips_number];
-  TLine * RightPixelBorder[TStrips_number][TStrips_number];
-  TLine * BottomPixelBorder[TStrips_number][TStrips_number];
-  TLine * TopPixelBorder[TStrips_number][TStrips_number];
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TVector3 TopLeftCorner     = TCenters[i][j]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi;
-      TVector3 TopRightCorner    = TCenters[i][j]+TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi;
-      TVector3 BottomLeftCorner  = TCenters[i][j]-TYversor*TPixelEffective_semi-TXversor*TPixelEffective_semi;
-      TVector3 BottomRightCorner = TCenters[i][j]+TYversor*TPixelEffective_semi-TXversor*TPixelEffective_semi;
-      
-      LeftPixelBorder[i][j]  =new TLine(TopLeftCorner.Y(),TopLeftCorner.X(),BottomLeftCorner.Y(),BottomLeftCorner.X()); 
-      RightPixelBorder[i][j] =new TLine(TopRightCorner.Y(),TopRightCorner.X(),BottomRightCorner.Y(),BottomRightCorner.X());
-      BottomPixelBorder[i][j]=new TLine(BottomLeftCorner.Y(),BottomLeftCorner.X(),BottomRightCorner.Y(),BottomRightCorner.X()); 
-      TopPixelBorder[i][j]   =new TLine(TopLeftCorner.Y(),TopLeftCorner.X(),TopRightCorner.Y(),TopRightCorner.X());
-    }
-  }  
-  
-  if(strstr(draw_opt,"SAME")==0 && strstr(draw_opt,"same")==0) {
-    TCanvas * c1 = new TCanvas("c1","Upstream view, (0,0) is the beamline", 600,600);
-    TGraph * TheCenter = new TGraph();
-    TheCenter->SetPoint(0,0,0);
-    TheCenter->Draw("A*");
-    if(Xmin==0 && Xmax==0 && Ymin==0 && Ymax==0) {
-      TheCenter->GetXaxis()->SetLimits(-fabs((TCenters[0][0]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y())*1.2,+
-                                       fabs((TCenters[TStrips_number-1][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TYversor).Y())*1.2);
-      TheCenter->GetYaxis()->SetRangeUser(-fabs((TCenters[0][TStrips_number-1]-(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X())*1.2,
-                                          fabs((TCenters[0][0]+(TDeadLayer+TFrame_width+TPixelTrue_semi)*TXversor).X())*1.2);
-    } else {
-      TheCenter->GetXaxis()->SetLimits(Xmin, Xmax);
-      TheCenter->GetYaxis()->SetRangeUser(Ymin, Ymax);
+  //
+  //Check if the particle is inside the active area of a pad
+  for(int pad=0; pad<fNumPads; pad++) {
+    if(fPads[pad]->GetPixel(theta_inc, phi_inc, x0, y0, z0)!=-1) {
+      PixelPad=pad;
+      break;
     }
   }
+  //
   
-  LeftOuterFrameBorder->SetLineColor(kRed);
-  RightOuterFrameBorder->SetLineColor(kRed);
-  TopOuterFrameBorder->SetLineColor(kRed);
-  BottomOuterFrameBorder->SetLineColor(kRed);
-  LeftOuterFrameBorder->Draw("SAME");
-  RightOuterFrameBorder->Draw("SAME");
-  TopOuterFrameBorder->Draw("SAME");
-  BottomOuterFrameBorder->Draw("SAME");
-  LastFront->SetTextAlign(kHAlignRight);
-  FirstBack->SetTextAlign(kHAlignRight+kVAlignTop);
-  LastBack->SetTextAlign(kHAlignRight+kVAlignTop);
-  FirstFront->Draw("SAME");
-  LastFront->Draw("SAME");
-  FirstBack->Draw("SAME");
-  LastBack->Draw("SAME");
+  //
+  if(PixelPad==-1) return -1; //particle not inside a pad
+  //
   
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      LeftPixelBorder[i][j]->Draw("SAME");
-      RightPixelBorder[i][j]->Draw("SAME");
-      BottomPixelBorder[i][j]->Draw("SAME");
-      TopPixelBorder[i][j]->Draw("SAME");
-    }
+  //
+  //Check if the particle is inside the active area of a strip (if strip is present)
+  if(fIsStrip) {
+    PixelStrip=fStrip->GetPixel(theta_inc, phi_inc, x0, y0, z0);
+    if(PixelStrip==-1) return -1; //particle not inside a strip (and strip is installed)
   }
-  return; 
+  //
+  
+  //
+  //Calculation of pixel
+  int Pixel=(PixelPad)*fPadRowsColumns+(PixelStrip%fPadRowsColumns);
+  //
+  
+  //particle not inside the effective area
+  return Pixel;
 }
 
-//3D drawing function
-void UNISStripDetector::Draw3D(Option_t * draw_opt) const
+//____________________________________________________
+void UNISOscarTelescope::Generate3D()
+{
+//
+  if(!gGeoManager) {
+    new TGeoManager();
+    TGeoVolume *TheMotherVolume = gGeoManager->MakeBox("TheMotherVolume",0,50,50,50);
+    TheMotherVolume->SetLineColor(kBlack);
+    gGeoManager->SetTopVisible(kFALSE); // the TOP is invisible
+    gGeoManager->SetTopVolume(TheMotherVolume);
+  }
+
+  //
+  fDetector = new TGeoVolumeAssembly("DetectorFrame");
+  fDetectorMatrix = new TGeoHMatrix("DetectorTransformationMatrix");
+  //
+   
+  //
+  fFramePads      = new TGeoVolume("frame_pads_volume",new TGeoBBox(fFrameWidth/2., fFrameHeight/2., 0.08));
+  fFramePreAmps   = new TGeoVolume("frame_preamps_volume",new TGeoBBox((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5, (fPhotoDiodeHeight*fPadRowsColumns)/2.+1., 0.08));
+  fPreAmps        = new TGeoVolume("preamps_volume",new TGeoBBox(1., 0.15, 1.));
+  fFramePads->SetLineColor(kGreen+2);
+  fFramePreAmps->SetLineColor(kGreen+2);
+  fPreAmps->SetLineColor(kMagenta);
+  //
+  
+  //
+  //Adding to mother volume
+  fDetector->AddNode(fFramePads,0,new TGeoTranslation(0, -0.5, 0.));
+  fDetector->AddNode(fFramePreAmps,0,new TGeoTranslation(0, -0.5, 0.5));
+  for(int pad=0; pad<fNumPads/2.; pad++) {
+    fDetector->AddNode(fPreAmps,pad,new TGeoTranslation(fFrameWidth/4., fFrameHeight/2.*0.6-pad*0.5, 0.5+0.08+1));
+    fDetector->AddNode(fPreAmps,pad,new TGeoTranslation(-fFrameWidth/4., fFrameHeight/2.*0.6-pad*0.5, 0.5+0.08+1));
+  }
+  //
+  
+  //
+  fDetectorMatrix->MultiplyLeft(new TGeoTranslation(0,0,0.2));
+  //
+}
+
+//____________________________________________________
+void UNISOscarTelescope::Draw3D(Option_t * draw_opt) const
 {
   //
   if(strstr(draw_opt,"SAME")==0 && strstr(draw_opt,"same")==0) {
@@ -612,7 +444,7 @@ void UNISStripDetector::Draw3D(Option_t * draw_opt) const
     //
   }
   //
-                     
+      
   //
   gGeoManager->GetMasterVolume()->AddNode(fDetector,1,fDetectorMatrix);
   //
@@ -621,132 +453,39 @@ void UNISStripDetector::Draw3D(Option_t * draw_opt) const
   std::string option_string(draw_opt);
   gGeoManager->GetMasterVolume()->Draw(option_string.find("ogl")!=std::string::npos ? "ogl" : "");
   //
-}
-
-void UNISStripDetector::Generate3D(double theta_pos, double phi_pos)
-{
-  //
-  if(!gGeoManager) {
-    new TGeoManager();
-    TGeoVolume *TheMotherVolume = gGeoManager->MakeBox("TheMotherVolume",0,50,50,50);
-    TheMotherVolume->SetLineColor(kBlack);
-    gGeoManager->SetTopVisible(kFALSE); // the TOP is invisible
-    gGeoManager->SetTopVolume(TheMotherVolume);
-  }
   
   //
-  fDetector = new TGeoVolumeAssembly("DetectorQuartet");
-  fDetectorMatrix = new TGeoHMatrix("DetectorTransformationMatrix");
-  //
-   
-  //
-  fFrame       = new TGeoVolume("pad_volume",new TGeoBBox(TTelescopeTrue_semi, TTelescopeTrue_semi, 0.05));
-  fPixel       = new TGeoVolume("top_frame_volume",new TGeoBBox(TPixelEffective_semi, TPixelEffective_semi, 0.1));
-  fFrame->SetLineColor(kYellow+2);
-  fPixel->SetLineColor(kGray);
-  //
-  
-  //
-  //Adding frame to mother volume
-  fDetector->AddNode(fFrame,0,new TGeoTranslation(0., 0., 0.));
-  //
-  
-  //
-  //Pixels
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {      
-      fDetector->AddNode(fPixel,i*TStrips_number+j,new TGeoTranslation(-(TStrips_number-(2*i+1))*TPixelTrue_semi,(TStrips_number-(2*j+1))*TPixelTrue_semi,0));
-    }
+  //Drawing pads
+  for(int pad=0; pad<fNumPads; pad++) {
+    fPads[pad]->Draw3D(Form("%s SAME", draw_opt)); 
   }
   //
   
   //
-  fDetectorMatrix->MultiplyLeft(TGeoTranslation(0,0,TTelescopeCenter.Mag()));
-  //
-  
-  //
-  //We operate now a series of rotations to reach the final position
-  //First: Rotation about the Z-axis of a quantity (-phi)
-  Rotate3DZ(-phi_pos-180*TMath::DegToRad()); 
-  //Second: Rotation about the X-axis of a quantity (theta)
-  Rotate3DX(theta_pos);
-  //Third: Rotation about the Z-axis of a quantity (phi)
-  Rotate3DZ(phi_pos+180*TMath::DegToRad());
-  //
-}  
-
-void UNISStripDetector::Rotate3DX(Double_t x_angle)
-{
-  fDetectorMatrix->RotateX(x_angle*TMath::RadToDeg());
-}
-
-void UNISStripDetector::Rotate3DY(Double_t y_angle)
-{
-  fDetectorMatrix->RotateY(y_angle*TMath::RadToDeg());
-}
-
-void UNISStripDetector::Rotate3DZ(Double_t z_angle)
-{
-  fDetectorMatrix->RotateZ(z_angle*TMath::RadToDeg());
-}
-
-void UNISStripDetector::Translate3D(Double_t x, Double_t y, Double_t z)
-{  
-  fDetectorMatrix->MultiplyLeft(TGeoTranslation(x,y,z));
-}
-
-// returns the pointer to a TGraph object that contains all the pads centers
-TGraph* UNISStripDetector::GetGraphObject()
-{
-  Double_t x[TPixels_number],y[TPixels_number];
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      x[i*TStrips_number+j]=TCenters[i][j].Y(); 
-      y[i*TStrips_number+j]=TCenters[i][j].X();
-    }
+  //Translating strips
+  if(fIsStrip) {
+    fStrip->Draw3D(Form("%s SAME", draw_opt));
   }
-  TGraph * GraphCenters = new TGraph(TPixels_number,x,y);
-  GraphCenters->SetMarkerStyle(20);
-  GraphCenters->SetMarkerColor(kBlue);
-  GraphCenters->SetMarkerSize(0.07);
-  return GraphCenters;
+  //
+  //
 }
 
-// returns the TVector3 of the telescope center
-TVector3 UNISStripDetector::GetDetectorCenter()
+//____________________________________________________
+void UNISOscarTelescope::Draw(Option_t * draw_opt, double Xmin, double Xmax, double Ymin, double Ymax) const
 {
-  return TTelescopeCenter; 
+  return; 
 }
 
-// returns the TVector3 of the pixel center identified by a given strip front and back in the lab reference frame
-TVector3 UNISStripDetector::GetPixelCenter(int stripf, int stripb)
+//____________________________________________________
+TVector3 UNISOscarTelescope::GetDetectorCenter()
 {
-  return TCenters[stripf][stripb]; 
+  return fCenter; 
 }
 
-TVector3 UNISStripDetector::GetImpactPointLab(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
+//____________________________________________________
+TVector3 UNISOscarTelescope::GetImpactPointLab(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return TVector3(0,0,0);
     
-  return TImpactX*TXversor+TImpactY*TYversor+TTelescopeCenter;
+  return fLabImpactPoint;
 }
-
-#ifdef GRAPHICAL_DEBUG
-void UNISStripDetector::ShowImpactPoint(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
-{
-  Draw();
-
-  if(IsInside(theta_inc,phi_inc,x0,y0,z0))
-  {
-    TGraph * impact_point = new TGraph();
-    TVector3 TheImpactPoint = TImpactY*TYversor+TImpactX*TXversor+TTelescopeCenter;
-    impact_point->SetPoint(0,TheImpactPoint.Y(),TheImpactPoint.X());
-    impact_point->SetMarkerColor(kRed);
-    impact_point->Draw("* SAME");
-  }
-}
-#endif

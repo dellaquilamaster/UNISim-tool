@@ -88,7 +88,7 @@ fImpactY(0)
   //Second: Rotation about the X-axis of a quantity (theta)
   RotateX(theta_pos);
   //Third: Rotation about the Z-axis of a quantity (phi)
-  RotateZ(phi_pos-180*TMath::DegToRad());
+  RotateZ(phi_pos+180*TMath::DegToRad());
   //  
 }  
 
@@ -300,7 +300,6 @@ Int_t UNISSiliconPhotoDiode::IsInside(Double_t theta_inc, Double_t phi_inc, Doub
 // If the particle is not inside the active area -> return value = -1
 Int_t UNISSiliconPhotoDiode::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {  
-  Int_t i,j;
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  /*If not the particle is inside the telescope*/
   
   /*check if the particle is inside the effective area*/
@@ -384,7 +383,7 @@ void UNISSiliconPhotoDiode::Generate3D()
   }
   
   //
-  fDetector = new TGeoVolumeAssembly("DetectorQuartet");
+  fDetector = new TGeoVolumeAssembly("Detector");
   fDetectorMatrix = new TGeoHMatrix("DetectorTransformationMatrix");
   //
    
@@ -395,7 +394,7 @@ void UNISSiliconPhotoDiode::Generate3D()
   fPad            = new TGeoVolume("pad_volume",new TGeoBBox(fPadSemi, fPadSemi, 0.05));
   fFrameLateral->SetLineColor(kWhite);
   fFrameHorizontal->SetLineColor(kWhite);
-  fBottomContacts->SetLineColor(kWhite);
+  fBottomContacts->SetLineColor(kGray);
   fPad->SetLineColor(kBlue-5);
   //
   
@@ -442,8 +441,3 @@ TVector3 UNISSiliconPhotoDiode::GetImpactPointLab(Double_t theta_inc, Double_t p
     
   return fLabImpactPoint;
 }
-
-#ifdef GRAPHICAL_DEBUG
-void UNISSiliconPhotoDiode::ShowImpactPoint(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
-{}
-#endif

@@ -62,6 +62,8 @@
 #include <UNISLampWedgeDetector.h>
 #include <UNISLampWedgeMMMDetector.h>
 #include <UNISSiliconPhotoDiode.h>
+#include <UNISStripSingleSidedDetector.h>
+#include <UNISOscarTelescope.h>
 #include <UNISIon.h>
 #include <UNISShared.h>
 

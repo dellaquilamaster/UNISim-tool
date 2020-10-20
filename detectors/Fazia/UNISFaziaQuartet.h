@@ -101,7 +101,6 @@ public:
   void      Translate(Double_t, Double_t, Double_t);
   void      Draw(Option_t * opt="", double Xmin=0, double Xmax=0, double Ymin=0, double Ymax=0) const override;
   void      Draw3D(Option_t * opt="") const override;
-  TGraph*   GetGraphObject();
   TVector3  GetDetectorCenter(); // returns a TVector3 representing the center of the detector in the lab reference frame
   TVector3  GetPadCenter(int pad); // returns a TVector3 representing the center of the pad, identified by a given index, in the lab reference frame
   TVector3  GetImpactPointLab(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; // Get the impact point in the lab reference frame

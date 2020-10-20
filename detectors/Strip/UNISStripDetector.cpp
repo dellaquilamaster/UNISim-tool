@@ -108,7 +108,7 @@ TStrip_hit((Int_t*)new Int_t[2])
   //Second: Rotation about the X-axis of a quantity (theta)
   RotateX(theta_pos);
   //Third: Rotation about the Z-axis of a quantity (phi)
-  RotateZ(phi_pos-180*TMath::DegToRad());
+  RotateZ(phi_pos+180*TMath::DegToRad());
   //  
 }  
 

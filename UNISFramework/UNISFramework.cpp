@@ -429,6 +429,28 @@ int UNISFramework::ProcessAddCommand(const char * line)
       }
       UNISSiliconPhotoDiode * NewDetector = new UNISSiliconPhotoDiode(theta_pos,phi_pos,distance);
       fExpSetup->RegisterUnit(NewDetector);
+    } else if(DetectorType.compare("OSCAR")==0) {
+      double distance=0;
+      double theta_pos=0;
+      double phi_pos=0;
+      bool is_strip=true;
+      while (LineStream>>ValueToSet) {
+        if(ValueToSet.find("-distance")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-distance=")+10));
+          distance=std::stoi(ValueToSet); 
+        } else if(ValueToSet.find("-phi_pos")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-phi_pos=")+9)); 
+          phi_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
+        } else if(ValueToSet.find("-theta_pos")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-theta_pos=")+11)); 
+          theta_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
+        } else if(ValueToSet.find("-strip")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strip=")+7)); 
+          if(ValueToSet.find("no")!=std::string::npos) is_strip=false; 
+        } 
+      }
+      UNISOscarTelescope * NewDetector = new UNISOscarTelescope(distance,theta_pos,phi_pos,(is_strip ? "" : "pads"));
+      fExpSetup->RegisterUnit(NewDetector);
     }
     
   } else {

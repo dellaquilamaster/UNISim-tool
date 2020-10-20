@@ -14,12 +14,13 @@ INCLUDES  += -I$(UNISimSrc)detectors/Strip
 INCLUDES  += -I$(UNISimSrc)detectors/Lamp
 INCLUDES  += -I$(UNISimSrc)detectors/Fazia
 INCLUDES  += -I$(UNISimSrc)detectors/Silicon
+INCLUDES  += -I$(UNISimSrc)detectors/Oscar
 INCLUDES  += -I$(UNISimSrc)generator
 INCLUDES  += -I$(UNISimSrc)UNISRootEvent
 INCLUDES  += -I$(UNISimSrc)UNISShared
 INCLUDES  += -I$(UNISimSrc)LISETools
 
-RLIBS     := -L$(UNISimSrc)lib -lUNISFramework -lUNISGenerator -lUNISDetectionSetup -lUNISStrip -lUNISLamp -lUNISFaziaQuartet -lUNISSiliconDetector -lUNISRootEvent -lUNISShared
+RLIBS     := -L$(UNISimSrc)lib -lUNISFramework -lUNISGenerator -lUNISDetectionSetup -lUNISStrip -lUNISLamp -lUNISFaziaQuartet -lUNISSiliconDetector -lUNISOscar -lUNISRootEvent -lUNISShared
 
 SRCS = $(wildcard *.$(SrcSuf))
 OBJS = $(patsubst %.$(SrcSuf), %.$(ObjSuf), $(SRCS))

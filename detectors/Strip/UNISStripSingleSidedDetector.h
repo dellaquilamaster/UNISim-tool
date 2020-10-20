@@ -79,9 +79,9 @@ private:
   
 public:
   UNISStripSingleSidedDetector(Double_t distance=15, Double_t theta_pos=0, Double_t phi_pos=0, 
-                    Int_t N_Strips=16, Double_t strip_width=0.2, Double_t inter_width=0.01, Double_t frame_width=0.2, Double_t dead_layer=0., Option_t * opt="");
+                    Int_t N_Strips=16, Double_t strip_width=0.312, Double_t inter_width=0.01, Double_t frame_width=0.3, Double_t dead_layer=0., Option_t * opt="");
   UNISStripSingleSidedDetector(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X=0., Double_t tilt_Y=0.,
-                    Int_t N_Strips=16, Double_t strip_width=0.2, Double_t inter_width=0.01, Double_t frame_width=0.2, Double_t dead_layer=0., Option_t * opt="");     
+                    Int_t N_Strips=16, Double_t strip_width=0.312, Double_t inter_width=0.01, Double_t frame_width=0.3, Double_t dead_layer=0., Option_t * opt="");     
   ~UNISStripSingleSidedDetector();
 
   Int_t     IsInside(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; //returns 1 if the particle is inside the detector

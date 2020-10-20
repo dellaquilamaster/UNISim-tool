@@ -8,6 +8,7 @@ INCLUDES  := -I$(UNISimSrc)
 INCLUDES  += -I$(UNISimSrc)UNISFramework
 INCLUDES  += -I$(UNISimSrc)detectors/DetectionSetup
 INCLUDES  += -I$(UNISimSrc)detectors/Strip
+INCLUDES  += -I$(UNISimSrc)detectors/Silicon
 INCLUDES  += -I$(UNISimSrc)detectors/Lamp
 INCLUDES  += -I$(UNISimSrc)detectors/Oscar
 INCLUDES  += -I$(UNISimSrc)UNISRootEvent
