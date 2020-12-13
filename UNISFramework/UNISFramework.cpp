@@ -427,7 +427,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
           theta_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
         } 
       }
-      UNISSiliconPhotoDiode * NewDetector = new UNISSiliconPhotoDiode(theta_pos,phi_pos,distance);
+      UNISSiliconPhotoDiode * NewDetector = new UNISSiliconPhotoDiode(distance,theta_pos,phi_pos);
       fExpSetup->RegisterUnit(NewDetector);
     } else if(DetectorType.compare("OSCAR")==0) {
       double distance=0;
@@ -450,6 +450,32 @@ int UNISFramework::ProcessAddCommand(const char * line)
         } 
       }
       UNISOscarTelescope * NewDetector = new UNISOscarTelescope(distance,theta_pos,phi_pos,(is_strip ? "" : "pads"));
+      fExpSetup->RegisterUnit(NewDetector);
+    } else if(DetectorType.compare("COLLIMATED_SILICON")==0) {
+      double distance=0;
+      double theta_pos=0;
+      double phi_pos=0;
+      double collimator_inner_radius=0;
+      double collimator_outer_radius=0;
+      while (LineStream>>ValueToSet) {
+        if(ValueToSet.find("-distance")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-distance=")+10));
+          distance=std::stoi(ValueToSet); 
+        } else if(ValueToSet.find("-phi_pos")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-phi_pos=")+9)); 
+          phi_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
+        } else if(ValueToSet.find("-theta_pos")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-theta_pos=")+11)); 
+          theta_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
+        } else if(ValueToSet.find("-inner_radius")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-inner_radius=")+14)); 
+          collimator_inner_radius=std::stof(ValueToSet);
+        } else if(ValueToSet.find("-outer_radius")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-outer_radius=")+14)); 
+          collimator_outer_radius=std::stof(ValueToSet);
+        } 
+      }
+      UNISCollimatedSilicon * NewDetector = new UNISCollimatedSilicon(distance,theta_pos,phi_pos,collimator_inner_radius,collimator_outer_radius);
       fExpSetup->RegisterUnit(NewDetector);
     }
     

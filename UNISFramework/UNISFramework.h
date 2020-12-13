@@ -64,6 +64,7 @@
 #include <UNISSiliconPhotoDiode.h>
 #include <UNISStripSingleSidedDetector.h>
 #include <UNISOscarTelescope.h>
+#include <UNISCollimatedSilicon.h>
 #include <UNISIon.h>
 #include <UNISShared.h>
 
