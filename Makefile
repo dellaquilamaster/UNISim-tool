@@ -7,6 +7,7 @@ all:
 root:
 	$(MAKE) -C UNISFramework ;		$(MAKE) -C UNISFramework install
 	$(MAKE) -C UNISRootEvent ;		$(MAKE) -C UNISRootEvent install
+	$(MAKE) -C UNISDetectedRootEvent ;	$(MAKE) -C UNISDetectedRootEvent install
 	$(MAKE) -C detectors/DetectionSetup ;	$(MAKE) -C detectors/DetectionSetup install
 	$(MAKE) -C detectors/Strip ;		$(MAKE) -C detectors/Strip install
 	$(MAKE) -C detectors/Lamp ;		$(MAKE) -C detectors/Lamp install
@@ -19,6 +20,7 @@ root:
 install:
 	$(MAKE) -C UNISFramework install
 	$(MAKE) -C UNISRootEvent install
+	$(MAKE) -C UNISDetectedRootEvent install
 	$(MAKE) -C detectors/DetectionSetup install
 	$(MAKE) -C detectors/Strip install
 	$(MAKE) -C detectors/Lamp install
@@ -31,6 +33,7 @@ install:
 distclean:
 	$(MAKE) -C UNISFramework distclean
 	$(MAKE) -C UNISRootEvent distclean
+	$(MAKE) -C UNISDetectedRootEvent distclean
 	$(MAKE) -C detectors/DetectionSetup distclean
 	$(MAKE) -C detectors/Strip distclean
 	$(MAKE) -C detectors/Lamp distclean
@@ -44,7 +47,7 @@ distclean:
 
 clean:
 	$(MAKE) -C UNISFramework clean
-	$(MAKE) -C UNISRootEvent clean
+	$(MAKE) -C UNISDetectedRootEvent clean
 	$(MAKE) -C detectors/DetectionSetup clean
 	$(MAKE) -C detectors/Strip clean
 	$(MAKE) -C detectors/Lamp clean
