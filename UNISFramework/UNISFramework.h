@@ -119,6 +119,7 @@ private :
   TVector3 fBeamPosition; //Position of the beam within the event (event-by-event)
   double fBeamAngularSpread; //FWHM of the angular spread of the beam
   double fBeamPositionSpread; //FWHM of the position spread of the beam
+  double fBeamEnergySpread; //FWHM of the energy spread of the beam
   //
   
   //

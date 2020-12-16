@@ -10,6 +10,7 @@ fConfigurationFile(file_config),
 fBeamCenter(0,0,0),
 fBeamAngularSpread(0),
 fBeamPositionSpread(0),
+fBeamEnergySpread(0),
 fPhysicsModelName(""),
 fPhysicsConfigFileName(""),
 fOutputFolder("./output/"),
@@ -149,6 +150,8 @@ int UNISFramework::ProcessSetCommand(const char * line)
     fBeamAngularSpread=std::stof(ValueToSet)*TMath::DegToRad();
   } else if(WhatToSet.compare("BEAM_POSITION_SPREAD")==0) {
     fBeamPositionSpread=std::stof(ValueToSet);
+  } else if(WhatToSet.compare("BEAM_ENERGY_SPREAD")==0) {
+    fBeamEnergySpread=std::stof(ValueToSet);
   } else if(WhatToSet.compare("TARGET_MATERIAL")==0) {
     fTargetMaterial.assign(ValueToSet);
   } else if(WhatToSet.compare("TARGET_THICKNESS")==0) {
@@ -686,12 +689,23 @@ void UNISFramework::GenerateBeam()
   //Creation of the beam
   fTheBeam.fMass = gNucData->get_mass_Z_A(fTheBeam.fZ,fTheBeam.fA);
   //Interaction with the target
-  fBeamEnergyMidTarget = fTargetThickness>0 ? fBeamEnergy - gLISEELossModule->GetEnergyLoss(fTheBeam.fZ,fTheBeam.fA,fBeamEnergy,fTargetMaterial.c_str(),fTargetThickness) : fBeamEnergy;
+  fBeamEnergyMidTarget = fBeamEnergy;
+  if(fBeamEnergySpread>0) {
+    fBeamEnergyMidTarget+=gRandom->Gaus(0., fBeamEnergySpread/2.355); 
+  }
+  if(fTargetThickness) {
+    fBeamEnergyMidTarget=fBeamEnergyMidTarget-gLISEELossModule->GetEnergyLoss(fTheBeam.fZ,fTheBeam.fA,fBeamEnergyMidTarget,fTargetMaterial.c_str(),fTargetThickness);
+  }
   double BeamMomentum = sqrt(pow(fBeamEnergyMidTarget+fTheBeam.fMass,2)-pow(fTheBeam.fMass,2));
   fTheBeam.fMomentum=TLorentzVector(0,0,BeamMomentum,fBeamEnergyMidTarget+fTheBeam.fMass);
-  fTheBeam.fMomentum.RotateY(gRandom->Gaus(0.,fBeamAngularSpread/2.355)); //beam deviation (polar angle)
-  fTheBeam.fMomentum.RotateZ(gRandom->Uniform(0.,2*TMath::Pi())); //randomization of the beam direction around the Z axis (cylindrical symmetry)
-  fBeamPosition.SetXYZ(fBeamCenter.X()+gRandom->Gaus(0,fBeamPositionSpread/2.355),fBeamCenter.Y()+gRandom->Gaus(0,fBeamPositionSpread/2.355),fBeamCenter.Z());
+  if(fBeamAngularSpread>0) {
+    fTheBeam.fMomentum.RotateY(gRandom->Gaus(0.,fBeamAngularSpread/2.355)); //beam deviation (polar angle)
+    fTheBeam.fMomentum.RotateZ(gRandom->Uniform(0.,2*TMath::Pi())); //randomization of the beam direction around the Z axis (cylindrical symmetry)
+  }
+  fBeamPosition.SetXYZ(fBeamCenter.X(),fBeamCenter.Y(),fBeamCenter.Z());
+  if(fBeamPositionSpread) {
+    fBeamPosition+=TVector3(gRandom->Gaus(0,fBeamPositionSpread/2.355),gRandom->Gaus(0,fBeamPositionSpread/2.355),0);
+  }
   //
   //Initialization of the beam for the simulation
   fTheEventGenerator->SetBeam(fTheBeam);
