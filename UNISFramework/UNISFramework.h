@@ -44,6 +44,8 @@
 #include <TRandom3.h>
 #include <TMath.h>
 #include <TF1.h>
+#include <TTreeReader.h>
+#include <TTreeReaderValue.h>
 
 #include <UNISEventGenerator.h>
 #include <UNISSequentialDecay.h>
@@ -89,6 +91,7 @@ public :
   int ReadInput(int, char **); //Read input parameters from string
   void ProcessIterations(); //Process fNumEvents iterations of the framework
   void RegisterEvent(std::vector<UNISIon> &); //Fill the current event data structure
+  void RegisterEvent(); //Fill the current event data structure from input file
   void FillEvent(); //Fill the tree for the current event
   void EndProcess(); //End iteration process, save tree to file and close file
   //
@@ -104,6 +107,8 @@ private :
   const std::string fConfigurationFile;
   std::string fOutputFolder;
   std::string fOutputFileName;
+  std::string fInputFileName;
+  bool fGenerateData;
   bool fGraphics;
   bool fAdvancedGraphics;
   bool fVerbose;
@@ -129,6 +134,14 @@ private :
   UNISIon fTheTarget;
   std::string fTargetMaterial;
   double fTargetThickness;
+  //
+  
+  //
+  //Input Data
+  TTree * fInputTree;
+  TFile * fInputFile;
+  TTreeReader * fTheReader;
+  TTreeReaderValue<UNISRootEvent> * fTheInputEvent;
   //
   
   //
