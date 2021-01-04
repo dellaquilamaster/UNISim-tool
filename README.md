@@ -98,6 +98,7 @@ $ ./exec_UNISim.exe [OPTIONS]
 [OPTIONS]  
 * -events: this can specify the number of events. This option is mandatory;  
 * -o: this can specify the name of the output file;  
+* -i: this can specify the name of an input file of already generated data;  
 * -physics: specify the physics model;  
 * -reaction: specify the pathname to the reaction file.  
 ### Run the code in parallel on Malnar
