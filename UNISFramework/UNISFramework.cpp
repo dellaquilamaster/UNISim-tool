@@ -732,15 +732,15 @@ void UNISFramework::DetectEvent()
   //
   //Loop on the registered event to process the detection
   for(int i=0; i<fevt->fmulti; i++) {
-    int det_index = fExpSetup->GetDetectorIndex(fevt->fThetaOrigin[i],fevt->fPhiOrigin[i],fBeamPosition.X(),fBeamPosition.Y(),fBeamPosition.Z());
+    int det_index = fExpSetup->GetDetectorIndex(fevt->fThetaAfterTarget[i],fevt->fPhiAfterTarget[i],fBeamPosition.X(),fBeamPosition.Y(),fBeamPosition.Z());
     if(det_index>=0) {
       UNISDetectionUnit * TheDetector = fExpSetup->GetDetector(det_index);
-      int num_pixel = TheDetector->GetPixel(fevt->fThetaOrigin[i],fevt->fPhiOrigin[i],fBeamPosition.X(),fBeamPosition.Y(),fBeamPosition.Z());
+      int num_pixel = TheDetector->GetPixel(fevt->fThetaAfterTarget[i],fevt->fPhiAfterTarget[i],fBeamPosition.X(),fBeamPosition.Y(),fBeamPosition.Z());
       if(num_pixel>=0) {
         //The particle is detected
         fevt->fmulti_detected++;
         fevt->fIsDetected[i]=true;
-        TVector3 impact_point = TheDetector->GetImpactPointLab(fevt->fThetaOrigin[i],fevt->fPhiOrigin[i],fBeamPosition.X(),fBeamPosition.Y(),fBeamPosition.Z());
+        TVector3 impact_point = TheDetector->GetImpactPointLab(fevt->fThetaAfterTarget[i],fevt->fPhiAfterTarget[i],fBeamPosition.X(),fBeamPosition.Y(),fBeamPosition.Z());
         fevt->fnumdet[i]=det_index;
         fevt->fnumpixel[i]=num_pixel;
         fevt->fXDetHit[i]=impact_point.X();
@@ -770,6 +770,8 @@ void UNISFramework::RegisterEvent(std::vector<UNISIon> & AnEvent)
     fevt->fKinEnergyOrigin[i]=AnEvent[i].fMomentum.E()-AnEvent[i].fMomentum.M();
     fevt->fThetaOrigin[i]=AnEvent[i].fMomentum.Theta();
     fevt->fPhiOrigin[i]=AnEvent[i].fMomentum.Phi();
+    fevt->fThetaAfterTarget[i]=AnEvent[i].fMomentum.Theta();
+    fevt->fPhiAfterTarget[i]=AnEvent[i].fMomentum.Phi();
     fevt->fZ[i]=AnEvent[i].fZ;
     fevt->fA[i]=AnEvent[i].fA;
     fevt->fKinEnergyAfterTarget[i]=(fTargetThickness>0 ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),fTargetThickness/2./cos(fevt->fThetaOrigin[i])) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]);

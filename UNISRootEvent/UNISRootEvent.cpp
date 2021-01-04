@@ -14,6 +14,8 @@ fKinEnergyAfterTarget(new Double_t[gMaxEvtMulti]),
 fKinEnergyOrigin(new Double_t[gMaxEvtMulti]),
 fThetaOrigin(new Double_t[gMaxEvtMulti]),
 fPhiOrigin(new Double_t[gMaxEvtMulti]),
+fThetaAfterTarget(new Double_t[gMaxEvtMulti]),
+fPhiAfterTarget(new Double_t[gMaxEvtMulti]),
 fKinEnergyOriginCms(new Double_t[gMaxEvtMulti]),
 fThetaOriginCms(new Double_t[gMaxEvtMulti]),
 fZ(new Int_t[gMaxEvtMulti]),
@@ -34,6 +36,8 @@ UNISRootEvent::~UNISRootEvent()
   delete [] fKinEnergyOrigin;
   delete [] fThetaOrigin;
   delete [] fPhiOrigin;
+  delete [] fThetaAfterTarget;
+  delete [] fPhiAfterTarget;
   delete [] fKinEnergyOriginCms;
   delete [] fThetaOriginCms;
   delete [] fZ;
