@@ -18,8 +18,8 @@ fThetaAfterTarget(new Double_t[gMaxEvtMulti]),
 fPhiAfterTarget(new Double_t[gMaxEvtMulti]),
 fKinEnergyOriginCms(new Double_t[gMaxEvtMulti]),
 fThetaOriginCms(new Double_t[gMaxEvtMulti]),
-fZ(new Int_t[gMaxEvtMulti]),
-fA(new Int_t[gMaxEvtMulti])
+fZ(new Double_t[gMaxEvtMulti]),
+fA(new Double_t[gMaxEvtMulti])
 {}
 
 //____________________________________________________

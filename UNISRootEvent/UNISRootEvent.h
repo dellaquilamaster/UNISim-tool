@@ -28,8 +28,8 @@ public :
   Double_t * fPhiAfterTarget; //[fmulti]
   Double_t * fKinEnergyOriginCms; //[fmulti]
   Double_t * fThetaOriginCms; //[fmulti]
-  Int_t * fZ; //[fmulti]
-  Int_t * fA; //[fmulti]
+  Double_t * fZ; //[fmulti]
+  Double_t * fA; //[fmulti]
 
   ClassDef(UNISRootEvent,1);
 };
