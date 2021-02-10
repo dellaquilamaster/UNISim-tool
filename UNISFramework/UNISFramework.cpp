@@ -511,6 +511,10 @@ void UNISFramework::PrintConfiguration() const
   printf("Graphical Mode: %s\n", fGraphics&&!fAdvancedGraphics ? "on (light)" : (fGraphics&&fAdvancedGraphics ? "on (advanced)" : "off"));
   printf("----------------------\n");
   printf("Beam: Z=%d A=%d Ekin=%f\n", fTheBeam.fZ, fTheBeam.fA, fBeamEnergy);
+  printf("Beam Position (X,Y,Z) = (%.3f, %.3f, %.3f)\n", fBeamCenter.X(), fBeamCenter.Y(), fBeamCenter.Z());
+  printf("Beam Angular Spread (FWHM) = %.3f deg\n", fBeamAngularSpread);
+  printf("Beam Position Spread (FWHM) = %.3f cm\n", fBeamPositionSpread);
+  printf("Beam Energy Spread (FWHM) = %.3f MeV\n", fBeamEnergySpread);
   printf("Target: Z=%d A=%d\n", fTheTarget.fZ, fTheTarget.fA);
   printf("Physics Model: %s\n", fPhysicsModelName.c_str());
   printf("Physics Configuration: %s\n", fPhysicsConfigFileName.c_str());

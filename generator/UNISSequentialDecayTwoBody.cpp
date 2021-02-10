@@ -94,7 +94,7 @@ std::vector<UNISIon> UNISSequentialDecayTwoBody::GetEvent()
   //
   //Simulation of the primary reaction (2-body)
   TH1D * PrimaryDecayAngDistr = fTheAngularDistributions[0]->fAngularDistribution;
-  double theta_cms = PrimaryDecayAngDistr ? PrimaryDecayAngDistr->GetRandom()*TMath::DegToRad() : acos(gRandom->Uniform(0,1));
+  double theta_cms = PrimaryDecayAngDistr ? PrimaryDecayAngDistr->GetRandom()*TMath::DegToRad() : acos(gRandom->Uniform(-1,1));
   double phi = gRandom->Uniform(0,2*TMath::Pi());
   const double InvariantMass=TotalMomentum.M();
   const double MomentumCmModule=sqrt((pow(InvariantMass,4)+pow((pow(Masses[0],2)-pow(Masses[1],2)),2)-2*pow(InvariantMass,2)*(pow(Masses[0],2)+pow(Masses[1],2)))/(4*pow(InvariantMass,2))); //Module of the momentum in the cm
@@ -160,7 +160,7 @@ void UNISSequentialDecayTwoBody::SecondaryDecay(UNISIon * TheParticle, std::vect
   //Generation of the secondary decay
   //Simulation of the primary reaction (2-body)
   TH1D * PrimaryDecayAngDistr = ang_distr ? ang_distr->fAngularDistribution : 0;  
-  double theta_cms = PrimaryDecayAngDistr ? PrimaryDecayAngDistr->GetRandom()*TMath::DegToRad() : acos(gRandom->Uniform(0,1));
+  double theta_cms = PrimaryDecayAngDistr ? PrimaryDecayAngDistr->GetRandom()*TMath::DegToRad() : acos(gRandom->Uniform(-1,1));
   double phi = gRandom->Uniform(0,2*TMath::Pi());
   const double InvariantMass=TheParticle->fMomentum.M();
   const double MomentumCmModule=sqrt((pow(InvariantMass,4)+pow((pow(Masses[0],2)-pow(Masses[1],2)),2)-2*pow(InvariantMass,2)*(pow(Masses[0],2)+pow(Masses[1],2)))/(4*pow(InvariantMass,2))); //Module of the momentum in the cm

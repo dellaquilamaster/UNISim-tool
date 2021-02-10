@@ -24,6 +24,8 @@ public :
   Double_t * fKinEnergyOrigin; //[fmulti]
   Double_t * fThetaOrigin; //[fmulti]
   Double_t * fPhiOrigin; //[fmulti]
+  Double_t * fThetaAfterTarget; //[fmulti]
+  Double_t * fPhiAfterTarget; //[fmulti]
   Double_t * fThetaDetected; //[fmulti]
   Double_t * fPhiDetected; //[fmulti]
   Double_t * fKinEnergyOriginCms; //[fmulti]

@@ -14,6 +14,8 @@ fKinEnergyAfterTarget(new Double_t[gMaxEvtMulti]),
 fKinEnergyOrigin(new Double_t[gMaxEvtMulti]),
 fThetaOrigin(new Double_t[gMaxEvtMulti]),
 fPhiOrigin(new Double_t[gMaxEvtMulti]),
+fThetaAfterTarget(new Double_t[gMaxEvtMulti]),
+fPhiAfterTarget(new Double_t[gMaxEvtMulti]),
 fThetaDetected(new Double_t[gMaxEvtMulti]),
 fPhiDetected(new Double_t[gMaxEvtMulti]),
 fKinEnergyOriginCms(new Double_t[gMaxEvtMulti]),
@@ -36,6 +38,8 @@ UNISDetectedRootEvent::~UNISDetectedRootEvent()
   delete [] fKinEnergyOrigin;
   delete [] fThetaOrigin;
   delete [] fPhiOrigin;
+  delete [] fThetaAfterTarget;
+  delete [] fPhiAfterTarget;
   delete [] fThetaDetected;
   delete [] fPhiDetected;
   delete [] fKinEnergyOriginCms;
