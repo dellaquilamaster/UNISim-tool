@@ -840,7 +840,7 @@ void UNISFramework::RegisterEvent(std::vector<UNISIon> & AnEvent)
     fevt->fPhiAfterTarget[i]=AnEvent[i].fMomentum.Phi();
     fevt->fZ[i]=AnEvent[i].fZ;
     fevt->fA[i]=AnEvent[i].fA;
-    fevt->fKinEnergyAfterTarget[i]=((fevt->fZ[i]>0 && fTargetThickness>0) ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),(fTargetThickness-fInteractionDistance)/cos(fevt->fThetaOrigin[i])) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]);
+    fevt->fKinEnergyAfterTarget[i]=((fTargetThickness>0 && fevt->fZ[i]>0) ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),(fTargetThickness-fInteractionDistance)/cos(fevt->fThetaOrigin[i])) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]);
     fevt->fKinEnergyOriginCms[i]=-9999;
     fevt->fThetaOriginCms[i]=-9999;
     fevt->fmulti++;
