@@ -30,7 +30,7 @@ fTheEventGenerator(0),
 fApp(new TRint("The Unified-Simulation-tool", new int(), 0, 0, 0, kTRUE))
 {
   gNucData = new nuclear_masses("./LISETools/input/masses.conf");
-  gLISEELossModule = new EnergyLossModule("./LISETools/");
+  gLISEELossModule = new EnergyLossModule("./LISETools/input/");
 }
 
 //____________________________________________________
@@ -840,7 +840,7 @@ void UNISFramework::RegisterEvent(std::vector<UNISIon> & AnEvent)
     fevt->fPhiAfterTarget[i]=AnEvent[i].fMomentum.Phi();
     fevt->fZ[i]=AnEvent[i].fZ;
     fevt->fA[i]=AnEvent[i].fA;
-    fevt->fKinEnergyAfterTarget[i]=((fTargetThickness>0 && fevt->fZ[i]>0) ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),(fTargetThickness-fInteractionDistance)/cos(fevt->fThetaOrigin[i])) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]);
+    fevt->fKinEnergyAfterTarget[i]=((fTargetThickness>0 && fevt->fZ[i]>0) ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),(fTargetThickness-fInteractionDistance)/cos(std::fabs(fevt->fThetaOrigin[i]-fTargetTilt))) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]); //WARNING: this is just temporary. Target tilt needs to be handled differently.
     fevt->fKinEnergyOriginCms[i]=-9999;
     fevt->fThetaOriginCms[i]=-9999;
     fevt->fmulti++;
