@@ -14,6 +14,7 @@ fBeamEnergySpread(0),
 fPhysicsModelName(""),
 fPhysicsConfigFileName(""),
 fTargetThickness(0),
+fTargetEffectiveThickness(0),
 fTargetTilt(0),
 fInteractionDistance(0),
 fOutputFolder("./output/"),
@@ -766,11 +767,11 @@ void UNISFramework::GenerateBeam()
     fBeamPosition+=TVector3(gRandom->Gaus(0,fBeamPositionSpread/2.355),gRandom->Gaus(0,fBeamPositionSpread/2.355),0);
   }
   if(fTargetThickness) {
-    const double reaction_vertex_point = gRandom->Uniform(0, fTargetThickness);
-    const double distance_traveled_in_target_beam = reaction_vertex_point/cos(fTargetTilt);
+    const double reaction_vertex_point = gRandom->Uniform(0, fTargetEffectiveThickness);
+    const double distance_traveled_in_target_beam = reaction_vertex_point;
     fBeamEnergyMidTarget=fBeamEnergyMidTarget-gLISEELossModule->GetEnergyLoss(fTheBeam.fZ,fTheBeam.fA,fBeamEnergyMidTarget,fTargetMaterial.c_str(),distance_traveled_in_target_beam);
-    fBeamPosition+=TVector3(0,0,-fTargetThickness/2.+distance_traveled_in_target_beam);
-    fInteractionDistance=fBeamPosition.Z()-(fBeamCenter.Z()-fTargetThickness/2.);
+    fBeamPosition+=TVector3(0,0,-fTargetEffectiveThickness/2.+distance_traveled_in_target_beam);
+    fInteractionDistance=fBeamPosition.Z()-(fBeamCenter.Z()-fTargetEffectiveThickness/2.);
   }
   //
   //Initialization of the beam for the simulation
@@ -786,6 +787,7 @@ void UNISFramework::InitializeTarget()
   //Creation of the target
   fTheTarget.fMass = gNucData->get_mass_Z_A(fTheTarget.fZ,fTheTarget.fA);
   fTheTarget.fMomentum=TLorentzVector(0,0,0,fTheTarget.fMass);
+  fTargetEffectiveThickness=fTargetThickness/cos(fTargetTilt);
   //
   //Initialization of the target
   fTheEventGenerator->SetTarget(fTheTarget);
@@ -840,7 +842,7 @@ void UNISFramework::RegisterEvent(std::vector<UNISIon> & AnEvent)
     fevt->fPhiAfterTarget[i]=AnEvent[i].fMomentum.Phi();
     fevt->fZ[i]=AnEvent[i].fZ;
     fevt->fA[i]=AnEvent[i].fA;
-    fevt->fKinEnergyAfterTarget[i]=((fTargetThickness>0 && fevt->fZ[i]>0) ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),(fTargetThickness-fInteractionDistance)/cos(std::fabs(fevt->fThetaOrigin[i]-fTargetTilt))) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]); //WARNING: this is just temporary. Target tilt needs to be handled differently.
+    fevt->fKinEnergyAfterTarget[i]=((fTargetThickness>0 && fevt->fZ[i]>0) ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),(fTargetEffectiveThickness-fInteractionDistance)*cos(fTargetTilt)/std::fabs(cos(std::fabs(fevt->fThetaOrigin[i]-fTargetTilt)))) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]); //WARNING: this is just temporary. Target tilt needs to be handled differently.
     fevt->fKinEnergyOriginCms[i]=-9999;
     fevt->fThetaOriginCms[i]=-9999;
     fevt->fmulti++;

@@ -134,6 +134,7 @@ private :
   UNISIon fTheTarget;
   std::string fTargetMaterial;
   double fTargetThickness;
+  double fTargetEffectiveThickness;
   double fTargetTilt;
   double fInteractionDistance; //distance from the entrance of the target at which the interaction occurs
   //
