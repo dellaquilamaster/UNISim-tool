@@ -13,6 +13,9 @@ fBeamPositionSpread(0),
 fBeamEnergySpread(0),
 fPhysicsModelName(""),
 fPhysicsConfigFileName(""),
+fTargetThickness(0),
+fTargetTilt(0),
+fInteractionDistance(0),
 fOutputFolder("./output/"),
 fOutputFileName(),
 fInputFileName(),
@@ -158,6 +161,8 @@ int UNISFramework::ProcessSetCommand(const char * line)
     fTargetMaterial.assign(ValueToSet);
   } else if(WhatToSet.compare("TARGET_THICKNESS")==0) {
     fTargetThickness=std::stof(ValueToSet);
+  } else if(WhatToSet.compare("TARGET_TILT")==0) {
+    fTargetTilt=std::stof(ValueToSet)*TMath::DegToRad();
   } else if(WhatToSet.compare("PHYSICS_MODEL")==0) {
       if( (fPhysicsModelName.empty() && ValueToSet.compare("SequentialDecay")==0) || fPhysicsModelName.compare("SequentialDecay")==0) {
         fPhysicsModelName.assign("SequentialDecay");
@@ -510,16 +515,21 @@ void UNISFramework::PrintConfiguration() const
   printf("Verbose Mode: %s\n", fVerbose ? "on" : "off");
   printf("Graphical Mode: %s\n", fGraphics&&!fAdvancedGraphics ? "on (light)" : (fGraphics&&fAdvancedGraphics ? "on (advanced)" : "off"));
   printf("----------------------\n");
-  printf("Beam: Z=%d A=%d Ekin=%f\n", fTheBeam.fZ, fTheBeam.fA, fBeamEnergy);
-  printf("Beam Position (X,Y,Z) = (%.3f, %.3f, %.3f)\n", fBeamCenter.X(), fBeamCenter.Y(), fBeamCenter.Z());
-  printf("Beam Angular Spread (FWHM) = %.3f deg\n", fBeamAngularSpread);
-  printf("Beam Position Spread (FWHM) = %.3f cm\n", fBeamPositionSpread);
-  printf("Beam Energy Spread (FWHM) = %.3f MeV\n", fBeamEnergySpread);
-  printf("Target: Z=%d A=%d\n", fTheTarget.fZ, fTheTarget.fA);
-  printf("Physics Model: %s\n", fPhysicsModelName.c_str());
-  printf("Physics Configuration: %s\n", fPhysicsConfigFileName.c_str());
-  printf("****\n");
-  printf("----------------------\n");
+  if(fGenerateData) {
+    printf("Beam: Z=%d A=%d Ekin=%f\n", fTheBeam.fZ, fTheBeam.fA, fBeamEnergy);
+    printf("Beam Position (X,Y,Z) = (%.3f, %.3f, %.3f)\n", fBeamCenter.X(), fBeamCenter.Y(), fBeamCenter.Z());
+    printf("Beam Angular Spread (FWHM) = %.3f deg\n", fBeamAngularSpread);
+    printf("Beam Position Spread (FWHM) = %.3f cm\n", fBeamPositionSpread);
+    printf("Beam Energy Spread (FWHM) = %.3f MeV\n", fBeamEnergySpread);
+    printf("Target: Z=%d A=%d\n", fTheTarget.fZ, fTheTarget.fA);
+    printf("Target Material: %s\n", fTargetMaterial.c_str());
+    printf("Target Thickness: %f um\n", fTargetThickness);
+    printf("Target Tilt: %f degrees\n", fTargetTilt*TMath::RadToDeg());
+    printf("Physics Model: %s\n", fPhysicsModelName.c_str());
+    printf("Physics Configuration: %s\n", fPhysicsConfigFileName.c_str());
+    printf("****\n");
+    printf("----------------------\n");
+  }
   printf("****\n");
   printf("----------------------\n");
   printf("Detection Setup: \"%s\" (%d detectors)\n", fExpSetup->GetName(), fExpSetup->Size());
@@ -745,9 +755,6 @@ void UNISFramework::GenerateBeam()
   if(fBeamEnergySpread>0) {
     fBeamEnergyMidTarget+=gRandom->Gaus(0., fBeamEnergySpread/2.355); 
   }
-  if(fTargetThickness) {
-    fBeamEnergyMidTarget=fBeamEnergyMidTarget-gLISEELossModule->GetEnergyLoss(fTheBeam.fZ,fTheBeam.fA,fBeamEnergyMidTarget,fTargetMaterial.c_str(),fTargetThickness);
-  }
   double BeamMomentum = sqrt(pow(fBeamEnergyMidTarget+fTheBeam.fMass,2)-pow(fTheBeam.fMass,2));
   fTheBeam.fMomentum=TLorentzVector(0,0,BeamMomentum,fBeamEnergyMidTarget+fTheBeam.fMass);
   if(fBeamAngularSpread>0) {
@@ -757,6 +764,13 @@ void UNISFramework::GenerateBeam()
   fBeamPosition.SetXYZ(fBeamCenter.X(),fBeamCenter.Y(),fBeamCenter.Z());
   if(fBeamPositionSpread) {
     fBeamPosition+=TVector3(gRandom->Gaus(0,fBeamPositionSpread/2.355),gRandom->Gaus(0,fBeamPositionSpread/2.355),0);
+  }
+  if(fTargetThickness) {
+    const double reaction_vertex_point = gRandom->Uniform(0, fTargetThickness);
+    const double distance_traveled_in_target_beam = reaction_vertex_point/cos(fTargetTilt);
+    fBeamEnergyMidTarget=fBeamEnergyMidTarget-gLISEELossModule->GetEnergyLoss(fTheBeam.fZ,fTheBeam.fA,fBeamEnergyMidTarget,fTargetMaterial.c_str(),distance_traveled_in_target_beam);
+    fBeamPosition+=TVector3(0,0,-fTargetThickness/2.+distance_traveled_in_target_beam);
+    fInteractionDistance=fBeamPosition.Z()-(fBeamCenter.Z()-fTargetThickness/2.);
   }
   //
   //Initialization of the beam for the simulation
@@ -826,7 +840,7 @@ void UNISFramework::RegisterEvent(std::vector<UNISIon> & AnEvent)
     fevt->fPhiAfterTarget[i]=AnEvent[i].fMomentum.Phi();
     fevt->fZ[i]=AnEvent[i].fZ;
     fevt->fA[i]=AnEvent[i].fA;
-    fevt->fKinEnergyAfterTarget[i]=(fTargetThickness>0 ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),fTargetThickness/2./cos(fevt->fThetaOrigin[i])) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]);
+    fevt->fKinEnergyAfterTarget[i]=(fTargetThickness>0 ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),(fTargetThickness-fInteractionDistance)/cos(fevt->fThetaOrigin[i])) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]);
     fevt->fKinEnergyOriginCms[i]=-9999;
     fevt->fThetaOriginCms[i]=-9999;
     fevt->fmulti++;
