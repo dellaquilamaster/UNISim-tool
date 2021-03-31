@@ -106,8 +106,8 @@ private:
   Double_t   Td;
   
 public:
-  UNISLampWedgeDetector(Double_t distance=15, Double_t phi_pos=0, Double_t tilt=0., Double_t bottom_frame_distance=2, Int_t N_Strips=16, Double_t strip_width=0.5, Double_t inter_width=0.01, Double_t nominal_radius=5., 
-                     Double_t nominal_coverage=42., Double_t nominal_frame_coverage=45, Double_t bottom_frame=1., Option_t * opt="");    
+  UNISLampWedgeDetector(Double_t distance=15, Double_t phi_pos=0, Double_t tilt=0., Double_t bottom_frame_distance=4, Int_t N_Strips=16, Double_t strip_width=0.5, Double_t inter_width=0.01, Double_t nominal_radius=5., 
+                        Double_t nominal_coverage=42., Double_t nominal_frame_coverage=45, Double_t bottom_frame=1., Option_t * opt="");    
   ~UNISLampWedgeDetector();
 
   Int_t     IsInside(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; //returns 1 if the particle is inside the detector

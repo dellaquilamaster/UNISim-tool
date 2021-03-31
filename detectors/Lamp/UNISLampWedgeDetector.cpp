@@ -35,9 +35,9 @@ TStripRadius(new Double_t[TStrips_number])
   TDetectorRightReference=TDetectorReference-TXlabversor;
   //
   //Moving reference point according to the bottom frame displacement
-  TDetectorReference+=TBottomFrame_distance*TXlabversor;
-  TDetectorTopReference+=TBottomFrame_distance*TXlabversor;
-  TDetectorRightReference+=TBottomFrame_distance*TXlabversor;
+  TDetectorReference+=TBottomFrame_distance*TYlabversor;
+  TDetectorTopReference+=TBottomFrame_distance*TYlabversor; 
+  TDetectorRightReference+=TBottomFrame_distance*TYlabversor;
   //
   
   //
@@ -214,7 +214,7 @@ void UNISLampWedgeDetector::Generate3D(double tilt, double phi_pos)
   //
   fFrame       = new TGeoVolume("frame_volume",new TGeoTubeSeg(TNominalDistanceBeamLine, TNominalDistanceTopBeamLine, 0.05, -90-TFrameCoverageAngle*TMath::RadToDeg() , -90+TFrameCoverageAngle*TMath::RadToDeg()));
   fFrame->SetLineColor(kYellow+2);
-  fDetector->AddNode(fFrame,0,new TGeoTranslation(0,-TBottomFrame_distance,0));  
+  fDetector->AddNode(fFrame,0,new TGeoTranslation(0,TNominalDistanceBeamLine-TBottomFrame_distance,0));
   //
   
   //
@@ -229,7 +229,7 @@ void UNISLampWedgeDetector::Generate3D(double tilt, double phi_pos)
                                                                              -90-TStripCoverageAngle[i]*TMath::RadToDeg() , -90+TStripCoverageAngle[i]*TMath::RadToDeg())); 
     fStrip[i]->SetLineColor(kGray);
     //
-    fDetector->AddNode(fStrip[i],0,new TGeoTranslation(0,-TBottomFrame_distance,0));
+    fDetector->AddNode(fStrip[i],0,new TGeoTranslation(0,TNominalDistanceBeamLine-TBottomFrame_distance,0));
   }
   //
   
@@ -283,7 +283,7 @@ Int_t UNISLampWedgeDetector::IsInside(Double_t theta_inc, Double_t phi_inc, Doub
   TDetectorImpactPoint=TTrueImpactPoint-TDetectorNominalReference;
   double angle = TDetectorImpactPoint.Angle(TXversor);
   double distance = TDetectorImpactPoint.Mag();
-    
+
   if (fabs(angle)<=TStripNominalCoverageAngle && distance>=TStripRadius[0]-TStripTrue_semi && distance<=TStripRadius[TStrips_number-1]+TStripTrue_semi) return 1;
   
   return 0;
