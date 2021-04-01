@@ -116,6 +116,7 @@ public:
   void      RotateX(Double_t); //Rotation of the whole detector around the X-axis 
   void      RotateZ(Double_t); //Rotation of the whole detector around the Z-axis
   void      TranslateLongitudinal(Double_t);
+  void      Translate(Double_t, TVector3);
   void      Draw(Option_t * opt="", double Xmin=0, double Xmax=0, double Ymin=0, double Ymax=0) const override;
   void      Draw3D(Option_t * opt="") const override;
   TGraph*   GetGraphObject();
@@ -130,6 +131,7 @@ private :
   void Rotate3DX(Double_t);
   void Rotate3DZ(Double_t);
   void TranslateLongitudinal3D(Double_t);
+  void Translate3D(Double_t, TVector3);
   
 #ifdef GRAPHICAL_DEBUG
   void      ShowImpactPoint(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.);

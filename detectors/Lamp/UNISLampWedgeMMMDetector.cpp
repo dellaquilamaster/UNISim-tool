@@ -30,16 +30,16 @@ TNominalDistanceTopBeamLine(TNominalDistanceBeamLine+2*TBottomFrame+TAnnularStri
 TAnnularStripRadius(new Double_t[TAnnularStrips_number])
 {
   //
-  //Placing the detector plane orthogonal to the beam axis and with is bottom center touching the beam line
+  //Placing the detector plane orthogonal to the beam axis and with its bottom center touching the beam line
   //The plane is identified by the three reference points (origin on the beam-line and 2 additional points)
   TDetectorReference.SetXYZ(0.,0.,0.);
-  TDetectorTopReference=TDetectorReference+TXlabversor;
-  TDetectorRightReference=TDetectorReference+TYlabversor;
+  TDetectorTopReference=TDetectorReference+TYlabversor;
+  TDetectorRightReference=TDetectorReference-TXlabversor;
   //
-  //Moving reference point according to the bottom frame displacement  
-  TDetectorReference+=TBottomFrame_distance*TXlabversor;
-  TDetectorTopReference+=TBottomFrame_distance*TXlabversor;
-  TDetectorRightReference+=TBottomFrame_distance*TXlabversor;
+  
+  //
+  //Calculation of the reference origin
+  TDetectorNominalReference=TDetectorReference-TNominalDistanceBeamLine*TXversor;
   //
   
   //
@@ -58,24 +58,18 @@ TAnnularStripRadius(new Double_t[TAnnularStrips_number])
   }
   //
   
+  
   //
-  //calculation of the X Y versors after rotations
+  //calculation of the X Y versors identifying the detector plane
   TXversor=(TDetectorTopReference-TDetectorReference);
   TXversor*=(1./TXversor.Mag());
   TYversor=(TDetectorRightReference-TDetectorReference);
   TYversor*=(1./TYversor.Mag());
   //
-  
-  //
-  //Calculation of the reference origin
-  TDetectorNominalReference=TDetectorReference-TNominalDistanceBeamLine*TXversor;
-  //
     
   //
   //Calculation of the detector plane equation
   TVector3 OriginalDirection(0,0,1);
-  OriginalDirection.RotateY(TTiltAngle);
-  OriginalDirection.RotateZ(TAzimuthalAngle);
   Ta=OriginalDirection.X()/OriginalDirection.Mag();
   Tb=OriginalDirection.Y()/OriginalDirection.Mag();
   Tc=OriginalDirection.Z()/OriginalDirection.Mag();
@@ -90,6 +84,11 @@ TAnnularStripRadius(new Double_t[TAnnularStrips_number])
   //Rotation X-tilt
   RotateX(tilt);
   //
+  
+  //
+  //Translate the detector to the desired distance from the beamline
+  Translate(TBottomFrame_distance, TYlabversor);
+  //  
   
   //
   //Translation to the desired distance
@@ -202,6 +201,31 @@ void UNISLampWedgeMMMDetector::TranslateLongitudinal(Double_t z)
   return;
 }
 
+void UNISLampWedgeMMMDetector::Translate(Double_t quantity, TVector3 vers)
+{
+  //
+  TVector3 TheVersor(vers.Unit());
+  //
+  
+  //
+  //Moving reference point according to the bottom frame displacement
+  TDetectorReference+=TBottomFrame_distance*TheVersor;
+  TDetectorTopReference+=TBottomFrame_distance*TheVersor; 
+  TDetectorRightReference+=TBottomFrame_distance*TheVersor;
+  //
+  
+  //
+  //Calculation of the reference origin
+  TDetectorNominalReference+=quantity*TheVersor;
+  //
+  
+  //
+  Translate3D(quantity, TheVersor);
+  //
+  
+  return;
+}
+
 void UNISLampWedgeMMMDetector::Generate3D(double tilt, double phi_pos)
 {
   //
@@ -221,7 +245,7 @@ void UNISLampWedgeMMMDetector::Generate3D(double tilt, double phi_pos)
   //
   fFrame       = new TGeoVolume("frame_volume",new TGeoTubeSeg(TNominalDistanceBeamLine, TNominalDistanceTopBeamLine, 0.05, -90-TFrameCoverageAngle*TMath::RadToDeg() , -90+TFrameCoverageAngle*TMath::RadToDeg()));
   fFrame->SetLineColor(kGreen+2);
-  fDetector->AddNode(fFrame,0,new TGeoTranslation(0,-TBottomFrame_distance,0));  
+  fDetector->AddNode(fFrame,0,new TGeoTranslation(0,TNominalDistanceBeamLine,0));  
   //
   
   //
@@ -236,7 +260,7 @@ void UNISLampWedgeMMMDetector::Generate3D(double tilt, double phi_pos)
     //
     fStripAnnular[i]->SetLineColor(kGray);
     //
-    fDetector->AddNode(fStripAnnular[i],0,new TGeoTranslation(0,-TBottomFrame_distance,-0.1));
+    fDetector->AddNode(fStripAnnular[i],0,new TGeoTranslation(0,TNominalDistanceBeamLine,-0.1));
     //
   }
   for(int i=0; i<TRadialStrips_number; i++)
@@ -246,7 +270,7 @@ void UNISLampWedgeMMMDetector::Generate3D(double tilt, double phi_pos)
     //
     fStripRadial[i]->SetLineColor(kGray);
     //
-    fDetector->AddNode(fStripRadial[i],0,new TGeoTranslation(0,-TBottomFrame_distance,0.1));
+    fDetector->AddNode(fStripRadial[i],0,new TGeoTranslation(0,TNominalDistanceBeamLine,0.1));
     //
   }
   //
@@ -262,7 +286,8 @@ void UNISLampWedgeMMMDetector::Generate3D(double tilt, double phi_pos)
 
 void UNISLampWedgeMMMDetector::Rotate3DX(Double_t x_angle)
 {
-  fDetectorMatrix->RotateX(x_angle*TMath::RadToDeg());
+  fDetectorMatrix->RotateX(-x_angle*TMath::RadToDeg());
+  //NOTE: x-axis is swaped compared to that used in the calculations, so I need to use -x_angle 
 }
 
 void UNISLampWedgeMMMDetector::Rotate3DZ(Double_t z_angle)
@@ -273,6 +298,12 @@ void UNISLampWedgeMMMDetector::Rotate3DZ(Double_t z_angle)
 void UNISLampWedgeMMMDetector::TranslateLongitudinal3D(Double_t z)
 {
   fDetectorMatrix->MultiplyLeft(TGeoTranslation(0.,0.,z));
+}
+
+void UNISLampWedgeMMMDetector::Translate3D(Double_t quantity, TVector3 vers)
+{
+  fDetectorMatrix->MultiplyLeft(TGeoTranslation(quantity*vers.X(),-quantity*vers.Y(),quantity*vers.Z()));
+  //NOTE: y-axis is swaped compared to the axis used in the calculations
 }
 
 // returns 1 if the particle is inside the telescope, 0 if not.
