@@ -29,7 +29,7 @@
  */
 
 // standard constructor
-UNISSiliconPhotoDiode::UNISSiliconPhotoDiode(Double_t distance, Double_t theta_pos, Double_t phi_pos) :
+UNISSiliconPhotoDiode::UNISSiliconPhotoDiode(Double_t distance, Double_t theta_pos, Double_t phi_pos, Double_t collimator_size) :
 fXlabversor(1,0,0),
 fYlabversor(0,1,0),
 fZlabversor(0,0,1),
@@ -40,7 +40,9 @@ fTiltXAngle(-9999),
 fTiltYAngle(-9999),
 fTiltZAngle(-9999),
 fPadWidth(1.),                                             
-fPadSemi(0.5),                                                                                       
+fPadSemi(fPadWidth/2.),                                                                                       
+fPadEffectiveWidth(collimator_size),                                             
+fPadEffectiveSemi(fPadEffectiveWidth/2.),                                                                                       
 fFrameWidth(0.14),                                                 
 fBottomContactsWidth(0.18),                                                    
 fImpactX(0),
@@ -94,8 +96,8 @@ fImpactY(0)
 
 // constructor with arbitrary tilt angle, center position (X0, Y0, Z0)
 // tilt_X = tilt angle with respect to the X-axis (vertical)
-UNISSiliconPhotoDiode::UNISSiliconPhotoDiode(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y, Double_t tilt_Z) :
-UNISSiliconPhotoDiode(0., 0., 0.)
+UNISSiliconPhotoDiode::UNISSiliconPhotoDiode(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y, Double_t tilt_Z, Double_t collimator_size) :
+UNISSiliconPhotoDiode(0., 0., 0., collimator_size)
 {
   //
   //
@@ -303,7 +305,7 @@ Int_t UNISSiliconPhotoDiode::GetPixel(Double_t theta_inc, Double_t phi_inc, Doub
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  /*If not the particle is inside the telescope*/
   
   /*check if the particle is inside the effective area*/
-  if(std::fabs(fImpactX)<=fPadSemi && std::fabs(fImpactY)<=fPadSemi) 
+  if(std::fabs(fImpactX)<=fPadEffectiveSemi && std::fabs(fImpactY)<=fPadEffectiveSemi) 
   {
     return 0;
   }

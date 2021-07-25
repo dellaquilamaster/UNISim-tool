@@ -46,7 +46,9 @@ private:
   Double_t   fTiltYAngle; /*tilt angle with respect to the vertical (Y) axis. This is -9999 is the detector is facing the target perpendicularly (first constructor)*/
   Double_t   fTiltZAngle; /*tilt angle with respect to the beam (Z) axis. This is -9999 is the detector is facing the target perpendicularly (first constructor)*/
   Double_t   fPadWidth; /*width of the pad in cm*/ 
+  Double_t   fPadEffectiveWidth; /*width of the active area of the pad in cm*/ 
   Double_t   fPadSemi; /*half-width of the pad*/
+  Double_t   fPadEffectiveSemi; /*half-width of the effective area of the pad*/
   Double_t   fFrameWidth; /*Width of the frame*/
   Double_t   fBottomContactsWidth; /*Width of the space reserved to the electrical contacts (this adds up with the bottom frame)*/
   Double_t   fImpactX; /*X coordinate of the impact point on the telescope surface in the telescope frame*/
@@ -57,8 +59,8 @@ private:
   Double_t   fd;
   
 public:
-  UNISSiliconPhotoDiode(Double_t distance=15, Double_t theta_pos=0, Double_t phi_pos=0);
-  UNISSiliconPhotoDiode(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y, Double_t tilt_Z);     
+  UNISSiliconPhotoDiode(Double_t distance=15, Double_t theta_pos=0, Double_t phi_pos=0, Double_t collimator_size=1.0);
+  UNISSiliconPhotoDiode(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y, Double_t tilt_Z, Double_t collimator_size=1.0);     
   ~UNISSiliconPhotoDiode();
 
   Int_t     IsInside(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; //returns 1 if the particle is inside the detector

@@ -60,8 +60,8 @@ define SETUP "cluster" ***** Definition of the detection setup
 *  - COLLIMATED_SILICON (A collimated silicon detector) -> options: -distance, -theta, -phi, -inner_radius, -outer_radius
 *
 *** OSCAR (HELICA)
-*add DETECTOR OSCAR -distance=5.3 -theta_pos=45. -phi_pos=90. -strip=yes
-add DETECTOR OSCAR -distance=5.3 -theta_pos=0. -phi_pos=-90. -strip=no -collimator=yes
-*add DETECTOR OSCAR -distance=5.3 -theta_pos=135. -phi_pos=90. -strip=no
-*add DETECTOR OSCAR -distance=5.3 -theta_pos=135. -phi_pos=-90. -strip=yes
+add DETECTOR OSCAR -distance=5.3 -theta_pos=45. -phi_pos=90. -strip=yes
+add DETECTOR OSCAR -distance=5.3 -theta_pos=45. -phi_pos=-90. -strip=no
+add DETECTOR OSCAR -distance=5.3 -theta_pos=135. -phi_pos=90. -strip=no
+add DETECTOR OSCAR -distance=5.3 -theta_pos=135. -phi_pos=-90. -strip=yes
 * ------------------------------------- 

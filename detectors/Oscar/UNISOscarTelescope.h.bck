@@ -37,9 +37,7 @@ private :
   const int fNumStrips;
   const int fPadRowsColumns;
   const double fPadWidth;
-  const double fCollimatorWidth;
   const double fPadSemi;
-  const double fCollimatorSemi;
   const double fPadFrameWidth;
   const double fPadBottomContactsWidth;
   const double fPhotoDiodeWidth;
@@ -47,7 +45,6 @@ private :
   const double fFrameWidth;
   const double fFrameHeight;
   bool fIsStrip;
-  bool fIsCollimator;
   const double fStripPadDistance;
   //
   TVector3   fXlabversor; // X-axis versor in the lab frame (vertical axis)
@@ -72,8 +69,8 @@ private :
   //
   
 public :
-  UNISOscarTelescope(Double_t distance=15, Double_t theta_pos=0, Double_t phi_pos=0, Option_t * opt=""); //Creates an OSCAR telescope if the opt="", Creates only the second stage if opt="pads", Creates also pad collimators if the option "col" is specified
-  UNISOscarTelescope(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y, Option_t * opt="");  //Creates an OSCAR telescope if the opt="", Creates only the second stage if opt="pads", Creates also pad collimators if the option "col" is specified   
+  UNISOscarTelescope(Double_t distance=15, Double_t theta_pos=0, Double_t phi_pos=0, Option_t * opt=""); //Creates an OSCAR telescope if the opt="", Creates only the second stage if opt="pads"
+  UNISOscarTelescope(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y, Option_t * opt="");  //Creates an OSCAR telescope if the opt="", Creates only the second stage if opt="pads"   
   ~UNISOscarTelescope();
 
   Int_t     IsInside(Double_t, Double_t, Double_t x0=0., Double_t y0=0., Double_t z0=0.) override; //returns 1 if the particle is inside the detector
@@ -93,9 +90,6 @@ private :
   TGeoVolume * fFramePads;
   TGeoVolume * fFramePreAmps;
   TGeoVolume * fPreAmps;
-  TGeoVolume * fCollimatorFrame;
-  TGeoVolume ** fCollimatorHole;
-  TGeoVolume * fCollimator;
   //
   void Generate3D();
   

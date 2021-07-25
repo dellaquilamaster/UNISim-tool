@@ -6,9 +6,7 @@ fNumPads(16),
 fNumStrips(16),
 fPadRowsColumns(sqrt(fNumPads)),
 fPadWidth(1.),
-fCollimatorWidth(0.8),
 fPadSemi(fPadWidth/2.),
-fCollimatorSemi(fCollimatorWidth/2.),
 fPadFrameWidth(0.14),
 fPadBottomContactsWidth(0.18),
 fPhotoDiodeWidth(2*fPadFrameWidth+fPadWidth),
@@ -27,7 +25,6 @@ fPads(new UNISSiliconPhotoDiode * [fNumPads])
 {
   //
   if(std::string(opt).find("pads")!=std::string::npos) fIsStrip=false;
-  if(std::string(opt).find("col")!=std::string::npos) fIsCollimator=true;
   //
   
   //
@@ -67,7 +64,7 @@ fPads(new UNISSiliconPhotoDiode * [fNumPads])
       fPads[row*fPadRowsColumns+col] = new UNISSiliconPhotoDiode(-(fPadRowsColumns-1)*fPhotoDiodeWidth/2.+col*fPhotoDiodeWidth, //x-coordinate
                                                                  (row < fPadRowsColumns/2 ? y_coordinate : -y_coordinate), //y-coordinate
                                                                  0., //z-coordinate
-                                                                 0,0, row<fPadRowsColumns/2 ? TMath::Pi() : 0,fIsCollimator ? fCollimatorWidth : fPadWidth); //inserting pad with only z-tilt
+                                                                 0,0, row<fPadRowsColumns/2 ? TMath::Pi() : 0); //inserting pad with only z-tilt
     }
   }
   //
@@ -384,41 +381,18 @@ void UNISOscarTelescope::Generate3D()
   fFramePads      = new TGeoVolume("frame_pads_volume",new TGeoBBox(fFrameWidth/2., fFrameHeight/2., 0.08));
   fFramePreAmps   = new TGeoVolume("frame_preamps_volume",new TGeoBBox((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5, (fPhotoDiodeHeight*fPadRowsColumns)/2.+1., 0.08));
   fPreAmps        = new TGeoVolume("preamps_volume",new TGeoBBox(1., 0.15, 1.));
-  //
-  TGeoBBox * collimator_frame = new TGeoBBox("collimator_frame", fFrameWidth/2., fFrameHeight/2., 0.04);
-  TGeoBBox * collimator_hole = new TGeoBBox("collimator_hole", fCollimatorWidth/2., fCollimatorWidth/2., 0.041);
-  TGeoBBox * collimator_bottom_hole = new TGeoBBox("collimator_bottom_hole", fFrameWidth/2.-0.8, 0.8, 0.041);
-  TGeoTranslation ** collimator_hole_trans = new TGeoTranslation * [fNumPads];
-  std::string compisite_shape_string("collimator_frame - ");
-  for(int pad=0; pad<fNumPads; pad++) {
-    const int row=pad/4;
-    const int col=pad%4;
-    const double y_coordinate = (2*std::fabs((fPadRowsColumns-1)/2.-row)*(fPadSemi+fPadFrameWidth/2.)+(std::fabs((fPadRowsColumns-1)/2.-row)-0.5)*(fPadBottomContactsWidth));
-    collimator_hole_trans[pad]=new TGeoTranslation(Form("collimator_hole_trans_%02d", pad), -(fPadRowsColumns-1)*fPhotoDiodeWidth/2.+col*fPhotoDiodeWidth, (row < fPadRowsColumns/2 ? y_coordinate : -y_coordinate)+0.5,0.);
-    collimator_hole_trans[pad]->SetName(Form("collimator_hole_trans_%02d",pad));
-    collimator_hole_trans[pad]->RegisterYourself();
-    compisite_shape_string.append(Form("collimator_hole:collimator_hole_trans_%02d %s ", pad, pad==fNumPads-1 ? "" : "-"));
-  }
-  TGeoTranslation * collimator_bottom_hole_trans = new TGeoTranslation(0., -fFrameHeight/2.+0.25, 0.);
-  collimator_bottom_hole_trans->SetName("collimator_bottom_hole_trans");
-  collimator_bottom_hole_trans->RegisterYourself();
-  compisite_shape_string.append(" - collimator_bottom_hole:collimator_bottom_hole_trans");
-  //
-  fCollimator = new TGeoVolume("collimator", new TGeoCompositeShape("collimator_shape", compisite_shape_string.c_str()));
   fFramePads->SetLineColor(kGreen+2);
   fFramePreAmps->SetLineColor(kGreen+2);
   fPreAmps->SetLineColor(kMagenta);
-  fCollimator->SetLineColor(kOrange+1);
   //
   
   //
   //Adding to mother volume
-  fDetector->AddNode(fFramePads,0,new TGeoTranslation(0, -0.5, 0.)); //distance 0. cm
-  fDetector->AddNode(fFramePreAmps,0,new TGeoTranslation(0, -0.5, 0.4)); //distance 0.4 cm
-  fDetector->AddNode(fCollimator,0,new TGeoTranslation(0, -0.5, -0.38)); //distance -0.3 cm
+  fDetector->AddNode(fFramePads,0,new TGeoTranslation(0, -0.5, 0.));
+  fDetector->AddNode(fFramePreAmps,0,new TGeoTranslation(0, -0.5, 0.5));
   for(int pad=0; pad<fNumPads/2.; pad++) {
-    fDetector->AddNode(fPreAmps,pad,new TGeoTranslation(fFrameWidth/4., fFrameHeight/2.*0.6-pad*0.5, 0.4+0.08+1)); //on the preamp board (0.4 cm)
-    fDetector->AddNode(fPreAmps,pad,new TGeoTranslation(-fFrameWidth/4., fFrameHeight/2.*0.6-pad*0.5, 0.4+0.08+1)); //on the preamp board (0.4 cm)
+    fDetector->AddNode(fPreAmps,pad,new TGeoTranslation(fFrameWidth/4., fFrameHeight/2.*0.6-pad*0.5, 0.5+0.08+1));
+    fDetector->AddNode(fPreAmps,pad,new TGeoTranslation(-fFrameWidth/4., fFrameHeight/2.*0.6-pad*0.5, 0.5+0.08+1));
   }
   //
   
