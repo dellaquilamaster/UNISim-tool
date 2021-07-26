@@ -445,6 +445,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
       double theta_pos=0;
       double phi_pos=0;
       bool is_strip=true;
+      bool is_collimator=false;
       while (LineStream>>ValueToSet) {
         if(ValueToSet.find("-distance")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-distance=")+10));
@@ -458,9 +459,12 @@ int UNISFramework::ProcessAddCommand(const char * line)
         } else if(ValueToSet.find("-strip")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strip=")+7)); 
           if(ValueToSet.find("no")!=std::string::npos) is_strip=false; 
+        } else if(ValueToSet.find("-collimator")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-collimator=")+7)); 
+          if(ValueToSet.find("yes")!=std::string::npos) is_collimator=true;
         } 
       }
-      UNISOscarTelescope * NewDetector = new UNISOscarTelescope(distance,theta_pos,phi_pos,(is_strip ? "" : "pads"));
+      UNISOscarTelescope * NewDetector = new UNISOscarTelescope(distance,theta_pos,phi_pos,(is_strip && !is_collimator ? "" : (is_strip && is_collimator ? "col" : (is_collimator ? "pads col" : "pads"))));
       fExpSetup->RegisterUnit(NewDetector);
     } else if(DetectorType.compare("COLLIMATED_SILICON")==0) {
       double distance=0;

@@ -1,0 +1,32 @@
+#include "UNISSiliconPhotoDiode.h"
+#include "../Oscar/UNISOscarTelescope.h"
+#include "../Strip/UNISStripSingleSidedDetector.h"
+
+void test()
+{
+  UNISStripSingleSidedDetector pollo(5.0, 45*TMath::DegToRad(),90*TMath::DegToRad(),16,0.312,0.01,0.3,0);
+//   UNISOscarTelescope pollo(5.,45.*TMath::DegToRad(),90*TMath::DegToRad(),"pads");
+  
+//   pollo.Draw3D("ogl");
+  
+  TH2D * histo = new TH2D("histo","",1000,-10,10,1000,-10,10);
+  TH2D * histo_angles = new TH2D("histo_angles","",1000,0,180,1000,-180,180);
+  
+//   printf("%d\n", pollo.GetPixel(20.*TMath::DegToRad(), 45.*TMath::DegToRad()));
+  
+  for(int i=0; i<500000; i++)
+  {
+    const double theta=gRandom->Uniform(10,80); 
+    const double phi=gRandom->Uniform(0,360);
+    
+    if(pollo.GetPixel(theta*TMath::DegToRad(), phi*TMath::DegToRad())>=0) {
+      if(pollo.GetPixel(theta*TMath::DegToRad(), phi*TMath::DegToRad())==5) continue;
+      TVector3 impact_point = pollo.GetImpactPointLab(theta*TMath::DegToRad(), phi*TMath::DegToRad());
+      histo->Fill(-impact_point.X(),impact_point.Y());
+      histo_angles->Fill(impact_point.Theta()*TMath::RadToDeg(),impact_point.Phi()*TMath::RadToDeg());
+    }
+  }
+  
+  histo->Draw("col");
+//   histo_angles->Draw("col");
+}

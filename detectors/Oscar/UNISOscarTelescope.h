@@ -30,6 +30,14 @@
 #include "../Strip/UNISStripSingleSidedDetector.h"
 #include "../Silicon/UNISSiliconPhotoDiode.h"
 
+/*
+ * NOTE on the reference frame.
+ * In the reference frame used to build OSCAR, z is the beam axis, x is vertical towards the top and y is horizontal towards the right.
+ * Positioning the detector at phi=90 deg corresponds to the right side of the beamline looking downstream.
+ * To look at the impact point downstream, X is towards left, and Y is towards the top
+ * 
+ */
+
 class UNISOscarTelescope : public UNISDetectionUnit
 {
 private : 

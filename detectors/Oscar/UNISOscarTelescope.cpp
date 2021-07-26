@@ -16,6 +16,7 @@ fPhotoDiodeHeight(2*fPadFrameWidth+fPadWidth+fPadBottomContactsWidth),
 fFrameWidth((fPhotoDiodeWidth*fPadRowsColumns)+1),
 fFrameHeight((fPhotoDiodeHeight*fPadRowsColumns)+2.),
 fIsStrip(true),
+fIsCollimator(false),
 fStripPadDistance(0.5),
 fXlabversor(1,0,0),
 fYlabversor(0,1,0),
@@ -28,16 +29,13 @@ fPads(new UNISSiliconPhotoDiode * [fNumPads])
   //
   if(std::string(opt).find("pads")!=std::string::npos) fIsStrip=false;
   if(std::string(opt).find("col")!=std::string::npos) fIsCollimator=true;
-  //
   
   //
-  //Setting the position of the telescope center
-  fCenter+=TVector3(0.,0.,distance);
-  //Telescope's corners
-  fTopLeftCorner.SetXYZ(fFrameWidth/2.,fFrameHeight/2.,distance);
-  fTopRightCorner.SetXYZ(-((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),fFrameHeight/2.,distance);
-  fBottomLeftCorner.SetXYZ(((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),-fFrameHeight/2.,distance);
-  fBottomRightCorner.SetXYZ(-((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),-fFrameHeight/2.,distance);
+  //Telescope's corners (telescope at zero-distance)
+  fTopLeftCorner.SetXYZ(fFrameWidth/2.,fFrameHeight/2.,0.);
+  fTopRightCorner.SetXYZ(-((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),fFrameHeight/2.,0.);
+  fBottomLeftCorner.SetXYZ(((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),-fFrameHeight/2.,0.);
+  fBottomRightCorner.SetXYZ(-((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),-fFrameHeight/2.,0.);
   //
   
   //
@@ -64,10 +62,11 @@ fPads(new UNISSiliconPhotoDiode * [fNumPads])
   for(int row=0; row<fPadRowsColumns; row++) {
     for(int col=0; col<fPadRowsColumns; col++) {
       const double y_coordinate = (2*std::fabs((fPadRowsColumns-1)/2.-row)*(fPadSemi+fPadFrameWidth/2.)+(std::fabs((fPadRowsColumns-1)/2.-row)-0.5)*(fPadBottomContactsWidth));
-      fPads[row*fPadRowsColumns+col] = new UNISSiliconPhotoDiode(-(fPadRowsColumns-1)*fPhotoDiodeWidth/2.+col*fPhotoDiodeWidth, //x-coordinate
-                                                                 (row < fPadRowsColumns/2 ? y_coordinate : -y_coordinate), //y-coordinate
+      fPads[row*fPadRowsColumns+col] = new UNISSiliconPhotoDiode((fPadRowsColumns-1)*fPhotoDiodeWidth/2.-col*fPhotoDiodeWidth, //x-coordinate (vertical towards the top, as seen from the beam)
+                                                                 (row < fPadRowsColumns/2 ? y_coordinate : -y_coordinate), //y-coordinate (horizontal towards the top, as seen from the beam)
                                                                  0., //z-coordinate
-                                                                 0,0, row<fPadRowsColumns/2 ? TMath::Pi() : 0,fIsCollimator ? fCollimatorWidth : fPadWidth); //inserting pad with only z-tilt
+                                                                 0,0,row<fPadRowsColumns/2 ? TMath::Pi() : 0, //tilt-angles //inserting pad with only z-tilt
+                                                                 (fIsCollimator ? fCollimatorWidth : fPadWidth)); //effective width of the collimator
     }
   }
   //
@@ -101,7 +100,7 @@ fPads(new UNISSiliconPhotoDiode * [fNumPads])
 UNISOscarTelescope::UNISOscarTelescope(Double_t X0, Double_t Y0, Double_t Z0, Double_t tilt_X, Double_t tilt_Y, Option_t * opt) :
 UNISOscarTelescope(0,0,0,opt)
 {
-  
+  //NOTE: to be implemented
 }
 
 //____________________________________________________
@@ -356,7 +355,7 @@ Int_t UNISOscarTelescope::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_
   
   //
   //Calculation of pixel
-  int Pixel=(PixelPad)*fPadRowsColumns+(PixelStrip%fPadRowsColumns);
+  int Pixel=fIsStrip ? (PixelPad)*fPadRowsColumns+(PixelStrip%fPadRowsColumns) : PixelPad;
   //
   
   //particle not inside the effective area
@@ -415,7 +414,7 @@ void UNISOscarTelescope::Generate3D()
   //Adding to mother volume
   fDetector->AddNode(fFramePads,0,new TGeoTranslation(0, -0.5, 0.)); //distance 0. cm
   fDetector->AddNode(fFramePreAmps,0,new TGeoTranslation(0, -0.5, 0.4)); //distance 0.4 cm
-  fDetector->AddNode(fCollimator,0,new TGeoTranslation(0, -0.5, -0.38)); //distance -0.3 cm
+  if(fIsCollimator) fDetector->AddNode(fCollimator,0,new TGeoTranslation(0, -0.5, -0.38)); //distance -0.3 cm
   for(int pad=0; pad<fNumPads/2.; pad++) {
     fDetector->AddNode(fPreAmps,pad,new TGeoTranslation(fFrameWidth/4., fFrameHeight/2.*0.6-pad*0.5, 0.4+0.08+1)); //on the preamp board (0.4 cm)
     fDetector->AddNode(fPreAmps,pad,new TGeoTranslation(-fFrameWidth/4., fFrameHeight/2.*0.6-pad*0.5, 0.4+0.08+1)); //on the preamp board (0.4 cm)

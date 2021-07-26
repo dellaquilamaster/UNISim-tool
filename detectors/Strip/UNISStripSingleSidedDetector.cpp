@@ -285,13 +285,10 @@ Int_t UNISStripSingleSidedDetector::GetPixel(Double_t theta_inc, Double_t phi_in
   // These quantities are always positive within the surface of the detector
   TImpactXprime=TTopLeftXCorner-TImpactX;
   TImpactYprime=TImpactY+TTopLeftYCorner;
-  // Matrix i,j indexes inside the telescope
-  // i = strip front (vertical)
-  // j = strip back (horizontal)
   j=Int_t(TImpactXprime/TStripTrue_width);
-  
+    
   /*check if the particle is inside the effective area*/
-  if((TImpactYprime-j*TInter_width)>=0 && (TImpactYprime-(j+1)*TInter_width)<=0) 
+  if(std::fabs(TImpactXprime-(2*j+1)*TStripTrue_semi)<=TStripEffective_semi) 
   {
     return j;
   }
