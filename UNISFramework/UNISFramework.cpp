@@ -243,8 +243,8 @@ int UNISFramework::ProcessAddCommand(const char * line)
     std::string DetectorType;
     LineStream>>DetectorType;
     std::string ValueToSet;
-        
-    if(DetectorType.compare("STRIP")==0) {
+            
+    if(DetectorType.compare("STRIP")==0) { 
       double distance=0;
       double theta_pos=0;
       double phi_pos=0;
@@ -256,31 +256,31 @@ int UNISFramework::ProcessAddCommand(const char * line)
       bool is_double_sided=false;
       
       while (LineStream>>ValueToSet) {
-        if(ValueToSet.find("-distance")!=std::string::npos) {
+        if(ValueToSet.find("-distance=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-distance=")+10)); 
           distance=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-theta")!=std::string::npos) {
+        } else if(ValueToSet.find("-theta=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-theta=")+7)); 
           theta_pos=std::stof(ValueToSet)*TMath::DegToRad();
-        } else if(ValueToSet.find("-phi")!=std::string::npos) {
+        } else if(ValueToSet.find("-phi=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-phi=")+5)); 
           phi_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
-        } else if(ValueToSet.find("-strips")!=std::string::npos) {
+        } else if(ValueToSet.find("-strips=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strips=")+8)); 
           strip_number=std::stoi(ValueToSet); 
-        } else if(ValueToSet.find("-strip_width")!=std::string::npos) {
+        } else if(ValueToSet.find("-strip_width=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strip_width=")+13)); 
           strip_width=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-inter_strip")!=std::string::npos) {
+        } else if(ValueToSet.find("-inter_strip=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-inter_strip=")+13)); 
           strip_inter=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-frame_width")!=std::string::npos) {
+        } else if(ValueToSet.find("-frame_width=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-frame_width=")+13)); 
           frame_width=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-dead_layer")!=std::string::npos) {
+        } else if(ValueToSet.find("-dead_layer=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-dead_layer=")+12)); 
           dead_layer=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-double_sided")!=std::string::npos) {
+        } else if(ValueToSet.find("-double_sided=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-double_sided=")+14)); 
           if(ValueToSet.find("yes")!=std::string::npos) is_double_sided=true;
         }
@@ -305,39 +305,39 @@ int UNISFramework::ProcessAddCommand(const char * line)
       bool is_double_sided=false;
       
       while (LineStream>>ValueToSet) {
-        if(ValueToSet.find("-X0")!=std::string::npos) {
+        if(ValueToSet.find("-X0=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-X0=")+4)); 
           X0=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-Y0")!=std::string::npos) {
+        } else if(ValueToSet.find("-Y0=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-Y0=")+4)); 
           Y0=std::stof(ValueToSet);
-        } else if(ValueToSet.find("-Z0")!=std::string::npos) {
+        } else if(ValueToSet.find("-Z0=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-Z0=")+4)); 
           Z0=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-tilt_X")!=std::string::npos) {
+        } else if(ValueToSet.find("-tilt_X=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-tilt_X=")+8)); 
           tilt_X=std::stof(ValueToSet)*TMath::DegToRad();
-        } else if(ValueToSet.find("-tilt_Y")!=std::string::npos) {
+        } else if(ValueToSet.find("-tilt_Y=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-tilt_Y=")+8)); 
           tilt_Y=std::stof(ValueToSet)*TMath::DegToRad();
-        } else if(ValueToSet.find("-strips")!=std::string::npos) {
+        } else if(ValueToSet.find("-strips=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strips=")+8)); 
           strip_number=std::stoi(ValueToSet); 
-        } else if(ValueToSet.find("-strip_width")!=std::string::npos) {
+        } else if(ValueToSet.find("-strip_width=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strip_width=")+13)); 
           strip_width=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-inter_strip")!=std::string::npos) {
+        } else if(ValueToSet.find("-inter_strip=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-inter_strip=")+13)); 
           strip_inter=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-frame_width")!=std::string::npos) {
+        } else if(ValueToSet.find("-frame_width=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-frame_width=")+13)); 
           frame_width=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-dead_layer")!=std::string::npos) {
+        } else if(ValueToSet.find("-dead_layer=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-dead_layer=")+12)); 
           dead_layer=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-double_sided")!=std::string::npos) {
+        } else if(ValueToSet.find("-double_sided=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-double_sided=")+14)); 
-          if(ValueToSet.find("yes")!=std::string::npos) is_double_sided=true;
+          if(ValueToSet.find("yes=")!=std::string::npos) is_double_sided=true;
         }
       }
       
