@@ -244,7 +244,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
     LineStream>>DetectorType;
     std::string ValueToSet;
         
-    if(DetectorType.compare("DSSSD")==0) {
+    if(DetectorType.compare("STRIP")==0) {
       double distance=0;
       double theta_pos=0;
       double phi_pos=0;
@@ -253,6 +253,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
       double strip_inter=0;
       double frame_width=0;
       double dead_layer=0;
+      bool is_double_sided=false;
       
       while (LineStream>>ValueToSet) {
         if(ValueToSet.find("-distance")!=std::string::npos) {
@@ -279,13 +280,18 @@ int UNISFramework::ProcessAddCommand(const char * line)
         } else if(ValueToSet.find("-dead_layer")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-dead_layer=")+12)); 
           dead_layer=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-double_sided")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-double_sided=")+14)); 
+          if(ValueToSet.find("yes")!=std::string::npos) is_double_sided=true;
         }
       }
       
-      UNISStripDetector * NewDetector = new UNISStripDetector(distance,theta_pos,phi_pos,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
+      UNISDetectionUnit * NewDetector = 0;
+      if(is_double_sided) NewDetector = new UNISStripDetector(distance,theta_pos,phi_pos,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
+      else NewDetector = new UNISStripSingleSidedDetector(distance,theta_pos,phi_pos,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
       fExpSetup->RegisterUnit(NewDetector);
       
-    } else if(DetectorType.compare("DSSSD_ROT")==0) {
+    } else if(DetectorType.compare("STRIP_ROT")==0) {
       double X0=0;
       double Y0=0;
       double Z0=0;
@@ -296,6 +302,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
       double strip_inter=0;
       double frame_width=0;
       double dead_layer=0;
+      bool is_double_sided=false;
       
       while (LineStream>>ValueToSet) {
         if(ValueToSet.find("-X0")!=std::string::npos) {
@@ -328,10 +335,15 @@ int UNISFramework::ProcessAddCommand(const char * line)
         } else if(ValueToSet.find("-dead_layer")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-dead_layer=")+12)); 
           dead_layer=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-double_sided")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-double_sided=")+14)); 
+          if(ValueToSet.find("yes")!=std::string::npos) is_double_sided=true;
         }
       }
       
-      UNISStripDetector * NewDetector = new UNISStripDetector(X0,Y0,Z0,tilt_X,tilt_Y,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
+      UNISDetectionUnit * NewDetector = 0;
+      if(is_double_sided) NewDetector = new UNISStripDetector(X0,Y0,Z0,tilt_X,tilt_Y,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
+      else NewDetector = new UNISStripSingleSidedDetector(X0,Y0,Z0,tilt_X,tilt_Y,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
       fExpSetup->RegisterUnit(NewDetector);
       
     } else if(DetectorType.compare("LAMP_WEDGE")==0) {

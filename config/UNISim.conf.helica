@@ -50,13 +50,13 @@ define SETUP "cluster" ***** Definition of the detection setup
 * use "add" to add a detector to the setup, you need to specify the setup
 * Positions are given in cm, while angles are given in deg.
 * Possible detector types:
-*  - DSSSD (Double-Sided Silicon Strip Detector facing the target perpendicularly) -> options: -distance, -theta, -phi, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer
-*  - DSSSD_ROT (Double-Sided Silicon Strip Detector with a customized position and rotation) -> options: -X0, -Y0, -Z0, -tilt_X, tilt_Y, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer           
+*  - STRIP (Square Silicon Strip Detector facing the target perpendicularly) -> options: -distance, -theta, -phi, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer -double_sided (yes or no)
+*  - STRIP_ROT (Square Silicon Strip Detector with a customized position and rotation) -> options: -X0, -Y0, -Z0, -tilt_X, tilt_Y, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer -double_sided (yes or no)          
 *  - LAMP_WEDGE (Lamp detector wedge) -> options: -distance -phi_pos, -tilt, -frame_distance, -strips, -strip_width, -inter_strip
 *  - LAMP_WEDGE_MMM (Lamp detector wedge type-MMM) -> options: -distance -phi_pos, -tilt, -frame_distance, -inter_strip
 *  - FAZIA_BLOCK (A Fazia block) -> options: -displacement -theta_pos, -phi_pos, -pad_width, -frame_width
 *  - PHOTO_DIODE (A Hamamatsu photodiode) -> options: -distance -theta_pos, -phi_pos
-*  - OSCAR (An OSCAR telescope) -> options: -distance -theta_pos, -phi_pos, -strip (yes or no), -collimator (yes or no)
+*  - OSCAR (An OSCAR telescope) -> options: -distance -theta_pos, -phi_pos, -strip (yes or no) -collimator (yes or no)
 *  - COLLIMATED_SILICON (A collimated silicon detector) -> options: -distance, -theta, -phi, -inner_radius, -outer_radius
 *
 *** OSCAR (HELICA)
