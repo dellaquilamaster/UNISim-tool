@@ -337,7 +337,7 @@ int UNISFramework::ProcessAddCommand(const char * line)
           dead_layer=std::stof(ValueToSet); 
         } else if(ValueToSet.find("-double_sided=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-double_sided=")+14)); 
-          if(ValueToSet.find("yes=")!=std::string::npos) is_double_sided=true;
+          if(ValueToSet.find("yes")!=std::string::npos) is_double_sided=true;
         }
       }
       
