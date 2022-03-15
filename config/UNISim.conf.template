@@ -109,4 +109,11 @@ add DETECTOR OSCAR -distance=5.3 -theta_pos=45. -phi_pos=-90. -strip=no -collima
 add DETECTOR OSCAR -distance=5.3 -theta_pos=45. -phi_pos=90. -strip=yes -collimator=yes
 add DETECTOR OSCAR -distance=5.3 -theta_pos=135. -phi_pos=90. -strip=no -collimator=yes
 add DETECTOR OSCAR -distance=5.3 -theta_pos=135. -phi_pos=-90. -strip=yes -collimator=yes
+*** MOLBA
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=0. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=60. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=120. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=180. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=240. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=300. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
 * ------------------------------------- 

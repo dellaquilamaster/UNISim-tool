@@ -61,9 +61,9 @@ fPads(new UNISSiliconPhotoDiode * [fNumPads])
   //pads
   for(int row=0; row<fPadRowsColumns; row++) {
     for(int col=0; col<fPadRowsColumns; col++) {
-      const double y_coordinate = (2*std::fabs((fPadRowsColumns-1)/2.-row)*(fPadSemi+fPadFrameWidth/2.)+(std::fabs((fPadRowsColumns-1)/2.-row)-0.5)*(fPadBottomContactsWidth));
-      fPads[row*fPadRowsColumns+col] = new UNISSiliconPhotoDiode((fPadRowsColumns-1)*fPhotoDiodeWidth/2.-col*fPhotoDiodeWidth, //x-coordinate (vertical towards the top, as seen from the beam)
-                                                                 (row < fPadRowsColumns/2 ? y_coordinate : -y_coordinate), //y-coordinate (horizontal towards the top, as seen from the beam)
+      const double y_coordinate = (2*std::fabs((fPadRowsColumns-1)/2.-row)*(fPhotoDiodeWidth/2.)+(std::fabs((fPadRowsColumns-1)/2.-row)-0.5)*(fPadBottomContactsWidth));
+      fPads[row*fPadRowsColumns+col] = new UNISSiliconPhotoDiode((fPadRowsColumns-1)*fPhotoDiodeWidth/2.-col*fPhotoDiodeWidth, //x-coordinate (horizontal towards left, as seen from the beam)
+                                                                 (row < fPadRowsColumns/2 ? y_coordinate : -y_coordinate), //y-coordinate (vertical towards the top, as seen from the beam)
                                                                  0., //z-coordinate
                                                                  0,0,row<fPadRowsColumns/2 ? TMath::Pi() : 0, //tilt-angles //inserting pad with only z-tilt
                                                                  (fIsCollimator ? fCollimatorWidth : fPadWidth)); //effective width of the collimator
@@ -392,7 +392,7 @@ void UNISOscarTelescope::Generate3D()
   for(int pad=0; pad<fNumPads; pad++) {
     const int row=pad/4;
     const int col=pad%4;
-    const double y_coordinate = (2*std::fabs((fPadRowsColumns-1)/2.-row)*(fPadSemi+fPadFrameWidth/2.)+(std::fabs((fPadRowsColumns-1)/2.-row)-0.5)*(fPadBottomContactsWidth));
+    const double y_coordinate = (2*std::fabs((fPadRowsColumns-1)/2.-row)*(fPhotoDiodeWidth/2.)+(std::fabs((fPadRowsColumns-1)/2.-row)-0.5)*(fPadBottomContactsWidth));
     collimator_hole_trans[pad]=new TGeoTranslation(Form("collimator_hole_trans_%02d", pad), -(fPadRowsColumns-1)*fPhotoDiodeWidth/2.+col*fPhotoDiodeWidth, (row < fPadRowsColumns/2 ? y_coordinate : -y_coordinate)+0.5,0.);
     collimator_hole_trans[pad]->SetName(Form("collimator_hole_trans_%02d",pad));
     collimator_hole_trans[pad]->RegisterYourself();

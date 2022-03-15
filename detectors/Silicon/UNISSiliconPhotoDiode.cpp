@@ -17,7 +17,7 @@
  * <---
  * x-axis
  * 
- * y-axis penetrates the screen.
+ * z-axis penetrates the screen.
  * 
  * In the pad frame
  * 
@@ -405,7 +405,7 @@ void UNISSiliconPhotoDiode::Generate3D()
   fDetector->AddNode(fFrameLateral,1,new TGeoTranslation(fPadSemi+fFrameWidth/2., -fBottomContactsWidth/2., 0.));
   fDetector->AddNode(fFrameLateral,2,new TGeoTranslation(-(fPadSemi+fFrameWidth/2.), -fBottomContactsWidth/2., 0.));
   fDetector->AddNode(fFrameHorizontal,1,new TGeoTranslation(0., fPadSemi+fFrameWidth/2., 0.));
-  fDetector->AddNode(fFrameHorizontal,2,new TGeoTranslation(0., -fPadSemi-fBottomContactsWidth/2.-fFrameWidth/2., 0.));
+  fDetector->AddNode(fFrameHorizontal,2,new TGeoTranslation(0., -fPadSemi-fBottomContactsWidth-fFrameWidth/2., 0.));
   fDetector->AddNode(fBottomContacts,0,new TGeoTranslation(0., -fPadSemi-fBottomContactsWidth/2., 0.));
   fDetector->AddNode(fPad,0);
   //
