@@ -1,0 +1,76 @@
+**************************************************************************
+* UNISim.conf
+* This file contains the configuration of the framework UNISim
+* Modify this file to change any relevant configuration of the framework
+* For information please contact Daniele Dell'Aquila (daniele.dellaquila@irb.hr)
+**************************************************************************
+
+*
+* framework information
+* -------------------------------------
+set VERBOSE_MODE false
+set GRAPHICAL_MODE false
+set OUTPUT_DIRECTORY "/media/dellaquila/Seagate_SAS/simulations/2021_GANIL_17Ne_D/"
+set RANDOM_SEED 0 ***** use 0 to obtain a unique sequence each time
+* -------------------------------------
+
+*
+* reaction information
+* -------------------------------------
+set BEAM -Z=10 -A=17
+set BEAM_ENERGY 85 ***** MeV
+set BEAM_POSITION -X=0. -Y=0. -X=0. ***** beam position on the target in cm (with respect to the target center)
+set BEAM_ANGULAR_SPREAD 0. ***** FWHM of the beam angular spread in deg
+set BEAM_POSITION_SPREAD 0. ***** FWHM of the beam position spread in cm
+set TARGET -Z=1 -A=2
+*
+* Definition of the physics model used for the calculation
+* List of available physics models:
+*  - SequentialDecay: P+T->X1*+X2*+...+Xm*+y1+y2+...+yn -> (X1_1* + X1_2* + ... + x1_2 + ... + x1_l) + ... + (Xn_1* + Xn_2* + ... +xn_2+...+xn_j) + y1 + y2 + ... yn -> ...
+*  - RutherfordScattering: P+T->P+T (with Rutherford cross section)
+*
+set PHYSICS_MODEL SequentialDecayTwoBody "./reactions/GANIL_17Ne_D_p_15O_3He_gs_of_16F.dat"
+* -------------------------------------
+
+*
+* target information
+* -------------------------------------
+set TARGET_MATERIAL Pb
+set TARGET_THICKNESS 0 ***** um
+* -------------------------------------
+
+*
+* detector configuration
+* -------------------------------------
+define SETUP "cluster" ***** Definition of the detection setup
+*
+* use "add" to add a detector to the setup, you need to specify the setup
+* Positions are given in cm, while angles are given in deg.
+* Possible detector types:
+*  - STRIP (Double-Sided Silicon Strip Detector facing the target perpendicularly) -> options: -distance, -theta, -phi, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer
+*  - STRIP_ROT (Double-Sided Silicon Strip Detector with a customized position and rotation) -> options: -X0, -Y0, -Z0, -tilt_X, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer           
+*  - LAMP_WEDGE (Lamp detector wedge) -> options: -distance -phi_pos, -tilt, -frame_distance, -strips, -strip_width, -inter_strip
+*  - FAZIA_QUARTET (A Fazia quartet) -> options: -distance -phi_pos, -tilt, -frame_distance, -strips, -strip_width, -inter_strip
+*
+*** GLORIA array
+*add DETECTOR STRIP -distance=6. -theta=38.02	    -phi=180.  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. **** A
+*add DETECTOR STRIP -distance=6. -theta=38.02      -phi=0.  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. **** B
+*add DETECTOR STRIP -distance=6. -theta=104.995	  -phi=270.  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. **** E
+*add DETECTOR STRIP -distance=6. -theta=75.0052	  -phi=90.  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. **** F
+*add DETECTOR STRIP -distance=6. -theta=141.08	    -phi=180.  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. **** C
+*add DETECTOR STRIP -distance=6. -theta=141.08      -phi=0.  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. **** D
+***
+*** GLORIA planar configuration
+*** GLORIA (wall) half width of each detector is 2.646
+add DETECTOR STRIP_ROT -X0=3.896  -Y0=0  -Z0=12 -tilt=0  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP_ROT -X0=0  -Y0=-3.896 -Z0=12.3 -tilt=0  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP_ROT -X0=0 -Y0=3.896  -Z0=12.3 -tilt=0   -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP_ROT -X0=-3.896 -Y0=0 -Z0=12 -tilt=0   -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+*** GLORIA (wall) half width of each detector is 2.646
+add DETECTOR STRIP_ROT -X0=3.896  -Y0=0  -Z0=16 -tilt=0  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP_ROT -X0=0  -Y0=-3.896 -Z0=16.3 -tilt=0  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP_ROT -X0=0 -Y0=3.896  -Z0=16.3 -tilt=0   -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP_ROT -X0=-3.896 -Y0=0 -Z0=16 -tilt=0   -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+*** DSSSD at zero-degree
+add DETECTOR STRIP_ROT -X0=0  -Y0=0  -Z0=18 -tilt=0  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes   
+* ------------------------------------- 

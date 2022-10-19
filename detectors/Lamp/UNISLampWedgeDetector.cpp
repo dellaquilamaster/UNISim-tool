@@ -322,7 +322,7 @@ Int_t UNISLampWedgeDetector::IsInside(Double_t theta_inc, Double_t phi_inc, Doub
   double angle = TDetectorImpactPoint.Angle(TXversor);
   double distance = TDetectorImpactPoint.Mag();
 
-  if (fabs(angle)<=TStripNominalCoverageAngle && distance>=TStripRadius[0]-TStripTrue_semi && distance<=TStripRadius[TStrips_number-1]+TStripTrue_semi) return 1;
+  if (fabs(angle)<=TFrameCoverageAngle && distance>=TBottomFrame_distance && distance<=TTopFrame_distance) return 1;
   
   return 0;
 }

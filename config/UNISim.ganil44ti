@@ -10,8 +10,7 @@
 * -------------------------------------
 set VERBOSE_MODE false
 set GRAPHICAL_MODE false *** false, light, advanced
-*set OUTPUT_DIRECTORY "/media/dellaquila/Seagate_SAS/simulations/202210_40ca_6li_ganil/"
-set OUTPUT_DIRECTORY "./"
+set OUTPUT_DIRECTORY "/media/dellaquila/Seagate_SAS/simulations/202210_40ca_6li_ganil/"
 set RANDOM_SEED 0 ***** use 0 to obtain a unique sequence each time
 * -------------------------------------
 
@@ -61,18 +60,18 @@ define SETUP "cluster" ***** Definition of the detection setup
 *  - COLLIMATED_SILICON (A collimated silicon detector) -> options: -distance, -theta, -phi, -inner_radius, -outer_radius
 *
 *** FAZIA array (12 blocks), nominal distance is 100 cm
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=4.24	 -phi_pos=-17.19            -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=4.24	 -phi_pos=72.81             -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=4.24	 -phi_pos=162.81            -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=4.24	 -phi_pos=-107.19           -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=7.67	 -phi_pos=-58.29            -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=9.36	 -phi_pos=-7.63             -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=7.67	 -phi_pos=31.71             -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=9.36	 -phi_pos=82.37             -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=7.67	 -phi_pos=121.71            -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=9.36	 -phi_pos=172.37            -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=7.67	 -phi_pos=-148.29           -pad_width=2. -frame_width=0.1
-*add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=9.36	 -phi_pos=-97.63            -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=4.24	 -phi_pos=-17.19            -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=4.24	 -phi_pos=72.81             -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=4.24	 -phi_pos=162.81            -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=4.24	 -phi_pos=-107.19           -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=7.67	 -phi_pos=-58.29            -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=9.36	 -phi_pos=-7.63             -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=7.67	 -phi_pos=31.71             -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=9.36	 -phi_pos=82.37             -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=7.67	 -phi_pos=121.71            -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=9.36	 -phi_pos=172.37            -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=7.67	 -phi_pos=-148.29           -pad_width=2. -frame_width=0.1
+add DETECTOR FAZIA_BLOCK -displacement=-20. -theta_pos=9.36	 -phi_pos=-97.63            -pad_width=2. -frame_width=0.1
 *** GLORIA (wall) half width of each detector is 2.646
 *add DETECTOR STRIP_ROT -X0=3.146  -Y0=2.146  -Z0=110 -tilt=0  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
 *add DETECTOR STRIP_ROT -X0=2.146  -Y0=-3.146 -Z0=110 -tilt=0  -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
@@ -111,17 +110,10 @@ define SETUP "cluster" ***** Definition of the detection setup
 *add DETECTOR OSCAR -distance=5.3 -theta_pos=135. -phi_pos=90. -strip=no -collimator=yes
 *add DETECTOR OSCAR -distance=5.3 -theta_pos=135. -phi_pos=-90. -strip=yes -collimator=yes
 *** MOLBA
-add DETECTOR LAMP_WEDGE -distance=35 -phi_pos=0. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-add DETECTOR LAMP_WEDGE -distance=35 -phi_pos=60. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-add DETECTOR LAMP_WEDGE -distance=35 -phi_pos=120. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-add DETECTOR LAMP_WEDGE -distance=35 -phi_pos=180. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-add DETECTOR LAMP_WEDGE -distance=35 -phi_pos=240. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-add DETECTOR LAMP_WEDGE -distance=35 -phi_pos=300. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-
-add DETECTOR LAMP_WEDGE -distance=65 -phi_pos=0. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-add DETECTOR LAMP_WEDGE -distance=65 -phi_pos=60. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-add DETECTOR LAMP_WEDGE -distance=65 -phi_pos=120. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-add DETECTOR LAMP_WEDGE -distance=65 -phi_pos=180. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-add DETECTOR LAMP_WEDGE -distance=65 -phi_pos=240. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
-add DETECTOR LAMP_WEDGE -distance=65 -phi_pos=300. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=0. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=60. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=120. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=180. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=240. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
+*add DETECTOR LAMP_WEDGE -distance=15.4 -phi_pos=300. -tilt=42.5 -frame_distance=3.6 -strips=16 -strip_width=0.5 -inter_strip=0.01
 * ------------------------------------- 

@@ -21,7 +21,7 @@ fStripPadDistance(0.5),
 fXlabversor(1,0,0),
 fYlabversor(0,1,0),
 fZlabversor(0,0,1),
-fCenter(0,-0.5,0),
+fCenter(0,0,0),
 fLabImpactPoint(0.,0.,0.),
 fFrameImpactPoint(0.,0.,0.),
 fPads(new UNISSiliconPhotoDiode * [fNumPads])
@@ -33,9 +33,9 @@ fPads(new UNISSiliconPhotoDiode * [fNumPads])
   //
   //Telescope's corners (telescope at zero-distance)
   fTopLeftCorner.SetXYZ(fFrameWidth/2.,fFrameHeight/2.,0.);
-  fTopRightCorner.SetXYZ(-((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),fFrameHeight/2.,0.);
-  fBottomLeftCorner.SetXYZ(((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),-fFrameHeight/2.,0.);
-  fBottomRightCorner.SetXYZ(-((fPhotoDiodeWidth*fPadRowsColumns)/2.+0.5),-fFrameHeight/2.,0.);
+  fTopRightCorner.SetXYZ(-fFrameWidth/2.,fFrameHeight/2.,0.);
+  fBottomLeftCorner.SetXYZ(fFrameWidth/2.,-fFrameHeight/2.,0.);
+  fBottomRightCorner.SetXYZ(-fFrameWidth/2.,-fFrameHeight/2.,0.);
   //
   
   //
@@ -304,7 +304,7 @@ Int_t UNISOscarTelescope::IsInside(Double_t theta_inc, Double_t phi_inc, Double_
   /*setting the true impact point*/
   fLabImpactPoint.SetXYZ(x0+t*l,y0+t*m,z0+t*n);
     
-  // setting he impact point in the telescope frame
+  // setting the impact point in the telescope frame
   fFrameImpactPoint=fLabImpactPoint-fCenter;
   const double ImpactXprime = fFrameImpactPoint.Dot(fXversor);
   const double ImpactYprime = fFrameImpactPoint.Dot(fYversor); 
