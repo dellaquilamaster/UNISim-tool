@@ -9,7 +9,7 @@
 * framework information
 * -------------------------------------
 set VERBOSE_MODE false
-set GRAPHICAL_MODE true
+set GRAPHICAL_MODE advanced *** false, light, advanced
 set OUTPUT_DIRECTORY "/run/media/daniele/WD_IRB/simulations/201910_TRIUMF_9Li_15C_16C/"
 set RANDOM_SEED 0 ***** use 0 to obtain a unique sequence each time
 * -------------------------------------
@@ -48,23 +48,28 @@ define SETUP "cluster" ***** Definition of the detection setup
 * use "add" to add a detector to the setup, you need to specify the setup
 * Positions are given in cm, while angles are given in deg.
 * Possible detector types:
-*  - DSSSD (Double-Sided Silicon Strip Detector facing the target perpendicularly) -> options: -distance, -theta, -phi, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer
-*  - DSSSD_ROT (Double-Sided Silicon Strip Detector with a customized position and rotation) -> options: -X0, -Y0, -Z0, -tilt_X, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer           
+*  - STRIP (Square Silicon Strip Detector facing the target perpendicularly) -> options: -distance, -theta, -phi, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer -double_sided (yes or no)
+*  - STRIP_ROT (Square Silicon Strip Detector with a customized position and rotation) -> options: -X0, -Y0, -Z0, -tilt_X, tilt_Y, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer -double_sided (yes or no)          
 *  - LAMP_WEDGE (Lamp detector wedge) -> options: -distance -phi_pos, -tilt, -frame_distance, -strips, -strip_width, -inter_strip
+*  - LAMP_WEDGE_MMM (Lamp detector wedge type-MMM) -> options: -distance -phi_pos, -tilt, -frame_distance, -inter_strip
+*  - FAZIA_BLOCK (A Fazia block) -> options: -displacement -theta_pos, -phi_pos, -pad_width, -frame_width
+*  - PHOTO_DIODE (A Hamamatsu photodiode) -> options: -distance -theta_pos, -phi_pos
+*  - OSCAR (An OSCAR telescope) -> options: -distance -theta_pos, -phi_pos, -strip (yes or no) -collimator (yes or no)
+*  - COLLIMATED_SILICON (A collimated silicon detector) -> options: -distance, -theta, -phi, -inner_radius, -outer_radius
 *
 *** FARCOS CluB
-add DETECTOR DSSSD -distance=80. -theta=9.98	  -phi=-111.11  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=10.92  -phi=-78.61  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=9.97	  -phi=-164.25  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=4.48	  -phi=-143.02  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=4.65	  -phi=-62.54  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=9.14	  -phi=-26.95  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=9.14	  -phi=-206.95  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=4.65	  -phi=-242.54  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=4.48	  -phi=36.98  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=9.97	  -phi=15.75  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=10.92  -phi=-258.61  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
-add DETECTOR DSSSD -distance=80. -theta=9.98	  -phi=68.90  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.
+add DETECTOR STRIP -distance=80. -theta=9.98	  -phi=-111.11  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=10.92  -phi=-78.61  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.   -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=9.97	  -phi=-164.25  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=4.48	  -phi=-143.02  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=4.65	  -phi=-62.54  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.  -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=9.14	  -phi=-26.95  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.  -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=9.14	  -phi=-206.95  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=4.65	  -phi=-242.54  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0. -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=4.48	  -phi=36.98  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.   -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=9.97	  -phi=15.75  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.   -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=10.92  -phi=-258.61  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.  -double_sided=yes
+add DETECTOR STRIP -distance=80. -theta=9.98	  -phi=68.90  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.3 -dead_layer=0.   -double_sided=yes
 ***                                     
 *                                       
 * ------------------------------------- 

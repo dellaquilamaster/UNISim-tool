@@ -55,6 +55,7 @@ define SETUP "cluster" ***** Definition of the detection setup
 *  - STRIP_ROT (Square Silicon Strip Detector with a customized position and rotation) -> options: -X0, -Y0, -Z0, -tilt_X, tilt_Y, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer -double_sided (yes or no)          
 *  - LAMP_WEDGE (Lamp detector wedge) -> options: -distance -phi_pos, -tilt, -frame_distance, -strips, -strip_width, -inter_strip
 *  - LAMP_WEDGE_MMM (Lamp detector wedge type-MMM) -> options: -distance -phi_pos, -tilt, -frame_distance, -inter_strip
+*  - S3_DETECTOR (Micron Semiconductors S3 detector) -> options: -distance, -theta_pos, -phi_pos
 *  - FAZIA_BLOCK (A Fazia block) -> options: -displacement -theta_pos, -phi_pos, -pad_width, -frame_width
 *  - PHOTO_DIODE (A Hamamatsu photodiode) -> options: -distance -theta_pos, -phi_pos
 *  - OSCAR (An OSCAR telescope) -> options: -distance -theta_pos, -phi_pos, -strip (yes or no) -collimator (yes or no)
@@ -99,6 +100,8 @@ add DETECTOR FAZIA_BLOCK -displacement=-60. -theta_pos=9.36	 -phi_pos=-97.63    
 *add DETECTOR LAMP_WEDGE_MMM -distance=35. -phi_pos=210. -tilt=0. -frame_distance=5.52 -inter_strip=0.01
 *add DETECTOR LAMP_WEDGE_MMM -distance=35. -phi_pos=270. -tilt=0. -frame_distance=5.52 -inter_strip=0.01
 *add DETECTOR LAMP_WEDGE_MMM -distance=35. -phi_pos=330. -tilt=0. -frame_distance=5.52 -inter_strip=0.01
+*** Micron Semiconductors S3
+add DETECTOR S3_DETECTOR -distance=20. -theta_pos=0. -phi_pos=0.
 *** OSCAR
 *add DETECTOR OSCAR -distance=30. -theta_pos=30. -phi_pos=90.
 *** PhotoDiode

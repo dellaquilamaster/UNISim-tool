@@ -10,25 +10,25 @@
 * -------------------------------------
 set VERBOSE_MODE false
 set GRAPHICAL_MODE false *** false, light, advanced
-set OUTPUT_DIRECTORY "./"
+set OUTPUT_DIRECTORY "~/Desktop/"
 set RANDOM_SEED 0 ***** use 0 to obtain a unique sequence each time
 * -------------------------------------
 
 *
 * reaction information
 * -------------------------------------
-set BEAM -Z=3 -A=9
-set BEAM_ENERGY 65 ***** MeV
+set BEAM -Z=6 -A=16
+set BEAM_ENERGY 750 ***** MeV
 set BEAM_POSITION -X=0. -Y=0. -X=0. ***** beam position on the target in cm (with respect to the target center)
 set BEAM_ANGULAR_SPREAD 0. ***** FWHM of the beam angular spread in deg
 set BEAM_POSITION_SPREAD 0. ***** FWHM of the beam position spread in cm
-set TARGET -Z=5 -A=11
+set TARGET -Z=6 -A=12
 *
 * Definition of the physics model used for the calculation
 * List of available physics models:
 *  - SequentialDecay: P+T->X1*+X2*+...+Xm*+y1+y2+...+yn -> (X1_1* + X1_2* + ... + x1_2 + ... + x1_l) + ... + (Xn_1* + Xn_2* + ... +xn_2+...+xn_j) + y1 + y2 + ... yn -> ...
 *
-set PHYSICS_MODEL SequentialDecay "./reactions/C16_TRIUMF_9Li_11B_10Be_6He.dat"
+set PHYSICS_MODEL SequentialDecay "./reactions/CLIR_16C_INFN_LNS_2015.dat"
 * -------------------------------------
 
 *
@@ -52,27 +52,16 @@ define SETUP "cluster" ***** Definition of the detection setup
 *  - STRIP_ROT (Square Silicon Strip Detector with a customized position and rotation) -> options: -X0, -Y0, -Z0, -tilt_X, tilt_Y, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer -double_sided (yes or no)          
 *  - LAMP_WEDGE (Lamp detector wedge) -> options: -distance -phi_pos, -tilt, -frame_distance, -strips, -strip_width, -inter_strip
 *  - LAMP_WEDGE_MMM (Lamp detector wedge type-MMM) -> options: -distance -phi_pos, -tilt, -frame_distance, -inter_strip
-*  - S3_DETECTOR (Micron Semiconductors S3 detector) -> options: -distance, -theta_pos, -phi_pos
 *  - FAZIA_BLOCK (A Fazia block) -> options: -displacement -theta_pos, -phi_pos, -pad_width, -frame_width
 *  - PHOTO_DIODE (A Hamamatsu photodiode) -> options: -distance -theta_pos, -phi_pos
 *  - OSCAR (An OSCAR telescope) -> options: -distance -theta_pos, -phi_pos, -strip (yes or no) -collimator (yes or no)
 *  - COLLIMATED_SILICON (A collimated silicon detector) -> options: -distance, -theta, -phi, -inner_radius, -outer_radius
 *
-*add DETECTOR STRIP_ROT -X0=5.   -Y0=1.5. -Z0=12. -tilt_X=30. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=yes
-*add DETECTOR STRIP_ROT -X0=-1.5 -Y0=5.   -Z0=12. -tilt_X=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=yes
-*add DETECTOR STRIP_ROT -X0=-5.  -Y0=-1.5 -Z0=12. -tilt_X=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=yes
-*add DETECTOR STRIP_ROT -X0=1.5. -Y0=-5.  -Z0=12. -tilt_X=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=yes
-
-*add DETECTOR STRIP -distance=10. -theta=53. -phi=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=yes
-*add DETECTOR STRIP -distance=10. -theta=53. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=yes
-
-*add DETECTOR STRIP -distance=10. -theta=53. -phi=90. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=yes
-*add DETECTOR STRIP -distance=10. -theta=53. -phi=270. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=yes
-
-add DETECTOR S3_DETECTOR -distance=10. -theta_pos=0. -phi_pos=0.
-
-*add DETECTOR STRIP -distance=8. -theta=128. -phi=0. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=yes
-*add DETECTOR STRIP -distance=8. -theta=128. -phi=180. -strips=16. -strip_width=0.31 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=yes
-***
-*
-* -------------------------------------
+*** FARCOS CluB
+add DETECTOR STRIP_ROT -X0=3.631  -Y0=5.144  -Z0=74.235 -tilt_Y=2.8 -tilt_X=-4.4  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.2 -dead_layer=0.2 -double_sided=yes
+add DETECTOR STRIP_ROT -X0=-3.631  -Y0=5.144  -Z0=74.235 -tilt_Y=-2.8 -tilt_X=-4.4  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.2 -dead_layer=0.2 -double_sided=yes
+add DETECTOR STRIP_ROT -X0=-3.631  -Y0=-5.144  -Z0=74.235 -tilt_Y=-2.8 -tilt_X=4.4  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.2 -dead_layer=0.2 -double_sided=yes
+add DETECTOR STRIP_ROT -X0=3.631  -Y0=-5.144  -Z0=74.235 -tilt_Y=2.8 -tilt_X=4.4  -strips=32 -strip_width=0.2 -inter_strip=0.01 -frame_width=0.2 -dead_layer=0.2 -double_sided=yes
+***                                     
+*                                       
+* ------------------------------------- 

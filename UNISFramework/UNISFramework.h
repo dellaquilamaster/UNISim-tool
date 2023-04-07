@@ -63,6 +63,7 @@
 #include <UNISFaziaBlock.h>
 #include <UNISLampWedgeDetector.h>
 #include <UNISLampWedgeMMMDetector.h>
+#include <UNISS3Detector.h>
 #include <UNISSiliconPhotoDiode.h>
 #include <UNISStripSingleSidedDetector.h>
 #include <UNISOscarTelescope.h>

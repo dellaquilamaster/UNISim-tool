@@ -408,6 +408,25 @@ int UNISFramework::ProcessAddCommand(const char * line)
       
       UNISLampWedgeMMMDetector * NewDetector = new UNISLampWedgeMMMDetector(distance,phi_pos,tilt,bottom_frame_distance,strip_inter);
       fExpSetup->RegisterUnit(NewDetector);
+    } else if(DetectorType.compare("S3_DETECTOR")==0) {
+      double distance=0;
+      double theta_pos=0;
+      double phi_pos=0;
+      while (LineStream>>ValueToSet) {
+        if(ValueToSet.find("-distance")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-distance=")+10)); 
+          distance=std::stof(ValueToSet); 
+        } else if(ValueToSet.find("-theta_pos")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-theta_pos=")+11));
+          theta_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
+        } else if(ValueToSet.find("-phi_pos")!=std::string::npos) {
+          ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-phi_pos=")+9)); 
+          phi_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
+        } 
+      }
+      
+      UNISS3Detector * NewDetector = new UNISS3Detector(distance,theta_pos,phi_pos);
+      fExpSetup->RegisterUnit(NewDetector);
     } else if(DetectorType.compare("FAZIA_BLOCK")==0) {
       double displacement=0;
       double theta_pos=0;
