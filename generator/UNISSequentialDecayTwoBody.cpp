@@ -308,7 +308,7 @@ int UNISSequentialDecayTwoBody::ProcessSetCommand(const char * line)
       TheAngDistrToSet=TheAngDistrToSet->fSecondaryDecayAngularDistribution[PathToTheNucleus[i]];
     }
     //
-    TheAngDistrToSet->fAngularDistribution=lines_read>0 ? NewAngDistr : 0;
+    TheAngDistrToSet->fAngularDistribution=(lines_read>0 ? NewAngDistr : 0);
   } else {
     return 0; 
   }
@@ -387,9 +387,11 @@ int UNISSequentialDecayTwoBody::ReadAngularDistribution(const char * file_name, 
     
     double x;
     double y;
-    LineStream>>x>>y;
+    LineStream>>x>>y; //x is in degrees
     
-    TheHisto->Fill(x,y);
+    TheHisto->Fill(x,sin(x*TMath::DegToRad())*y);
+    //the differential cross section is multiplied by sin(theta) 
+    //to make it in units of d2sigma/(dtheta*dphi)
     
     NRead++;
   }

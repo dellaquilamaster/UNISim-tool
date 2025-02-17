@@ -165,7 +165,7 @@ The above explanation is valid also if one or more of the particles is not an io
 ````
 set ang_distr 0 "file_name.dat"
 ````
-where 0 is the particle to which setting the angular distribution and file_name.dat is the name of an ASCII file containing theta center of mass and cross section pairs defining the angular distribution.
+where 0 is the particle to which setting the angular distribution and file_name.dat is the name of an ASCII file containing theta center of mass and cross section pairs defining the angular distribution. The theta angle must be expressed in degrees, while the corresponding value of the differential cross section could be in arbitrary units (given that it is proportional to 1/sr).
 * RutherfordScattering : This model can simulate elastic scattering events according to a pure Rutherford cross-section.
 Usage example:  
 20Ne + 197Au -> 20Ne + 197Au  

@@ -55,7 +55,7 @@ int UNISRutherfordScattering::LoadConfiguration(const char * file_name)
   //
   //Configuring the angular distribution
   if(!fIsUserDefinedDistribution) {
-    fAngularDistribution = new TF1("RutherfordDistribution", "(([0]*[1]*(1./137)*197)/(4*[2]*(sin(x/2.))^2))^2", fMinAngle, fMaxAngle);
+    fAngularDistribution = new TF1("RutherfordDistribution", "sin(x)*(([0]*[1]*(1./137)*197)/(4*[2]*(sin(x/2.))^2))^2", fMinAngle, fMaxAngle); //d2sigma/(dphi*dtheta)
     fAngularDistribution->SetParameter(0, fTheReactionProducts[0]->fZ); //Charge of the projectile (ejectile)
     fAngularDistribution->SetParameter(1, fTheReactionProducts[1]->fZ); //Charge of the target (recoil)
     fAngularDistribution->SetNpx(200);

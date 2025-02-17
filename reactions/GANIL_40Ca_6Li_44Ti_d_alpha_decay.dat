@@ -26,7 +26,7 @@ define particle 1 -Z=22 -A=44 *** residual 44Ti*
 *
 * setting the angular distribution for particle 0 (the angular distribution is always set for the first particle of the decay)
 *
-set ang_distr 0 "./reactions/GANIL_40Ca_6Li_alpha_tranfer_angular_distribution_smooth.dat"
+set ang_distr 0 "reactions/GANIL_17Ne_12C_16F_0.424_13N_angular_distribution_DWBA.dat"
 
 *
 * including some excited state of the particle 0
