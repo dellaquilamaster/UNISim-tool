@@ -8,7 +8,7 @@ fNumDetectors(0)
 //____________________________________________________
 UNISStripCluster::~UNISStripCluster()
 {
-  for(int i=0; i<fTheDetectors.size(); i++) {
+  for(unsigned int i=0; i<fTheDetectors.size(); i++) {
     delete fTheDetectors[i];   
   }
   fTheDetectors.clear();
@@ -17,7 +17,7 @@ UNISStripCluster::~UNISStripCluster()
 //____________________________________________________
 void UNISStripCluster::Clear()
 {
-  for(int i=0; i<fTheDetectors.size(); i++) {
+  for(unsigned int i=0; i<fTheDetectors.size(); i++) {
     delete fTheDetectors[i];   
   }
   fTheDetectors.clear();

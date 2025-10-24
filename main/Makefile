@@ -19,8 +19,9 @@ INCLUDES  += -I$(UNISimSrc)generator
 INCLUDES  += -I$(UNISimSrc)UNISRootEvent
 INCLUDES  += -I$(UNISimSrc)UNISShared
 INCLUDES  += -I$(UNISimSrc)LISETools
+INCLUDES  += -I$(UNISimSrc)UNISTarget
 
-RLIBS     := -L$(UNISimSrc)lib -lUNISFramework -lUNISGenerator -lUNISDetectionSetup -lUNISStrip -lUNISLamp -lUNISFaziaQuartet -lUNISSiliconDetector -lUNISOscar -lUNISRootEvent -lUNISShared
+RLIBS     := -L$(UNISimSrc)lib -lUNISFramework -lUNISGenerator -lUNISDetectionSetup -lUNISStrip -lUNISLamp -lUNISFaziaQuartet -lUNISSiliconDetector -lUNISOscar -lUNISRootEvent -lUNISShared -lUNISTarget
 
 SRCS = $(wildcard *.$(SrcSuf))
 OBJS = $(patsubst %.$(SrcSuf), %.$(ObjSuf), $(SRCS))

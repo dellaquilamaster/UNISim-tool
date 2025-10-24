@@ -5,6 +5,8 @@ UNISFaziaQuartet::UNISFaziaQuartet(Double_t theta_pos, Double_t phi_pos, Double_
 TXlabversor(1,0,0),
 TYlabversor(0,1,0),
 TZlabversor(0,0,1),
+TTrueImpactPoint(0.,0.,0.),
+TTelescopeImpactPoint(0.,0.,0.),
 TPads_number(4),
 TRowColumn(2),
 TNominalDistance(100),
@@ -16,9 +18,7 @@ TPadEffective_semi(0.5*TPadEffective_width),
 TFrame_width(frame_width),
 TPadTrue_width(TPadEffective_width+2*TFrame_width),
 TPadTrue_semi(0.5*TPadTrue_width),
-TTelescopeTrue_semi(TPadTrue_semi*TRowColumn),
-TTrueImpactPoint(0.,0.,0.),
-TTelescopeImpactPoint(0.,0.,0.)
+TTelescopeTrue_semi(TPadTrue_semi*TRowColumn)
 {
   //
   //Placing the detector at 0 degrees and distance equal to the nominal one (100 cm)

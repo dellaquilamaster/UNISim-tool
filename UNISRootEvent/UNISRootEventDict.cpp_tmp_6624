@@ -1,0 +1,123 @@
+// Do NOT change. Changes will be lost next time file is generated
+
+#define R__DICTIONARY_FILENAME UNISRootEventDict
+#define R__NO_DEPRECATION
+
+/*******************************************************************/
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#define G__DICTIONARY
+#include "ROOT/RConfig.hxx"
+#include "TClass.h"
+#include "TDictAttributeMap.h"
+#include "TInterpreter.h"
+#include "TROOT.h"
+#include "TBuffer.h"
+#include "TMemberInspector.h"
+#include "TInterpreter.h"
+#include "TVirtualMutex.h"
+#include "TError.h"
+
+#ifndef G__ROOT
+#define G__ROOT
+#endif
+
+#include "RtypesImp.h"
+#include "TIsAProxy.h"
+#include "TFileMergeInfo.h"
+#include <algorithm>
+#include "TCollectionProxyInfo.h"
+/*******************************************************************/
+
+#include "TDataMember.h"
+
+// Header files passed as explicit arguments
+#include "UNISRootEvent.h"
+
+// Header files passed via #pragma extra_include
+
+// The generated code does not explicitly qualify STL entities
+namespace std {} using namespace std;
+
+namespace ROOT {
+   static void *new_UNISRootEvent(void *p = nullptr);
+   static void *newArray_UNISRootEvent(Long_t size, void *p);
+   static void delete_UNISRootEvent(void *p);
+   static void deleteArray_UNISRootEvent(void *p);
+   static void destruct_UNISRootEvent(void *p);
+
+   // Function generating the singleton type initializer
+   static TGenericClassInfo *GenerateInitInstanceLocal(const ::UNISRootEvent*)
+   {
+      ::UNISRootEvent *ptr = nullptr;
+      static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::UNISRootEvent >(nullptr);
+      static ::ROOT::TGenericClassInfo 
+         instance("UNISRootEvent", ::UNISRootEvent::Class_Version(), "UNISRootEvent.h", 8,
+                  typeid(::UNISRootEvent), ::ROOT::Internal::DefineBehavior(ptr, ptr),
+                  &::UNISRootEvent::Dictionary, isa_proxy, 4,
+                  sizeof(::UNISRootEvent) );
+      instance.SetNew(&new_UNISRootEvent);
+      instance.SetNewArray(&newArray_UNISRootEvent);
+      instance.SetDelete(&delete_UNISRootEvent);
+      instance.SetDeleteArray(&deleteArray_UNISRootEvent);
+      instance.SetDestructor(&destruct_UNISRootEvent);
+      return &instance;
+   }
+   TGenericClassInfo *GenerateInitInstance(const ::UNISRootEvent*)
+   {
+      return GenerateInitInstanceLocal(static_cast<::UNISRootEvent*>(nullptr));
+   }
+   // Static variable to force the class initialization
+   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal(static_cast<const ::UNISRootEvent*>(nullptr)); R__UseDummy(_R__UNIQUE_DICT_(Init));
+} // end of namespace ROOT
+
+//______________________________________________________________________________
+atomic_TClass_ptr UNISRootEvent::fgIsA(nullptr);  // static to hold class pointer
+
+//______________________________________________________________________________
+const char *UNISRootEvent::Class_Name()
+{
+   return "UNISRootEvent";
+}
+
+//______________________________________________________________________________
+const char *UNISRootEvent::ImplFileName()
+{
+   return ::ROOT::GenerateInitInstanceLocal((const ::UNISRootEvent*)nullptr)->GetImplFileName();
+}
+
+//______________________________________________________________________________
+int UNISRootEvent::ImplFileLine()
+{
+   return ::ROOT::GenerateInitInstanceLocal((const ::UNISRootEvent*)nullptr)->GetImplFileLine();
+}
+
+//______________________________________________________________________________
+TClass *UNISRootEvent::Dictionary()
+{
+   fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::UNISRootEvent*)nullptr)->GetClass();
+   return fgIsA;
+}
+
+//______________________________________________________________________________
+TClass *UNISRootEvent::Class()
+{
+   if (!fgIsA.load()) { R__LOCKGUARD(gInterpreterMutex); fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::UNISRootEvent*)nullptr)->GetClass(); }
+   return fgIsA;
+}
+
+//______________________________________________________________________________
+void UNISRootEvent::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class UNISRootEvent.
+
+   if (R__b.IsReading()) {
+      R__b.ReadClassBuffer(UNISRootEvent::Class(),this);
+   } else {
+      R__b.WriteClassBuffer(UNISRootEvent::Class(),this);
+   }
+}
+

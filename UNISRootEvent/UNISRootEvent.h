@@ -13,6 +13,7 @@ public :
   
   Int_t fmulti;
   Int_t fmulti_detected;
+  Int_t fsteps;
   Bool_t * fIsDetected; //[fmulti]
   Int_t * fnumdet; //[fmulti]
   Int_t * fnumpixel; //[fmulti]
@@ -26,10 +27,9 @@ public :
   Double_t * fPhiOrigin; //[fmulti]
   Double_t * fThetaAfterTarget; //[fmulti]
   Double_t * fPhiAfterTarget; //[fmulti]
-  Double_t * fKinEnergyOriginCms; //[fmulti]
-  Double_t * fThetaOriginCms; //[fmulti]
   Double_t * fZ; //[fmulti]
   Double_t * fA; //[fmulti]
+  Double_t * fWeight; //[fsteps]
 
   ClassDef(UNISRootEvent,1);
 };

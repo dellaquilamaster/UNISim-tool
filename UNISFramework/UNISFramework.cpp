@@ -7,22 +7,20 @@ UNISFramework::UNISFramework() : UNISFramework("config/UNISim.conf")
 //____________________________________________________
 UNISFramework::UNISFramework(const char * file_config) :
 fConfigurationFile(file_config),
-fBeamCenter(0,0,0),
-fBeamAngularSpread(0),
-fBeamPositionSpread(0),
-fBeamEnergySpread(0),
-fPhysicsModelName(""),
-fPhysicsConfigFileName(""),
-fTargetThickness(0),
-fTargetEffectiveThickness(0),
-fTargetTilt(0),
-fInteractionDistance(0),
 fOutputFolder("./output/"),
 fOutputFileName(),
 fInputFileName(),
 fGenerateData(true),
 fGraphics(false),
 fAdvancedGraphics(false),
+fBeamCenter(0,0,0),
+fBeamAngularSpread(0),
+fBeamPositionSpreadX(0),
+fBeamPositionSpreadY(0),
+fBeamEnergySpread(0),
+fPhysicsModelName(""),
+fPhysicsConfigFileName(""),
+fTheTargetStack(new UNISTargetStack()),
 fTheTree(0),
 fTheFile(0),
 fUMAToMeV(931.4936148),
@@ -101,7 +99,8 @@ int UNISFramework::ProcessSetCommand(const char * line)
   
   if(WhatToSet.compare("VERBOSE_MODE")==0) {
     fVerbose=ValueToSet.compare("true")==0 ? true : false;
-  } else if(WhatToSet.compare("GRAPHICAL_MODE")==0) {
+  } 
+  else if(WhatToSet.compare("GRAPHICAL_MODE")==0) {
     if(ValueToSet.compare("light")==0) {
       fGraphics=true; 
     } else if(ValueToSet.compare("advanced")==0) {
@@ -109,15 +108,18 @@ int UNISFramework::ProcessSetCommand(const char * line)
       fAdvancedGraphics=true;
     }
     fGraphics=ValueToSet.compare("false")==0 ? false : true;
-  } else if(WhatToSet.compare("OUTPUT_DIRECTORY")==0) {
+  } 
+  else if(WhatToSet.compare("OUTPUT_DIRECTORY")==0) {
     fOutputFolder.assign(ValueToSet.substr(ValueToSet.find("\"")+1,ValueToSet.find_last_of("\"")-(ValueToSet.find("\"")+1)));
     if(fOutputFolder.find_last_of('/')!=fOutputFolder.length()-1) {
       fOutputFolder.append("/");
     }
-  } else if(WhatToSet.compare("RANDOM_SEED")==0) {
+  } 
+  else if(WhatToSet.compare("RANDOM_SEED")==0) {
     gRandomSeed=std::stof(ValueToSet);
     gRandom->SetSeed(gRandomSeed);
-  } else if(WhatToSet.compare("BEAM")==0) {
+  } 
+  else if(WhatToSet.compare("BEAM")==0) {
     do {
       if(ValueToSet.find("-Z")!=std::string::npos) {
         ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-Z=")+3)); 
@@ -127,7 +129,8 @@ int UNISFramework::ProcessSetCommand(const char * line)
         fTheBeam.fA=std::stoi(ValueToSet); 
       }
     } while (LineStream>>ValueToSet);
-  } else if(WhatToSet.compare("TARGET")==0) {
+  } 
+  else if(WhatToSet.compare("TARGET")==0) {
     do {
       if(ValueToSet.find("-Z")!=std::string::npos) {
         ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-Z=")+3)); 
@@ -137,9 +140,11 @@ int UNISFramework::ProcessSetCommand(const char * line)
         fTheTarget.fA=std::stoi(ValueToSet); 
       }
     } while (LineStream>>ValueToSet);
-  } else if(WhatToSet.compare("BEAM_ENERGY")==0) {
+  } 
+  else if(WhatToSet.compare("BEAM_ENERGY")==0) {
     fBeamEnergy=std::stof(ValueToSet);
-  } else if(WhatToSet.compare("BEAM_POSITION")==0) {
+  } 
+  else if(WhatToSet.compare("BEAM_POSITION")==0) {
     do {
       if(ValueToSet.find("-X")!=std::string::npos) {
         ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-X=")+3)); 
@@ -152,19 +157,39 @@ int UNISFramework::ProcessSetCommand(const char * line)
         fBeamCenter.SetZ(std::stof(ValueToSet)); 
       }
     } while (LineStream>>ValueToSet);
-  } else if(WhatToSet.compare("BEAM_ANGULAR_SPREAD")==0) {
+  } 
+  else if(WhatToSet.compare("BEAM_ANGULAR_SPREAD")==0) {
     fBeamAngularSpread=std::stof(ValueToSet)*TMath::DegToRad();
-  } else if(WhatToSet.compare("BEAM_POSITION_SPREAD")==0) {
-    fBeamPositionSpread=std::stof(ValueToSet);
-  } else if(WhatToSet.compare("BEAM_ENERGY_SPREAD")==0) {
+  } 
+  //else if(WhatToSet.compare("BEAM_POSITION_SPREAD")==0) {
+  //  fBeamPositionSpread=std::stof(ValueToSet);
+  //} 
+  else if(WhatToSet.compare("BEAM_POSITION_SPREAD_VERTICAL")==0) {
+    fBeamPositionSpreadX=std::stof(ValueToSet);
+  } 
+  else if(WhatToSet.compare("BEAM_POSITION_SPREAD_HORIZONTAL")==0) {
+    fBeamPositionSpreadY=std::stof(ValueToSet);
+  } 
+  else if(WhatToSet.compare("BEAM_ENERGY_SPREAD")==0) {
     fBeamEnergySpread=std::stof(ValueToSet);
-  } else if(WhatToSet.compare("TARGET_MATERIAL")==0) {
-    fTargetMaterial.assign(ValueToSet);
-  } else if(WhatToSet.compare("TARGET_THICKNESS")==0) {
-    fTargetThickness=std::stof(ValueToSet);
-  } else if(WhatToSet.compare("TARGET_TILT")==0) {
-    fTargetTilt=std::stof(ValueToSet)*TMath::DegToRad();
-  } else if(WhatToSet.compare("PHYSICS_MODEL")==0) {
+  }
+  // UNISTarget
+  else if(WhatToSet.compare("TARGET_TILT_VERTICAL") == 0){
+    fTheTargetStack->SetStackTiltX(std::stof(ValueToSet));
+  } 
+  else if(WhatToSet.compare("TARGET_TILT_HORIZONTAL") == 0){
+    fTheTargetStack->SetStackTiltY(std::stof(ValueToSet));
+  } 
+  //else if(WhatToSet.compare("TARGET_MATERIAL")==0) {
+  //  fTargetMaterial.assign(ValueToSet);
+  //} 
+  //else if(WhatToSet.compare("TARGET_THICKNESS")==0) {
+  //  fTargetThickness=std::stof(ValueToSet);
+  //} 
+  //else if(WhatToSet.compare("TARGET_TILT")==0) {
+  //  fTargetTilt=std::stof(ValueToSet)*TMath::DegToRad();
+  //} 
+  else if(WhatToSet.compare("PHYSICS_MODEL")==0) {
       if( (fPhysicsModelName.empty() && ValueToSet.compare("SequentialDecay")==0) || fPhysicsModelName.compare("SequentialDecay")==0) {
         fPhysicsModelName.assign("SequentialDecay");
         fTheEventGenerator = new UNISSequentialDecay();
@@ -174,7 +199,8 @@ int UNISFramework::ProcessSetCommand(const char * line)
           printf("Error: error while building SequentialDecay event generator from file %s\nAborting!", fPhysicsConfigFileName.c_str());
           exit(1);
         }
-      } else if( (fPhysicsModelName.empty() && ValueToSet.compare("RutherfordScattering")==0) || fPhysicsModelName.compare("RutherfordScattering")==0) {
+      } 
+      else if( (fPhysicsModelName.empty() && ValueToSet.compare("RutherfordScattering")==0) || fPhysicsModelName.compare("RutherfordScattering")==0) {
         fPhysicsModelName.assign("RutherfordScattering");
         fTheEventGenerator = new UNISRutherfordScattering();
         LineStream>>ValueToSet;
@@ -183,7 +209,8 @@ int UNISFramework::ProcessSetCommand(const char * line)
           printf("Error: error while building RutherfordScattering event generator from file %s\nAborting!", fPhysicsConfigFileName.c_str());
           exit(1);
         }
-      } else if( (fPhysicsModelName.empty() && ValueToSet.compare("SequentialDecayTwoBody")==0) || fPhysicsModelName.compare("SequentialDecayTwoBody")==0) {
+      } 
+      else if( (fPhysicsModelName.empty() && ValueToSet.compare("SequentialDecayTwoBody")==0) || fPhysicsModelName.compare("SequentialDecayTwoBody")==0) {
         fPhysicsModelName.assign("SequentialDecayTwoBody");
         fTheEventGenerator = new UNISSequentialDecayTwoBody();
         LineStream>>ValueToSet;
@@ -192,8 +219,10 @@ int UNISFramework::ProcessSetCommand(const char * line)
           printf("Error: error while building SequentialDecayTwoBody event generator from file %s\nAborting!", fPhysicsConfigFileName.c_str());
           exit(1);
         }
-      } else return 0;
-  } else {
+      } 
+      else return 0;
+  } 
+  else {
     return 0; 
   }
   
@@ -220,7 +249,16 @@ int UNISFramework::ProcessDefineCommand(const char * line)
     
     fExpSetup=NewSetup;
     
-  } else {
+  }
+  // UNISTarget
+  else if(WhatToSet.compare("TARGET_STACK")){
+    std::string StackName;
+    LineStream>>StackName;
+    StackName.assign(StackName.substr(StackName.find("\"")+1,StackName.find_last_of("\"")-(StackName.find("\"")+1)));
+
+    fTheTargetStack->SetName(StackName.c_str());
+  } 
+  else {
     return 0; 
   }
   
@@ -237,8 +275,53 @@ int UNISFramework::ProcessAddCommand(const char * line)
   std::string WhatToSet;
   
   LineStream>>Command>>WhatToSet;
-  
-  if(WhatToSet.compare("DETECTOR")==0) {
+  if(WhatToSet.compare("TARGET") == 0){
+    std::string ValueToSet;
+    UNISTarget* newTarget = new UNISTarget("", "", false, 0., 0.);
+    std::string name;
+    std::string material;
+    double thicknesss_um;
+    double thicknesss_ug;
+    bool is_active=false;
+
+    //void SetName(const char *);
+    //void SetMaterial(const char*);
+    //void SetThickness_um(double thickness_um);
+    //void SetThickness_ug(double thickness_ug);
+    //void SetIsActive(bool isActive);
+
+
+    while (LineStream>>ValueToSet){
+      if(ValueToSet.find("-name=") != std::string::npos){
+        ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-name=")+6));
+        name=ValueToSet;
+        newTarget->SetName(name.c_str());
+      }
+      else if(ValueToSet.find("-material=") != std::string::npos){
+        ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-material=")+10));
+        material=ValueToSet;
+        newTarget->SetMaterial(material.c_str());
+      }
+      else if(ValueToSet.find("-thickness_um=") != std::string::npos){
+        ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-thickness_um=")+14));
+        thicknesss_um=std::stof(ValueToSet);
+        newTarget->SetThickness_um(thicknesss_um);
+      }
+      else if(ValueToSet.find("-thickness_ug=") != std::string::npos){
+        ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-thickness_ug=")+14));
+        thicknesss_ug=std::stof(ValueToSet);
+        newTarget->SetThickness_ug(thicknesss_ug);
+      }
+      else if(ValueToSet.find("-active=") != std::string::npos){
+        ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-active=")+8));
+        if(ValueToSet.find("yes")!=std::string::npos) is_active=true;
+        newTarget->SetIsActive(is_active);
+      }
+    }
+    fTheTargetStack->AddTarget(newTarget);
+    delete newTarget;
+  }
+  else if(WhatToSet.compare("DETECTOR")==0) {
     //Adding a new detector
     std::string DetectorType;
     LineStream>>DetectorType;
@@ -259,28 +342,36 @@ int UNISFramework::ProcessAddCommand(const char * line)
         if(ValueToSet.find("-distance=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-distance=")+10)); 
           distance=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-theta=")!=std::string::npos) {
+        } 
+        else if(ValueToSet.find("-theta=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-theta=")+7)); 
           theta_pos=std::stof(ValueToSet)*TMath::DegToRad();
-        } else if(ValueToSet.find("-phi=")!=std::string::npos) {
+        } 
+        else if(ValueToSet.find("-phi=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-phi=")+5)); 
           phi_pos=std::stof(ValueToSet)*TMath::DegToRad(); 
-        } else if(ValueToSet.find("-strips=")!=std::string::npos) {
+        } 
+        else if(ValueToSet.find("-strips=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strips=")+8)); 
           strip_number=std::stoi(ValueToSet); 
-        } else if(ValueToSet.find("-strip_width=")!=std::string::npos) {
+        } 
+        else if(ValueToSet.find("-strip_width=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-strip_width=")+13)); 
           strip_width=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-inter_strip=")!=std::string::npos) {
+        } 
+        else if(ValueToSet.find("-inter_strip=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-inter_strip=")+13)); 
           strip_inter=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-frame_width=")!=std::string::npos) {
+        } 
+        else if(ValueToSet.find("-frame_width=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-frame_width=")+13)); 
           frame_width=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-dead_layer=")!=std::string::npos) {
+        } 
+        else if(ValueToSet.find("-dead_layer=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-dead_layer=")+12)); 
           dead_layer=std::stof(ValueToSet); 
-        } else if(ValueToSet.find("-double_sided=")!=std::string::npos) {
+        } 
+        else if(ValueToSet.find("-double_sided=")!=std::string::npos) {
           ValueToSet.assign(ValueToSet.substr(ValueToSet.find("-double_sided=")+14)); 
           if(ValueToSet.find("yes")!=std::string::npos) is_double_sided=true;
         }
@@ -291,7 +382,8 @@ int UNISFramework::ProcessAddCommand(const char * line)
       else NewDetector = new UNISStripSingleSidedDetector(distance,theta_pos,phi_pos,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
       fExpSetup->RegisterUnit(NewDetector);
       
-    } else if(DetectorType.compare("STRIP_ROT")==0) {
+    } 
+    else if(DetectorType.compare("STRIP_ROT")==0) {
       double X0=0;
       double Y0=0;
       double Z0=0;
@@ -346,7 +438,8 @@ int UNISFramework::ProcessAddCommand(const char * line)
       else NewDetector = new UNISStripSingleSidedDetector(X0,Y0,Z0,tilt_X,tilt_Y,strip_number,strip_width,strip_inter,frame_width,dead_layer,"");
       fExpSetup->RegisterUnit(NewDetector);
       
-    } else if(DetectorType.compare("LAMP_WEDGE")==0) {
+    } 
+    else if(DetectorType.compare("LAMP_WEDGE")==0) {
       double distance=0;
       double phi_pos=0;
       double tilt=0;
@@ -381,7 +474,8 @@ int UNISFramework::ProcessAddCommand(const char * line)
       
       UNISLampWedgeDetector * NewDetector = new UNISLampWedgeDetector(distance,phi_pos,tilt,bottom_frame_distance,strip_number,strip_width,strip_inter);
       fExpSetup->RegisterUnit(NewDetector);
-    } else if(DetectorType.compare("LAMP_WEDGE_MMM")==0) {
+    } 
+    else if(DetectorType.compare("LAMP_WEDGE_MMM")==0) {
       double distance=0;
       double phi_pos=0;
       double tilt=0;
@@ -408,7 +502,8 @@ int UNISFramework::ProcessAddCommand(const char * line)
       
       UNISLampWedgeMMMDetector * NewDetector = new UNISLampWedgeMMMDetector(distance,phi_pos,tilt,bottom_frame_distance,strip_inter);
       fExpSetup->RegisterUnit(NewDetector);
-    } else if(DetectorType.compare("S3_DETECTOR")==0) {
+    } 
+    else if(DetectorType.compare("S3_DETECTOR")==0) {
       double distance=0;
       double theta_pos=0;
       double phi_pos=0;
@@ -427,7 +522,8 @@ int UNISFramework::ProcessAddCommand(const char * line)
       
       UNISS3Detector * NewDetector = new UNISS3Detector(distance,theta_pos,phi_pos);
       fExpSetup->RegisterUnit(NewDetector);
-    } else if(DetectorType.compare("FAZIA_BLOCK")==0) {
+    } 
+    else if(DetectorType.compare("FAZIA_BLOCK")==0) {
       double displacement=0;
       double theta_pos=0;
       double phi_pos=0;
@@ -453,7 +549,8 @@ int UNISFramework::ProcessAddCommand(const char * line)
       }
       UNISFaziaBlock * NewDetector = new UNISFaziaBlock(theta_pos,phi_pos,displacement,pad_width,frame_width);
       fExpSetup->RegisterUnit(NewDetector);
-    } else if(DetectorType.compare("PHOTO_DIODE")==0) {
+    } 
+    else if(DetectorType.compare("PHOTO_DIODE")==0) {
       double distance=0;
       double theta_pos=0;
       double phi_pos=0;
@@ -471,7 +568,8 @@ int UNISFramework::ProcessAddCommand(const char * line)
       }
       UNISSiliconPhotoDiode * NewDetector = new UNISSiliconPhotoDiode(distance,theta_pos,phi_pos);
       fExpSetup->RegisterUnit(NewDetector);
-    } else if(DetectorType.compare("OSCAR")==0) {
+    } 
+    else if(DetectorType.compare("OSCAR")==0) {
       double distance=0;
       double theta_pos=0;
       double phi_pos=0;
@@ -497,7 +595,8 @@ int UNISFramework::ProcessAddCommand(const char * line)
       }
       UNISOscarTelescope * NewDetector = new UNISOscarTelescope(distance,theta_pos,phi_pos,(is_strip && !is_collimator ? "" : (is_strip && is_collimator ? "col" : (is_collimator ? "pads col" : "pads"))));
       fExpSetup->RegisterUnit(NewDetector);
-    } else if(DetectorType.compare("COLLIMATED_SILICON")==0) {
+    } 
+    else if(DetectorType.compare("COLLIMATED_SILICON")==0) {
       double distance=0;
       double theta_pos=0;
       double phi_pos=0;
@@ -524,8 +623,8 @@ int UNISFramework::ProcessAddCommand(const char * line)
       UNISCollimatedSilicon * NewDetector = new UNISCollimatedSilicon(distance,theta_pos,phi_pos,collimator_inner_radius,collimator_outer_radius);
       fExpSetup->RegisterUnit(NewDetector);
     }
-    
-  } else {
+  } 
+  else {
     return 0; 
   }
   
@@ -555,12 +654,17 @@ void UNISFramework::PrintConfiguration() const
     printf("Beam: Z=%d A=%d Ekin=%f\n", fTheBeam.fZ, fTheBeam.fA, fBeamEnergy);
     printf("Beam Position (X,Y,Z) = (%.3f, %.3f, %.3f)\n", fBeamCenter.X(), fBeamCenter.Y(), fBeamCenter.Z());
     printf("Beam Angular Spread (FWHM) = %.3f deg\n", fBeamAngularSpread);
-    printf("Beam Position Spread (FWHM) = %.3f cm\n", fBeamPositionSpread);
+    //printf("Beam Position Spread (FWHM) = %.3f cm\n", fBeamPositionSpread);
+    printf("Beam Position Spread Vertical (FWHM) = %.3f cm\n", fBeamPositionSpreadX);
+    printf("Beam Position Spread Horizontal (FWHM) = %.3f cm\n", fBeamPositionSpreadY);
     printf("Beam Energy Spread (FWHM) = %.3f MeV\n", fBeamEnergySpread);
     printf("Target: Z=%d A=%d\n", fTheTarget.fZ, fTheTarget.fA);
-    printf("Target Material: %s\n", fTargetMaterial.c_str());
-    printf("Target Thickness: %f um\n", fTargetThickness);
-    printf("Target Tilt: %f degrees\n", fTargetTilt*TMath::RadToDeg());
+    // UNISTarget
+    printf("Target Stack has %d targets in it\n", fTheTargetStack->GetNum_ofTargets_inStack());
+    fTheTargetStack->ListStack();
+    //printf("Target Material: %s\n", fTargetMaterial.c_str());
+    //printf("Target Thickness: %f um\n", fTargetThickness);
+    //printf("Target Tilt: %f degrees\n", fTargetTilt*TMath::RadToDeg());
     printf("Physics Model: %s\n", fPhysicsModelName.c_str());
     printf("Physics Configuration: %s\n", fPhysicsConfigFileName.c_str());
     printf("****\n");
@@ -683,6 +787,7 @@ int UNISFramework::ReadInput(int argc, char ** argv)
 }
 
 //____________________________________________________
+//Add UNISTarget Propagate perticles
 void UNISFramework::ProcessIterations()
 {
   //This is the core method.
@@ -728,22 +833,32 @@ void UNISFramework::ProcessIterations()
     //
     //Generation of the event
     if(fGenerateData) {
+
+      //Generate Interaction point
+      Interaction_Point int_point = fTheTargetStack->GetInteractionPoint(); //if no targets, return{0,0.} //UNISTarget
       
       //
       //Setting the projectile for the iteration
-      GenerateBeam(); //Initialization of the beam particle producing the reaction (event-by-event)
+      GenerateBeam(int_point); //UNISTarget //Initialization of the beam particle producing the reaction (event-by-event)
       //
       
       //
       //Generate Event
       std::vector<UNISIon> TheEvent = fTheEventGenerator->GetEvent();
       //
-      
-      //
-      //Writing the event on the UNISRootEvent data structure
-      RegisterEvent(TheEvent);
-      //
-      
+
+      //Propagate Particles Through Target - it handles well even if 0, 0
+      if(fTheTargetStack->GetNum_ofTargets_inStack() != 0)
+      {
+        std::vector<UNISIon> TheEvent_afterPropagation = fTheTargetStack->PropagateParticles(TheEvent, int_point); //UNISTarget
+        //Writing the event on the UNISRootEvent data structure
+        RegisterEvent(TheEvent, TheEvent_afterPropagation);
+
+      }
+      else
+        //Writing the event on the UNISRootEvent data structure
+        RegisterEvent(TheEvent, TheEvent);
+
     } else {
       //
       //Writing the event on the UNISRootEvent data structure by reading it from file
@@ -781,7 +896,7 @@ void UNISFramework::ProcessIterations()
 }
 
 //____________________________________________________
-void UNISFramework::GenerateBeam()
+void UNISFramework::GenerateBeam( Interaction_Point point_of_interaction )
 {
   //
   //Creation of the beam
@@ -798,17 +913,20 @@ void UNISFramework::GenerateBeam()
     fTheBeam.fMomentum.RotateZ(gRandom->Uniform(0.,2*TMath::Pi())); //randomization of the beam direction around the Z axis (cylindrical symmetry)
   }
   fBeamPosition.SetXYZ(fBeamCenter.X(),fBeamCenter.Y(),fBeamCenter.Z());
-  if(fBeamPositionSpread) {
-    fBeamPosition+=TVector3(gRandom->Gaus(0,fBeamPositionSpread/2.355),gRandom->Gaus(0,fBeamPositionSpread/2.355),0);
+  if(fBeamPositionSpreadX) {
+    fBeamPosition+=TVector3(gRandom->Gaus(0,fBeamPositionSpreadX/2.355),0,0);
   }
-  if(fTargetThickness) {
-    const double reaction_vertex_point = gRandom->Uniform(0, fTargetEffectiveThickness);
-    const double distance_traveled_in_target_beam = reaction_vertex_point;
-    fBeamEnergyMidTarget=fBeamEnergyMidTarget-gLISEELossModule->GetEnergyLoss(fTheBeam.fZ,fTheBeam.fA,fBeamEnergyMidTarget,fTargetMaterial.c_str(),distance_traveled_in_target_beam);
-    fBeamPosition+=TVector3(0,0,-fTargetEffectiveThickness/2.+distance_traveled_in_target_beam);
-    fInteractionDistance=fBeamPosition.Z()-(fBeamCenter.Z()-fTargetEffectiveThickness/2.);
+  if(fBeamPositionSpreadY) {
+    fBeamPosition+=TVector3(0,gRandom->Gaus(0,fBeamPositionSpreadY/2.355),0);
   }
-  //
+  //if(fBeamPositionSpread) {
+  //  fBeamPosition+=TVector3(gRandom->Gaus(0,fBeamPositionSpread/2.355),gRandom->Gaus(0,fBeamPositionSpread/2.355),0);
+  //}
+
+  //UNISTarget
+  if(fTheTargetStack->GetNum_ofTargets_inStack() != 0)
+    fTheBeam = fTheTargetStack->GetBeam_preInteraction(fTheBeam, point_of_interaction);
+
   //Initialization of the beam for the simulation
   fTheEventGenerator->SetBeam(fTheBeam);
   //
@@ -822,7 +940,7 @@ void UNISFramework::InitializeTarget()
   //Creation of the target
   fTheTarget.fMass = gNucData->get_mass_Z_A(fTheTarget.fZ,fTheTarget.fA);
   fTheTarget.fMomentum=TLorentzVector(0,0,0,fTheTarget.fMass);
-  fTargetEffectiveThickness=fTargetThickness/cos(fTargetTilt);
+  //fTargetEffectiveThickness=fTargetThickness/cos(fTargetTilt); //UNISTarget
   //
   //Initialization of the target
   fTheEventGenerator->SetTarget(fTheTarget);
@@ -855,14 +973,14 @@ void UNISFramework::DetectEvent()
 }
 
 //____________________________________________________
-void UNISFramework::RegisterEvent(std::vector<UNISIon> & AnEvent)
+void UNISFramework::RegisterEvent(std::vector<UNISIon> & AnEvent, std::vector<UNISIon> & AfterPropagationEvent)
 {
   fevt->fmulti=0;
   fevt->fmulti_detected=0;
   
   //
   //Loop on the event
-  for(int i=0; i<AnEvent.size(); i++) {       
+  for(unsigned int i=0; i<AnEvent.size(); i++) {       
     fevt->fIsDetected[i]=false;
     fevt->fnumdet[i]=-1;
     fevt->fnumpixel[i]=-1;
@@ -873,13 +991,11 @@ void UNISFramework::RegisterEvent(std::vector<UNISIon> & AnEvent)
     fevt->fKinEnergyOrigin[i]=AnEvent[i].fMomentum.E()-AnEvent[i].fMomentum.M();
     fevt->fThetaOrigin[i]=AnEvent[i].fMomentum.Theta();
     fevt->fPhiOrigin[i]=AnEvent[i].fMomentum.Phi();
-    fevt->fThetaAfterTarget[i]=AnEvent[i].fMomentum.Theta();
-    fevt->fPhiAfterTarget[i]=AnEvent[i].fMomentum.Phi();
+    fevt->fThetaAfterTarget[i]=AfterPropagationEvent[i].fMomentum.Theta();
+    fevt->fPhiAfterTarget[i]=AfterPropagationEvent[i].fMomentum.Phi();
     fevt->fZ[i]=AnEvent[i].fZ;
     fevt->fA[i]=AnEvent[i].fA;
-    fevt->fKinEnergyAfterTarget[i]=((fTargetThickness>0 && fevt->fZ[i]>0) ? (fevt->fKinEnergyOrigin[i] - (cos(fevt->fThetaOrigin[i])!=0 ? gLISEELossModule->GetEnergyLoss(fevt->fZ[i],fevt->fA[i],fevt->fKinEnergyOrigin[i],fTargetMaterial.c_str(),(fTargetEffectiveThickness-fInteractionDistance)*cos(fTargetTilt)/std::fabs(cos(std::fabs(fevt->fThetaOrigin[i]-fTargetTilt)))) : fevt->fKinEnergyOrigin[i])) : fevt->fKinEnergyOrigin[i]); //WARNING: this is just temporary. Target tilt needs to be handled differently.
-    fevt->fKinEnergyOriginCms[i]=-9999;
-    fevt->fThetaOriginCms[i]=-9999;
+    fevt->fKinEnergyAfterTarget[i]=AfterPropagationEvent[i].fMomentum.E() - AfterPropagationEvent[i].fMomentum.M(); //UNISTarget
     fevt->fmulti++;
   }
   //

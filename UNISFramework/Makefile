@@ -15,6 +15,7 @@ INCLUDES  += -I$(UNISimSrc)detectors/Oscar
 INCLUDES  += -I$(UNISimSrc)generator
 INCLUDES  += -I$(UNISimSrc)UNISRootEvent
 INCLUDES  += -I$(UNISimSrc)UNISShared
+INCLUDES  += -I$(UNISimSrc)UNISTarget
 
 RLIBS     := -L$(UNISimSrc)lib
 

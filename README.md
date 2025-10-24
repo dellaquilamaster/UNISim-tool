@@ -81,9 +81,17 @@ The physics reaction can be configured by the following fields:
 The physics model can be configured by using the following command:
 * set PHYSICS_MODEL <the_model> "<the_physics_configuration_file>"
 For a list of the available models and to learn how to prepare a physics configuration file please see section "Physics Models".
-The properties of the target material can be configured as follows (these affect the energy of particles prior being detected as well as the energy of the beam before reacting, the reaction is assumed at mid-target):
-* set TARGET_MATERIAL : symbol of the target material
-* set TARGET_THICKNESS : target thickness in um
+The targets are considered as part of the stack, making it possible to add as many targets as needed (first target listed should be the one that faces the beam first) - backing of the target can be also considered as one of the targets in the stack, but it should be set as not "active" material. 
+First of all, a target stack is defined by assigning it the name.
+Each target stack has defined orientation (by two degrees of freedom in orientation given by TARGET_TILT_X and TARGET_TILT_Y). 
+Each event is simulated uniformly throughout the "active" material (no matter where in stack is the "active target"). Thicknesses of targets in stack affect both beam before reaching the interaction point and produced particles after being creted in reaction.
+If one choose that no target effects are necessary, this part can be skipped.
+The properties of the target stack can be configured as follows (in listing targets there mustn't be distance beween "-option", "=" and value, but MUST have distance between the value and the next "-option"):
+* define TARGET_STACK "stack_name"
+* set TARGET_TILT_X 0. **** degrees
+* set TARGET_TILT_Y 0. **** degrees
+* add TARGET -name=null -material=null -thickness_um=0.0 -thickness_ug=0.0 -active=no
+* add TARGET -name=firstActive -material=Al -thickness_um=3.5 -thickness_ug=1000.0 -active=yes
 The detection setup can be configured as follows:
 * define SETUP "<setup_name>" : this initializes a detection setup called "name". The name of the setup will be the name of the output tree
 * add <detector type> <options> : see section "Detectors" for a list of available detector types and options
