@@ -214,7 +214,7 @@ int UNISSequentialDecay::ProcessSetCommand(const char * line)
     //
     //Setting quantities to the correct nucleus
     UNISIon * TheNucleusToSet=fTheReactionProducts[PathToTheNucleus[0]];
-    for(int i=1; i<PathToTheNucleus.size(); i++) {
+    for(unsigned int i=1; i<PathToTheNucleus.size(); i++) {
       TheNucleusToSet=TheNucleusToSet->fSecondaryParticles[PathToTheNucleus[i]];
     }
     
@@ -259,7 +259,7 @@ int UNISSequentialDecay::ProcessSetCommand(const char * line)
     //
     //Setting quantities to the correct nucleus
     UNISIon * TheNucleusToSet=fTheReactionProducts[PathToTheNucleus[0]];
-    for(int i=1; i<PathToTheNucleus.size(); i++) {
+    for(unsigned int i=1; i<PathToTheNucleus.size(); i++) {
       TheNucleusToSet=TheNucleusToSet->fSecondaryParticles[PathToTheNucleus[i]];
     }
     //        

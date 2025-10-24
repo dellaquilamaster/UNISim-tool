@@ -70,6 +70,8 @@
 #include <UNISCollimatedSilicon.h>
 #include <UNISIon.h>
 #include <UNISShared.h>
+#include <UNISTarget.h> // UNISTarget
+#include <UNISTargetStack.h> // UNISTarget
 
 class UNISFramework
 {
@@ -91,7 +93,7 @@ public :
   //Methods to run the framework
   int ReadInput(int, char **); //Read input parameters from string
   void ProcessIterations(); //Process fNumEvents iterations of the framework
-  void RegisterEvent(std::vector<UNISIon> &); //Fill the current event data structure
+  void RegisterEvent(std::vector<UNISIon> &, std::vector<UNISIon> &); //Fill the current event data structure //UNISTarget
   void RegisterEvent(); //Fill the current event data structure from input file
   void FillEvent(); //Fill the tree for the current event
   void EndProcess(); //End iteration process, save tree to file and close file
@@ -124,7 +126,9 @@ private :
   TVector3 fBeamCenter; //Center of the beam with respect to the target center
   TVector3 fBeamPosition; //Position of the beam within the event (event-by-event)
   double fBeamAngularSpread; //FWHM of the angular spread of the beam
-  double fBeamPositionSpread; //FWHM of the position spread of the beam
+  //double fBeamPositionSpread; //FWHM of the position spread of the beam
+  double fBeamPositionSpreadX; //FWHM of the position spread of the beam
+  double fBeamPositionSpreadY; //FWHM of the position spread of the beam
   double fBeamEnergySpread; //FWHM of the energy spread of the beam
   //
   
@@ -133,12 +137,10 @@ private :
   std::string fPhysicsModelName;
   std::string fPhysicsConfigFileName;
   UNISIon fTheTarget;
-  std::string fTargetMaterial;
-  double fTargetThickness;
-  double fTargetEffectiveThickness;
-  double fTargetTilt;
-  double fInteractionDistance; //distance from the entrance of the target at which the interaction occurs
   //
+
+  //Target Data
+  UNISTargetStack * fTheTargetStack; // UNISTarget
   
   //
   //Input Data
@@ -186,7 +188,8 @@ private :
   
   //
   //Calculation methods
-  void GenerateBeam(); //Sets the fTheBeam UNISIon structure (called event-by-event)
+  void GenerateBeam( Interaction_Point point_of_interaction ); //UNISTarget //Sets the fTheBeam UNISIon structure (called event-by-event)
+  //void GenerateBeam(); //Sets the fTheBeam UNISIon structure (called event-by-event)
   void InitializeTarget(); //Sets the fTheTarget UNISIon structure (called only once at the beginning of the simulation)
   void DetectEvent(); //Detect the event by using the detection setup from the UNISRootEvent data structure (after calling RegisterEvent())
   //

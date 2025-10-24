@@ -259,7 +259,7 @@ Int_t UNISStripSingleSidedDetector::IsInside(Double_t theta_inc, Double_t phi_in
   /*setting the true impact point*/
   TTrueImpactPoint.SetXYZ(x0+t*l,y0+t*m,z0+t*n);
     
-  // setting he impact point in the telescope frame
+  // setting the impact point in the telescope frame
   TTelescopeImpactPoint=TTrueImpactPoint-TTelescopeCenter;
   TImpactX=TTelescopeImpactPoint.Dot(TXversor);
   TImpactY=TTelescopeImpactPoint.Dot(TYversor); 
@@ -278,14 +278,13 @@ Int_t UNISStripSingleSidedDetector::IsInside(Double_t theta_inc, Double_t phi_in
 // If the particle is not inside the active area -> return value = -1
 Int_t UNISStripSingleSidedDetector::GetPixel(Double_t theta_inc, Double_t phi_inc, Double_t x0, Double_t y0, Double_t z0)
 {  
-  Int_t i,j;
   if(!IsInside(theta_inc, phi_inc, x0, y0, z0)) return -1;  /*If not the particle is inside the telescope*/
 
   // Impact point coordinates with respect to the Top Left corner
   // These quantities are always positive within the surface of the detector
   TImpactXprime=TTopLeftXCorner-TImpactX;
   TImpactYprime=TImpactY+TTopLeftYCorner;
-  j=Int_t(TImpactXprime/TStripTrue_width);
+  Int_t j=Int_t(TImpactXprime/TStripTrue_width);
     
   /*check if the particle is inside the effective area*/
   if(std::fabs(TImpactXprime-(2*j+1)*TStripTrue_semi)<=TStripEffective_semi) 

@@ -137,8 +137,8 @@ int UNISRutherfordScattering::ProcessDefineCommand(const char * line)
   
   if(WhatToSet.compare("particle")==0) {
     int ParticleToSet;
-    int Charge;
-    int Mass;
+    int Charge=0;
+    int Mass=0;
     LineStream>>ParticleToSet;
     while(LineStream>>WhatToSet) {
       if(WhatToSet.find("-Z=")!=std::string::npos) {

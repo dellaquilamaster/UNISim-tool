@@ -504,25 +504,25 @@ void UNISStripDetector::Draw(Option_t * draw_opt, double Xmin, double Xmax, doub
   TLatex * FirstBack = new TLatex((TCenters[0][0]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).Y(),(TCenters[0][0]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).X(),"0");
   TLatex * LastBack = new TLatex((TCenters[0][TStrips_number-1]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).Y(),(TCenters[0][TStrips_number-1]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi).X(),Form("%d",TStrips_number-1));
 
-  TLine * LeftPixelBorder[TStrips_number][TStrips_number];
-  TLine * RightPixelBorder[TStrips_number][TStrips_number];
-  TLine * BottomPixelBorder[TStrips_number][TStrips_number];
-  TLine * TopPixelBorder[TStrips_number][TStrips_number];
-  for(Int_t i=0; i<TStrips_number; i++)
-  {
-    for(Int_t j=0; j<TStrips_number; j++)
-    {
-      TVector3 TopLeftCorner     = TCenters[i][j]-TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi;
-      TVector3 TopRightCorner    = TCenters[i][j]+TYversor*TPixelEffective_semi+TXversor*TPixelEffective_semi;
-      TVector3 BottomLeftCorner  = TCenters[i][j]-TYversor*TPixelEffective_semi-TXversor*TPixelEffective_semi;
-      TVector3 BottomRightCorner = TCenters[i][j]+TYversor*TPixelEffective_semi-TXversor*TPixelEffective_semi;
-      
-      LeftPixelBorder[i][j]  =new TLine(TopLeftCorner.Y(),TopLeftCorner.X(),BottomLeftCorner.Y(),BottomLeftCorner.X()); 
-      RightPixelBorder[i][j] =new TLine(TopRightCorner.Y(),TopRightCorner.X(),BottomRightCorner.Y(),BottomRightCorner.X());
-      BottomPixelBorder[i][j]=new TLine(BottomLeftCorner.Y(),BottomLeftCorner.X(),BottomRightCorner.Y(),BottomRightCorner.X()); 
-      TopPixelBorder[i][j]   =new TLine(TopLeftCorner.Y(),TopLeftCorner.X(),TopRightCorner.Y(),TopRightCorner.X());
+  std::vector<std::vector<TLine*>> LeftPixelBorder(TStrips_number, std::vector<TLine*>(TStrips_number, nullptr));
+  std::vector<std::vector<TLine*>> RightPixelBorder(TStrips_number, std::vector<TLine*>(TStrips_number, nullptr));
+  std::vector<std::vector<TLine*>> BottomPixelBorder(TStrips_number, std::vector<TLine*>(TStrips_number, nullptr));
+  std::vector<std::vector<TLine*>> TopPixelBorder(TStrips_number, std::vector<TLine*>(TStrips_number, nullptr));
+  // Loop to initialize each pixel border
+  for (Int_t i = 0; i < TStrips_number; i++) {
+    for (Int_t j = 0; j < TStrips_number; j++) {
+
+      TVector3 TopLeftCorner     = TCenters[i][j] - TYversor * TPixelEffective_semi + TXversor * TPixelEffective_semi;
+      TVector3 TopRightCorner    = TCenters[i][j] + TYversor * TPixelEffective_semi + TXversor * TPixelEffective_semi;
+      TVector3 BottomLeftCorner  = TCenters[i][j] - TYversor * TPixelEffective_semi - TXversor * TPixelEffective_semi;
+      TVector3 BottomRightCorner = TCenters[i][j] + TYversor * TPixelEffective_semi - TXversor * TPixelEffective_semi;
+
+      LeftPixelBorder[i][j]   = new TLine(TopLeftCorner.Y(), TopLeftCorner.X(), BottomLeftCorner.Y(), BottomLeftCorner.X());
+      RightPixelBorder[i][j]  = new TLine(TopRightCorner.Y(), TopRightCorner.X(), BottomRightCorner.Y(), BottomRightCorner.X());
+      BottomPixelBorder[i][j] = new TLine(BottomLeftCorner.Y(), BottomLeftCorner.X(), BottomRightCorner.Y(), BottomRightCorner.X());
+      TopPixelBorder[i][j]    = new TLine(TopLeftCorner.Y(), TopLeftCorner.X(), TopRightCorner.Y(), TopRightCorner.X());
     }
-  }  
+  }
   
   if(strstr(draw_opt,"SAME")==0 && strstr(draw_opt,"same")==0) {
     TCanvas * c1 = new TCanvas("c1","Upstream view, (0,0) is the beamline", 600,600);

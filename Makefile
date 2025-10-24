@@ -16,6 +16,7 @@ root:
 	$(MAKE) -C detectors/Oscar ;		$(MAKE) -C detectors/Oscar install
 	$(MAKE) -C generator ;			$(MAKE) -C generator install
 	$(MAKE) -C UNISShared ;			$(MAKE) -C UNISShared install
+	$(MAKE) -C UNISTarget ;		$(MAKE) -C UNISTarget install
 
 install:
 	$(MAKE) -C UNISFramework install
@@ -29,6 +30,7 @@ install:
 	$(MAKE) -C detectors/Oscar install
 	$(MAKE) -C generator install
 	$(MAKE) -C UNISShared install
+	$(MAKE) -C UNISTarget install
 
 distclean:
 	$(MAKE) -C UNISFramework distclean
@@ -42,6 +44,7 @@ distclean:
 	$(MAKE) -C detectors/Oscar distclean
 	$(MAKE) -C generator distclean
 	$(MAKE) -C UNISShared distclean
+	$(MAKE) -C UNISTarget distclean
 	
 	$(MAKE) -C main distclean
 
@@ -56,5 +59,6 @@ clean:
 	$(MAKE) -C detectors/Oscar clean
 	$(MAKE) -C generator clean
 	$(MAKE) -C UNISShared clean
+	$(MAKE) -C UNISTarget clean
 
 	$(MAKE) -C main clean

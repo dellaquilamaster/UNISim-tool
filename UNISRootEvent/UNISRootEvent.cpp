@@ -3,6 +3,7 @@
 //____________________________________________________
 UNISRootEvent::UNISRootEvent() :
 fmulti(0),
+fsteps(0),
 fIsDetected(new Bool_t[gMaxEvtMulti]),
 fnumdet(new Int_t[gMaxEvtMulti]),
 fnumpixel(new Int_t[gMaxEvtMulti]),
@@ -16,10 +17,9 @@ fThetaOrigin(new Double_t[gMaxEvtMulti]),
 fPhiOrigin(new Double_t[gMaxEvtMulti]),
 fThetaAfterTarget(new Double_t[gMaxEvtMulti]),
 fPhiAfterTarget(new Double_t[gMaxEvtMulti]),
-fKinEnergyOriginCms(new Double_t[gMaxEvtMulti]),
-fThetaOriginCms(new Double_t[gMaxEvtMulti]),
 fZ(new Double_t[gMaxEvtMulti]),
-fA(new Double_t[gMaxEvtMulti])
+fA(new Double_t[gMaxEvtMulti]),
+fWeight(new Double_t[gMaxSteps])
 {}
 
 //____________________________________________________
@@ -38,8 +38,7 @@ UNISRootEvent::~UNISRootEvent()
   delete [] fPhiOrigin;
   delete [] fThetaAfterTarget;
   delete [] fPhiAfterTarget;
-  delete [] fKinEnergyOriginCms;
-  delete [] fThetaOriginCms;
   delete [] fZ;
   delete [] fA;
+  delete [] fWeight;
 }

@@ -1,0 +1,53 @@
+* 9Li @ 11B; 9Li first excited
+*
+* The reaction in the first step of the collision
+*
+
+define particle 0 -Z=3 -A=9 *** particle 0
+define particle 1 -Z=5 -A=11 *** particle 1
+
+*
+* setting the angular distribution for particle 0 (the angular distribution is always set for the first particle of the decay)
+*
+*set ang_distr 0 "path_to_file"
+*
+*
+* including some excited state of the particle 0
+*
+* What ih gamma is not known?
+* gamma is in same unit as Ex, if less than keV - gamma = 0.0
+*
+** 9Li as 0
+*set spectroscopy 0 -Ex=0.0 -Gamma=0.0 *** an excited state of particle 0
+set spectroscopy 0 -Ex=2.691 -Gamma=0.0 *** an excited state of particle 0
+** 11B as 1
+set spectroscopy 1 -Ex=0.0 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=2.125 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=4.445 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=5.020 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=6.742 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=6.792 -Gamma=0.0 *** an excited state of particle 0
+** 10B as 1
+*set spectroscopy 1 -Ex=0.0 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=0.718 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=1.740 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=2.154 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=3.587 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=4.774 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=5.11 -Gamma=9.78e-3 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=5.164 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=5.182 -Gamma=0.11 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=5.9195 -Gamma=5.82e-3 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=6.129 -Gamma=0.0 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=6.56 -Gamma=0.0252 *** an excited state of particle 0
+*set spectroscopy 1 -Ex=6.875 -Gamma=0.12 *** an excited state of particle 0
+
+*
+* defining the decay mode of the particle 0
+*
+*set decay 0 0 -Z=xx -A=xx *** particle 0 of the decay of the fragment 0
+*set decay 0 1 -Z=yy -A=yy *** particle 1 of the decay of the fragment 0
+*
+
+* One can also set the spectroscopy and decay mode of one of the secondary particles of the decay by using e.g. set spectroscopy 0_0 or 0_1 or set decay 0_0 or 0_1 and so on
+* Particle numbers have always to start with 0. So one might set for instance the decay of the particle 0_1 in the particles 0, 1, 2 and 3.

@@ -226,7 +226,7 @@ int UNISSequentialDecayTwoBody::ProcessSetCommand(const char * line)
     //
     //Setting quantities to the correct nucleus
     UNISIon * TheNucleusToSet=fTheReactionProducts[PathToTheNucleus[0]];
-    for(int i=1; i<PathToTheNucleus.size(); i++) {
+    for(unsigned int i=1; i<PathToTheNucleus.size(); i++) {
       TheNucleusToSet=TheNucleusToSet->fSecondaryParticles[PathToTheNucleus[i]];
     }
     
@@ -267,11 +267,11 @@ int UNISSequentialDecayTwoBody::ProcessSetCommand(const char * line)
     UNISIon * NewParticle = new UNISIon();
     NewParticle->fZ=Charge;
     NewParticle->fA=Mass;
-    NewParticle->fMass=Charge!=-9999 ? gNucData->get_mass_Z_A(int(Charge),int(Mass)) : Mass;
+    NewParticle->fMass= ((Charge !=- 9999) ? gNucData->get_mass_Z_A(int(Charge),int(Mass)) : Mass);
     //
     //Setting quantities to the correct nucleus
     UNISIon * TheNucleusToSet=fTheReactionProducts[PathToTheNucleus[0]];
-    for(int i=1; i<PathToTheNucleus.size(); i++) {
+    for(unsigned int i=1; i<PathToTheNucleus.size(); i++) {
       TheNucleusToSet=TheNucleusToSet->fSecondaryParticles[PathToTheNucleus[i]];
     }
     //        
@@ -300,7 +300,7 @@ int UNISSequentialDecayTwoBody::ProcessSetCommand(const char * line)
     //
     //Setting quantities to the correct nucleus
     UNISAngularDistribution * TheAngDistrToSet=fTheAngularDistributions[PathToTheNucleus[0]];
-    for(int i=1; i<PathToTheNucleus.size(); i++) {
+    for(unsigned int i=1; i<PathToTheNucleus.size(); i++) {
       if(TheAngDistrToSet->fSecondaryDecayAngularDistribution.find(PathToTheNucleus[i])==TheAngDistrToSet->fSecondaryDecayAngularDistribution.end()) {
         TheAngDistrToSet->fSecondaryDecayAngularDistribution[PathToTheNucleus[i]]=new UNISAngularDistribution;
         TheAngDistrToSet->fSecondaryDecayAngularDistribution[PathToTheNucleus[i]]->fAngularDistribution=0;

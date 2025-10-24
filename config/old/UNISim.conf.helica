@@ -1,0 +1,69 @@
+**************************************************************************
+* UNISim.conf
+* This file contains the configuration of the framework UNISim
+* Modify this file to change any relevant configuration of the framework
+* For information please contact Daniele Dell'Aquila (daniele.dellaquila@irb.hr)
+**************************************************************************
+
+*
+* framework information
+* -------------------------------------
+set VERBOSE_MODE false
+set GRAPHICAL_MODE advanced *** false, light, advanced
+set OUTPUT_DIRECTORY "/media/dellaquila/Seagate_SAS/simulations/202107_HELICA/"
+set RANDOM_SEED 0 ***** use 0 to obtain a unique sequence each time
+* -------------------------------------
+
+*
+* reaction information
+* -------------------------------------
+set BEAM -Z=2 -A=3
+set BEAM_ENERGY 2. ***** MeV
+set BEAM_POSITION -X=0. -Y=0. -X=0. ***** beam position on the target in cm (with respect to the target center)
+set BEAM_ANGULAR_SPREAD 0. ***** FWHM of the beam angular spread in degrees
+set BEAM_POSITION_SPREAD 0. ***** FWHM of the beam position spread in cm
+set BEAM_ENERGY_SPREAD 0.0 ***** FWHM of the beam energy spread in MeV
+set TARGET -Z=6 -A=13
+*
+* Definition of the physics model used for the calculation
+* List of available physics models:
+*  - SequentialDecay: P+T->X1*+X2*+...+Xm*+y1+y2+...+yn -> (X1_1* + X1_2* + ... + x1_2 + ... + x1_l) + ... + (Xn_1* + Xn_2* + ... +xn_2+...+xn_j) + y1 + y2 + ... yn -> ...
+*  - SequentialDecayTwoBody: P+T->X1*+Y1* -> (X1_1* + X1_2*) + (Y1_1* + Y1_2*) -> ...
+*  - RutherfordScattering: P+T->P+T (with Rutherford cross section)
+*
+set PHYSICS_MODEL SequentialDecay "reactions/HELICA_3He_13C_alpha_12C.dat"
+* -------------------------------------
+
+*
+* target information
+* -------------------------------------
+set TARGET_MATERIAL null
+set TARGET_THICKNESS 0. ***** um
+set TARGET_TILT 0. ***** degrees
+* -------------------------------------
+
+*
+* detector configuration
+* -------------------------------------
+define SETUP "cluster" ***** Definition of the detection setup
+*
+* use "add" to add a detector to the setup, you need to specify the setup
+* Positions are given in cm, while angles are given in deg.
+* Possible detector types:
+*  - STRIP (Square Silicon Strip Detector facing the target perpendicularly) -> options: -distance, -theta, -phi, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer -double_sided (yes or no)
+*  - STRIP_ROT (Square Silicon Strip Detector with a customized position and rotation) -> options: -X0, -Y0, -Z0, -tilt_X, tilt_Y, -strips, -strip_width, -inter_strip, -frame_width, -dead_layer -double_sided (yes or no)          
+*  - LAMP_WEDGE (Lamp detector wedge) -> options: -distance -phi_pos, -tilt, -frame_distance, -strips, -strip_width, -inter_strip
+*  - LAMP_WEDGE_MMM (Lamp detector wedge type-MMM) -> options: -distance -phi_pos, -tilt, -frame_distance, -inter_strip
+*  - FAZIA_BLOCK (A Fazia block) -> options: -displacement -theta_pos, -phi_pos, -pad_width, -frame_width
+*  - PHOTO_DIODE (A Hamamatsu photodiode) -> options: -distance -theta_pos, -phi_pos
+*  - OSCAR (An OSCAR telescope) -> options: -distance -theta_pos, -phi_pos, -strip (yes or no) -collimator (yes or no)
+*  - COLLIMATED_SILICON (A collimated silicon detector) -> options: -distance, -theta, -phi, -inner_radius, -outer_radius
+*
+*** OSCAR (HELICA)
+*add DETECTOR OSCAR -distance=5.3 -theta_pos=45. -phi_pos=-90. -strip=no -collimator=yes
+*add DETECTOR OSCAR -distance=5.3 -theta_pos=45. -phi_pos=90. -strip=yes -collimator=yes
+*add DETECTOR OSCAR -distance=5.3 -theta_pos=135. -phi_pos=90. -strip=no -collimator=yes
+*add DETECTOR OSCAR -distance=5.3 -theta_pos=135. -phi_pos=-90. -strip=yes -collimator=yes
+add DETECTOR STRIP -distance=5. -theta=45. -phi=90. -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=no
+add DETECTOR STRIP -distance=5. -theta=135. -phi=-90. -strips=16 -strip_width=0.312 -inter_strip=0.01 -frame_width=0.5 -dead_layer=0. -double_sided=no
+* ------------------------------------- 
